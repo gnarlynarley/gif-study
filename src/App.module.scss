@@ -1,0 +1,61 @@
+.container {
+  --spacing: 1rem;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template:
+    "toolbar" auto
+    "image" 1fr
+    "thumbnails" auto;
+  padding: var(--spacing);
+  gap: var(--spacing);
+}
+
+.image {
+  position: relative;
+  grid-area: image;
+  border: 1px solid red;
+
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.thumbnails {
+  grid-area: thumbnails;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.thumbnail {
+  display: inline-block;
+  border: 1px solid black;
+  width: 20%;
+  opacity: 0.5;
+
+  &.isActive {
+    border-color: red;
+    opacity: 1;
+  }
+
+  & + & {
+    margin-left: 1em;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.toolbar {
+  grid-area: toolbar;
+}
