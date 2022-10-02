@@ -22,6 +22,8 @@ function useLocalForageState<T>(key: string, defaultState: T) {
 
 export function App() {
   const [playing, setPlaying] = React.useState(true);
+  const [speed, setSpeed] = useLocalForageState<number>("speed", 6);
+  const speedValue = speed ?? 6;
   const [pending, setPending] = React.useState(false);
   const [gif, setGif] = useLocalForageState<Gif | null>("data", null);
   const gifInfo = React.useMemo(() => {
@@ -43,7 +45,6 @@ export function App() {
     };
   }, [gif]);
   const [file, setFile] = React.useState<File | null>(null);
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [frame, setFrame] = React.useState(0);
 
   React.useEffect(() => {
@@ -71,12 +72,12 @@ export function App() {
     const max = gifInfo.timelineFrames.length;
     const id = setInterval(() => {
       setFrame((prev) => (prev + 1) % max);
-    }, 1000 / 60);
+    }, 1000 / (speedValue * 10));
 
     return () => {
       clearInterval(id);
     };
-  }, [gifInfo, playing]);
+  }, [gifInfo, playing, speedValue]);
 
   React.useEffect(() => {}, []);
 
@@ -96,6 +97,14 @@ export function App() {
             setFile(file);
             ev.target.value = "";
           }}
+        />
+        <input
+          type="range"
+          min="1"
+          max="10"
+          step={1}
+          value={speedValue}
+          onChange={(ev) => setSpeed(ev.target.valueAsNumber)}
         />
         {pending && <span>pending..</span>}
       </div>
