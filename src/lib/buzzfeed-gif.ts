@@ -63,7 +63,6 @@
 
 */
 
-import { assert } from "./utils/assert";
 import { createImage } from "./utils/createImage";
 
 // Generic functions
@@ -925,6 +924,7 @@ export interface GifFrame {
   id: string;
   data: ImageData;
   delay: number;
+  frameIndex: number;
 }
 export interface Gif {
   file: File;
@@ -945,8 +945,9 @@ export async function convertGif(file: File) {
       } else if (!data) {
         reject(new Error("no data received"));
       } else {
+        let frameIndex = 0;
         let acc = 0;
-        const frames = data.frames.flatMap((frame, i, frames) => {
+        const frames = data.frames.flatMap<GifFrame>((frame, i, frames) => {
           const nextFrame = frames[i + 1];
           if (nextFrame) {
             if (isPixelDataMatch(nextFrame.data, frame.data)) {
@@ -956,8 +957,10 @@ export async function convertGif(file: File) {
           }
           const delay: number = acc + frame.delay;
           acc = 0;
+          frameIndex++;
           return {
             id: i.toString(),
+            frameIndex: frameIndex,
             ...frame,
             delay,
           };

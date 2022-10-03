@@ -17,9 +17,10 @@ import {
 import { cx } from "./lib/utils/joinClassNames";
 import type { Timeline as TimelineType, TimelineFrame } from "./lib/models";
 import { useKeybind, useLocalForageState } from "./lib/hooks";
-import $ from "./App.module.scss";
 import { FileInput } from "./lib/components/FileInput";
 import { Button } from "./lib/components/Button";
+import { downloadTimelineAsZip } from "./lib/utils/downloadTimelineAsZip";
+import $ from "./App.module.scss";
 
 export function App() {
   const [playing, setPlaying] = React.useState(true);
@@ -33,6 +34,7 @@ export function App() {
     const frames = gif.frames.map((frame): TimelineFrame => {
       time += frame.delay;
       return {
+        index: frame.frameIndex,
         id: frame.id,
         data: frame.data,
         hold: frame.delay,
@@ -42,7 +44,7 @@ export function App() {
       };
     });
     return {
-      ...gif,
+      gifFile: gif.file,
       frames,
       timelineFrames: frames.flatMap((frame) =>
         Array.from({ length: frame.hold }, () => frame)
@@ -186,9 +188,16 @@ export function App() {
                 </>
               )}
 
-              <Button onClick={() => generateGif(gif?.file ?? null)}>
-                regenerate frames
-              </Button>
+              {timeline && (
+                <>
+                  <Button onClick={() => generateGif(timeline.gifFile)}>
+                    regenerate frames
+                  </Button>
+                  <Button onClick={() => downloadTimelineAsZip(timeline)}>
+                    download frames
+                  </Button>
+                </>
+              )}
             </DropDown>
           </div>
         </div>

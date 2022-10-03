@@ -29,7 +29,7 @@ function TimelineFrames({
 }: TimelineFramesProps) {
   return (
     <>
-      {frames.map((frame, index) => {
+      {frames.map((frame) => {
         const isActive = frame === currentFrame;
         const cellWidth =
           multiplierWidth != null
@@ -42,7 +42,7 @@ function TimelineFrames({
             className={cx($.item, isActive && $.isActive)}
           >
             <ImageDataCanvas data={frame.data} width={cellWidth} />
-            <span className={$.itemIndex}>{index + 1}</span>
+            <span className={$.itemIndex}>{frame.index}</span>
             <span className={$.itemFrames}>{frame.hold}</span>
           </button>
         );

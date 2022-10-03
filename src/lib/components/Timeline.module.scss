@@ -27,6 +27,13 @@
   overflow: hidden;
   color: inherit;
   background: transparent;
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    opacity: 0.8;
+    outline: none;
+  }
 
   .itemFrames,
   .itemIndex {
@@ -51,16 +58,11 @@
   }
 
   canvas {
-    opacity: 0.5;
     height: 100%;
     width: auto;
   }
 
   &.isActive {
-    opacity: 1;
-
-    canvas {
-      opacity: 1;
-    }
+    filter: brightness(120%);
   }
 }

@@ -1,4 +1,5 @@
 export interface Timeline {
+  gifFile: File;
   frames: TimelineFrame[];
   timelineFrames: TimelineFrame[];
   totalTime: number;
@@ -11,4 +12,5 @@ export interface TimelineFrame {
   hold: number;
   width: number;
   height: number;
+  index: number;
 }
