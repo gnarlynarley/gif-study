@@ -1,0 +1,49 @@
+@import "normalize.css";
+
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+}
+
+$c-paper: #222;
+$c-muted-paper: lighten($c-paper, 8%);
+$c-ink: #ccc;
+$c-primary: #07aa35;
+
+:root {
+  --paper: #{$c-paper};
+  --muted-paper: #{$c-muted-paper};
+  --muted-paper--transparent: #{rgba($c-muted-paper, 0)};
+  --ink: #{$c-ink};
+  --accent: #{darken($c-ink, 50%)};
+  --spacing: 1em;
+  --primary: #{$c-primary};
+  --border-width: 2px;
+  --border: var(--border-width) solid var(--primary);
+  --border-radius: 0.3em;
+  --drop-shadow: 0 1px 4px #{rgba(black, 0.1)};
+}
+
+html {
+  background-color: var(--paper);
+  color: var(--ink);
+  height: 100%;
+  background-image: linear-gradient(var(--muted-paper) 0.1em, transparent 0.1em),
+    linear-gradient(90deg, var(--muted-paper) 0.1em, transparent 0.1em);
+  background-size: 2em 2em;
+  background-position: center center;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  min-height: 100%;
+}
+
+hr {
+  margin: var(--spacing) 0;
+  display: block;
+  border: none;
+  border-top: var(--border);
+}

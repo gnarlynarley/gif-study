@@ -1,0 +1,13 @@
+.containe {
+}
+
+.handle {
+  cursor: grab;
+  background-color: var(--primary);
+  height: var(--border-width);
+  opacity: 0;
+
+  &:hover {
+    opacity: 1;
+  }
+}

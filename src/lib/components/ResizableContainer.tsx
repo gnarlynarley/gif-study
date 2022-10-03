@@ -1,4 +1,5 @@
 import React from "react";
+import $ from "./ResizableContainer.module.scss";
 
 type Props = React.PropsWithChildren<{
   size: number;
@@ -22,22 +23,6 @@ export function ResizableContainer({
     onChange(nextSize);
   };
 
-  // React.useEffect(() => {
-  //   const container = containerRef.current;
-  //   if (!container) return;
-
-  //   const observer = new ResizeObserver(([entry]) => {
-  //     if (!pointerDownRef.current) {
-  //       setChange(entry.contentRect.height);
-  //     }
-  //   });
-  //   observer.observe(container);
-
-  //   return () => {
-  //     observer.disconnect();
-  //   };
-  // }, []);
-
   const onPointerDownHandler = (ev: React.MouseEvent) => {
     const startingSize = size;
     const startingY = ev.clientY;
@@ -58,10 +43,10 @@ export function ResizableContainer({
   };
 
   return (
-    <div ref={containerRef} style={{ height: "100%" }}>
+    <div ref={containerRef} className={$.container} style={{ height: "100%" }}>
       <div
+        className={$.handle}
         onPointerDown={onPointerDownHandler}
-        style={{ height: "1em", background: "red" }}
       ></div>
       <div style={{ height: size }}>{children}</div>
     </div>

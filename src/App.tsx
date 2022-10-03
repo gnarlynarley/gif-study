@@ -1,14 +1,25 @@
 import * as React from "react";
 import { convertGif, type Gif } from "./lib/buzzfeed-gif";
 import {
+  PlayIcon,
+  PauseIcon,
+  IconButton,
   ImageDataCanvas,
   ResizableContainer,
   Timeline,
+  SkipPreviousIcon,
+  SkipNextIcon,
+  CheckboxInput,
+  DropZone,
+  RangeInput,
+  DropDown,
 } from "./lib/components";
 import { cx } from "./lib/utils/joinClassNames";
 import type { Timeline as TimelineType, TimelineFrame } from "./lib/models";
 import { useKeybind, useLocalForageState } from "./lib/hooks";
 import $ from "./App.module.scss";
+import { FileInput } from "./lib/components/FileInput";
+import { Button } from "./lib/components/Button";
 
 export function App() {
   const [playing, setPlaying] = React.useState(true);
@@ -36,32 +47,31 @@ export function App() {
       timelineFrames: frames.flatMap((frame) =>
         Array.from({ length: frame.hold }, () => frame)
       ),
+      totalTime: frames.reduce((acc, frame) => acc + frame.hold, 0),
     };
   }, [gif]);
   const [file, setFile] = React.useState<File | null>(null);
 
-  const [frame, setFrame] = React.useState(0);
-  const currentFrame = timeline?.timelineFrames[frame] ?? null;
-  const currentFrameIndex = currentFrame
-    ? timeline?.frames.indexOf(currentFrame) ?? -1
-    : -1;
-  const length = timeline?.frames.length ?? 0;
-  const prevFrame = timeline?.frames[(length + currentFrameIndex - 1) % length];
-  const nextFrame = timeline?.frames[(length + currentFrameIndex + 1) % length];
+  const [time, setTime] = React.useState(0);
+
+  const currentFrame = timeline?.timelineFrames[time] ?? null;
+
   const navigateFrame = (add: number) => {
+    const currentFrameIndex = currentFrame
+      ? timeline?.frames.indexOf(currentFrame) ?? -1
+      : -1;
     setPlaying(false);
     if (currentFrameIndex === -1) return;
+    const length = timeline?.frames.length ?? 0;
     const nextFrameIndex = (length + currentFrameIndex + add) % length;
     const nextFrame = timeline?.frames[nextFrameIndex] ?? null;
     if (nextFrame) {
-      setFrame(nextFrame.time);
+      setTime(nextFrame.time);
     }
   };
 
-  const [unionSkin, setUnionSkin] = React.useState(false);
-
   const generateGif = async (file: File | null) => {
-    setFrame(0);
+    setTime(0);
     if (!file) return;
     try {
       setPending(true);
@@ -82,7 +92,7 @@ export function App() {
     if (timeline === null) return;
     const max = timeline.timelineFrames.length;
     const id = setInterval(() => {
-      setFrame((prev) => (prev + 1) % max);
+      setTime((prev) => (prev + 1) % max);
     }, 10 - 10 * (speedValue - 1));
 
     return () => {
@@ -121,141 +131,102 @@ export function App() {
   };
 
   return (
-    <div className={cx($.container, unionSkin && $.hasUnionSkin)}>
-      <div className={$.toolbar}>
-        <div className={$.toolbarRow}>
-          <input
-            type="file"
-            accept="image/gif"
-            onChange={(ev) => {
-              const file = ev.target.files?.[0] ?? null;
-              setFile(file);
-              ev.target.value = "";
-            }}
-          />
-        </div>
-        <div className={$.toolbarRow}>
-          <button type="button" onClick={() => navigateFrame(-1)}>
-            previous frame (j)
-          </button>
-          <button type="button" onClick={() => setPlaying(!playing)}>
-            {playing ? "pause" : "play"} (k)
-          </button>
-          <button type="button" onClick={() => navigateFrame(1)}>
-            next frame (l)
-          </button>
-          <label htmlFor="speed">Speed</label>
-          <input
-            id="speed"
-            type="range"
-            min="0"
-            max="2"
-            step={0.2}
-            value={speedValue}
-            onChange={(ev) => setSpeed(ev.target.valueAsNumber)}
-          />
-          <button type="button" onClick={() => setUnionSkin(!unionSkin)}>
-            {unionSkin ? "Disable" : "Enable"} union
-          </button>
-          <button type="button" onClick={() => generateGif(gif?.file ?? null)}>
-            regenerate frames
-          </button>
-        </div>
+    <DropZone accept="image/gif" onFileDrop={setFile}>
+      <div className={cx($.container)}>
+        <div className={$.toolbar}>
+          <div className={$.toolbarRow}>
+            <FileInput accept="image/gif" label="Open gif" onFile={setFile} />
+            <span className={$.toolbarDivider} />
+            <IconButton
+              label="next frame (l)"
+              onClick={() => navigateFrame(-1)}
+            >
+              <SkipPreviousIcon />
+            </IconButton>
+            <IconButton
+              label={playing ? "Pause (k)" : "Play (k)"}
+              onClick={() => setPlaying(!playing)}
+            >
+              {playing ? <PauseIcon /> : <PlayIcon />}
+            </IconButton>
+            <IconButton label="next frame (l)" onClick={() => navigateFrame(1)}>
+              <SkipNextIcon />
+            </IconButton>
+            <span className={$.toolbarPush} />
+            <DropDown>
+              <RangeInput
+                label="Playback speed"
+                min={0}
+                max={2}
+                step={0.2}
+                value={speedValue}
+                onChange={setSpeed}
+              />
 
-        <div className={$.toolbarRow}>
-          <label htmlFor="timeline-relative-width">use relative width</label>
-          <input
-            id="timeline-relative-width"
-            type="checkbox"
-            checked={timelineOptions.relativeCellWidth}
-            onChange={(ev) =>
-              changeTimelineOption("relativeCellWidth", ev.target.checked)
-            }
-          />
-          {timelineOptions.relativeCellWidth && (
-            <>
-              <label htmlFor="timeline-width">timeline width</label>
-              <input
-                id="timeline-width"
-                type="range"
-                min="0"
-                max="1"
-                step={0.1}
-                value={timelineOptions.widthMultiplier}
-                onChange={(ev) =>
-                  changeTimelineOption(
-                    "widthMultiplier",
-                    ev.target.valueAsNumber
-                  )
+              <CheckboxInput
+                id="timeline-relative-width"
+                label="use relative width"
+                checked={timelineOptions.relativeCellWidth}
+                onChange={(value) =>
+                  changeTimelineOption("relativeCellWidth", value)
                 }
               />
-            </>
+              {timelineOptions.relativeCellWidth && (
+                <>
+                  <RangeInput
+                    label="Timeline width"
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={timelineOptions.widthMultiplier}
+                    onChange={(value) =>
+                      changeTimelineOption("widthMultiplier", value)
+                    }
+                  />
+                </>
+              )}
+
+              <Button onClick={() => generateGif(gif?.file ?? null)}>
+                regenerate frames
+              </Button>
+            </DropDown>
+          </div>
+        </div>
+        <div className={$.image}>
+          {currentFrame && (
+            <ImageDataCanvas
+              className={cx($.canvas, $.isCurrentFrame)}
+              data={currentFrame.data}
+            />
           )}
         </div>
-
-        {pending && (
-          <span
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              background: "white",
-              padding: "1em",
-              border: "1px solid black",
-            }}
-          >
-            generating..
-          </span>
+        {timeline && timelineOptions !== null && (
+          <div className={$.thumbnails}>
+            <ResizableContainer
+              size={timelineOptions.height}
+              min={50}
+              max={600}
+              onChange={(value) => changeTimelineOption("height", value)}
+            >
+              <Timeline
+                time={time}
+                totalTime={timeline.totalTime}
+                frames={timeline.frames}
+                currentFrame={currentFrame}
+                onFrameChange={(frame) => setTime(frame.time)}
+                onPointerDown={() => {
+                  setPlaying(false);
+                }}
+                multiplierWidth={
+                  timelineOptions.relativeCellWidth
+                    ? timelineOptions.widthMultiplier
+                    : null
+                }
+              />
+            </ResizableContainer>
+          </div>
         )}
       </div>
-      <div className={$.image}>
-        {unionSkin && (
-          <>
-            {prevFrame && (
-              <ImageDataCanvas
-                className={cx($.canvas, $.isPrevFrame)}
-                data={prevFrame.data}
-              />
-            )}
-            {nextFrame && (
-              <ImageDataCanvas
-                className={cx($.canvas, $.isNextFrame)}
-                data={nextFrame.data}
-              />
-            )}
-          </>
-        )}
-        {currentFrame && (
-          <ImageDataCanvas
-            className={cx($.canvas, $.isCurrentFrame)}
-            data={currentFrame.data}
-          />
-        )}
-      </div>
-      {timeline && timelineOptions !== null && (
-        <div className={$.thumbnails}>
-          <ResizableContainer
-            size={timelineOptions.height}
-            min={50}
-            max={600}
-            onChange={(value) => changeTimelineOption("height", value)}
-          >
-            <Timeline
-              frames={timeline.frames}
-              currentFrame={currentFrame}
-              onFrameChange={(frame) => setFrame(frame.time)}
-              onPointerDown={() => {
-                setPlaying(false);
-              }}
-              multiplierWidth={
-                timelineOptions.relativeCellWidth
-                  ? timelineOptions.widthMultiplier
-                  : null
-              }
-            />
-          </ResizableContainer>
-        </div>
-      )}
-    </div>
+    </DropZone>
   );
 }

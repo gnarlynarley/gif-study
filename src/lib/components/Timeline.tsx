@@ -6,23 +6,30 @@ import { ImageDataCanvas } from "./ImageDataCanvas";
 import $ from "./Timeline.module.scss";
 
 type TimelineProps = {
+  time: number;
+  totalTime: number;
   frames: TimelineFrame[];
   currentFrame: TimelineFrame | null;
   onPointerDown?: () => void;
   onFrameChange: (frame: TimelineFrame) => void;
   multiplierWidth?: number | null;
 };
+type TimelineFramesProps = {
+  frames: TimelineFrame[];
+  currentFrame: TimelineFrame | null;
+  onFrameChange: (frame: TimelineFrame) => void;
+  multiplierWidth?: number | null;
+};
 
-export function Timeline({
+function TimelineFrames({
   frames,
   currentFrame,
+  multiplierWidth,
   onFrameChange,
-  onPointerDown,
-  multiplierWidth = null,
-}: TimelineProps) {
+}: TimelineFramesProps) {
   return (
-    <div className={$.container} onPointerDown={onPointerDown}>
-      {frames.map((frame) => {
+    <>
+      {frames.map((frame, index) => {
         const isActive = frame === currentFrame;
         const cellWidth =
           multiplierWidth != null
@@ -35,10 +42,59 @@ export function Timeline({
             className={cx($.item, isActive && $.isActive)}
           >
             <ImageDataCanvas data={frame.data} width={cellWidth} />
+            <span className={$.itemIndex}>{index + 1}</span>
             <span className={$.itemFrames}>{frame.hold}</span>
           </button>
         );
       })}
+    </>
+  );
+}
+
+export function Timeline({
+  time,
+  totalTime,
+  frames,
+  currentFrame,
+  onFrameChange,
+  onPointerDown,
+  multiplierWidth = null,
+}: TimelineProps) {
+  const percentage =
+    multiplierWidth !== null
+      ? (time / totalTime) * 100
+      : currentFrame
+      ? (frames.indexOf(currentFrame) / frames.length) * 100
+      : 0;
+  const relativePercentage = 100 / 3 + percentage / 3;
+
+  return (
+    <div className={$.container} onPointerDown={onPointerDown}>
+      <div
+        className={$.frames}
+        style={{
+          translate: `${relativePercentage * -1}%`,
+        }}
+      >
+        <TimelineFrames
+          frames={frames}
+          currentFrame={null}
+          onFrameChange={onFrameChange}
+          multiplierWidth={multiplierWidth}
+        />
+        <TimelineFrames
+          frames={frames}
+          currentFrame={currentFrame}
+          onFrameChange={onFrameChange}
+          multiplierWidth={multiplierWidth}
+        />
+        <TimelineFrames
+          frames={frames}
+          currentFrame={null}
+          onFrameChange={onFrameChange}
+          multiplierWidth={multiplierWidth}
+        />
+      </div>
     </div>
   );
 }

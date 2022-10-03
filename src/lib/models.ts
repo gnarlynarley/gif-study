@@ -1,6 +1,7 @@
 export interface Timeline {
   frames: TimelineFrame[];
   timelineFrames: TimelineFrame[];
+  totalTime: number;
 }
 
 export interface TimelineFrame {
