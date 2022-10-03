@@ -131,11 +131,7 @@ export function App() {
     setTimelineOptions((prev) => ({ ...prev, [option]: value }));
   };
 
-  const [canvasCovered, setCanvasCovered] = useLocalForageState(
-    "canvasCovered",
-    1,
-    false
-  );
+  const [zoom, setZoom] = useLocalForageState("zoom", 1, 1);
 
   return (
     <DropZone accept="image/gif" onFileDrop={setFile}>
@@ -162,19 +158,21 @@ export function App() {
             <span className={$.toolbarPush} />
             <DropDown>
               <RangeInput
+                label="Zoom level"
+                min={0.1}
+                max={1}
+                step={0.1}
+                value={zoom}
+                onChange={setZoom}
+              />
+
+              <RangeInput
                 label="Playback speed"
                 min={0}
                 max={2}
                 step={0.2}
                 value={speedValue}
                 onChange={setSpeed}
-              />
-
-              <CheckboxInput
-                id="canvas-cover"
-                label="Scale the canvas"
-                checked={canvasCovered}
-                onChange={setCanvasCovered}
               />
 
               <CheckboxInput
@@ -213,8 +211,7 @@ export function App() {
             </DropDown>
           </div>
         </div>
-
-        <div className={cx($.image, canvasCovered && $.isCanvasCovered)}>
+        <div className={cx($.image)} style={{ scale: `${zoom * 100}%` }}>
           {currentFrame && (
             <ImageDataCanvas
               className={cx($.canvas, $.isCurrentFrame)}

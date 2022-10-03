@@ -4,6 +4,8 @@ import {
   SkipPrevious,
   SkipNext,
   MoreVert,
+  ZoomIn,
+  ZoomOut,
 } from "@material-ui/icons";
 
 export {
@@ -12,4 +14,6 @@ export {
   SkipPrevious as SkipPreviousIcon,
   SkipNext as SkipNextIcon,
   MoreVert as MoreIcon,
+  ZoomIn as ZoomInIcon,
+  ZoomOut as ZoomOutIcon,
 };
