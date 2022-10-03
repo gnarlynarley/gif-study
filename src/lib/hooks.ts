@@ -3,6 +3,8 @@ import * as React from "react";
 
 const keyMap: Record<string, string> = {
   " ": "space",
+  ArrowRight: "right",
+  ArrowLeft: "left",
 };
 
 export function useKeybind(key: string, cb: () => void) {
@@ -14,8 +16,7 @@ export function useKeybind(key: string, cb: () => void) {
 
   React.useEffect(() => {
     function handler(ev: KeyboardEvent) {
-      const normalizedKey = ev.key.toLowerCase();
-      const pressedKey = keyMap[normalizedKey] ?? normalizedKey;
+      const pressedKey = keyMap[ev.key] ?? ev.key.toLowerCase();
       if (pressedKey === key) {
         cbRef.current();
       }

@@ -104,10 +104,19 @@ export function App() {
   useKeybind("k", () => {
     setPlaying(!playing);
   });
+  useKeybind("space", () => {
+    setPlaying(!playing);
+  });
   useKeybind("j", () => {
     navigateFrame(-1);
   });
+  useKeybind("left", () => {
+    navigateFrame(-1);
+  });
   useKeybind("l", () => {
+    navigateFrame(1);
+  });
+  useKeybind("right", () => {
     navigateFrame(1);
   });
 
@@ -208,6 +217,13 @@ export function App() {
                   </Button>
                 </>
               )}
+
+              <h3>Keybinds:</h3>
+              <ul style={{ whiteSpace: "nowrap" }}>
+                <li>J = Previous frame</li>
+                <li>L = Next frame</li>
+                <li>K = Toggle playback</li>
+              </ul>
             </DropDown>
           </div>
         </div>

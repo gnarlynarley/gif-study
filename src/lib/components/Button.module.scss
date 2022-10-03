@@ -7,9 +7,14 @@
   line-height: 1;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
 
   &:hover,
   &:active {
     background: var(--accent);
   }
+}
+
+.icon {
 }

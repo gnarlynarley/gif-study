@@ -1,11 +1,30 @@
-.containe {
+.container {
+  position: relative;
+  z-index: 0;
 }
 
 .handle {
+  position: relative;
+  z-index: 1;
   cursor: grab;
-  background-color: var(--primary);
+  background-image: linear-gradient(
+    to left,
+    transparent,
+    var(--primary),
+    transparent
+  );
   height: var(--border-width);
   opacity: 0;
+
+  &:after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 500%;
+    top: -200%;
+    left: 0;
+  }
 
   &:hover {
     opacity: 1;

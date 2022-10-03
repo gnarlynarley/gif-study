@@ -7,6 +7,7 @@ type BaseButtonProps = React.PropsWithChildren<{
 
 type ButtonProps = React.PropsWithChildren<{
   onClick: () => void;
+  icon?: JSX.Element;
 }>;
 
 export function BaseButton({ children, element = <span /> }: BaseButtonProps) {
@@ -16,14 +17,15 @@ export function BaseButton({ children, element = <span /> }: BaseButtonProps) {
   });
 }
 
-export function Button({ children, onClick }: ButtonProps) {
+export function Button({ icon, children, onClick }: ButtonProps) {
   return (
     <BaseButton
       element={
         <button className={$.button} type="button" onClick={onClick}></button>
       }
     >
-      {children}
+      <span className={$.icon}>{icon}</span>
+      <span>{children}</span>
     </BaseButton>
   );
 }
