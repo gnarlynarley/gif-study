@@ -1,10 +1,11 @@
 import React from "react";
 
 type Props = {
+  className?: string;
   data: ImageData;
 };
 
-export function ImageDataCanvas({ data }: Props) {
+export function ImageDataCanvas({ data, className }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const contextRef = React.useRef<CanvasRenderingContext2D | null>(null);
 
@@ -21,5 +22,12 @@ export function ImageDataCanvas({ data }: Props) {
     }
   }, [data]);
 
-  return <canvas ref={canvasRef} width={data.width} height={data.height} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className={className}
+      width={data.width}
+      height={data.height}
+    />
+  );
 }

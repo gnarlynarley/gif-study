@@ -82,9 +82,16 @@ export function App() {
   React.useEffect(() => {}, []);
 
   const currentFrame = gifInfo?.timelineFrames[frame];
+  const currentFrameIndex = currentFrame
+    ? gifInfo?.frames.indexOf(currentFrame)
+    : -1;
+  const length = gifInfo?.frames.length ?? 0;
+  const prevFrame = gifInfo?.frames[(length + currentFrameIndex - 1) % length];
+  const nextFrame = gifInfo?.frames[(length + currentFrameIndex + 1) % length];
+  const [unionSkin, setUnionSkin] = React.useState(false);
 
   return (
-    <div className={$.container}>
+    <div className={cx($.container, unionSkin && $.hasUnionSkin)}>
       <div className={$.toolbar}>
         <button type="button" onClick={() => setPlaying(!playing)}>
           {playing ? "pause" : "play"}
@@ -106,10 +113,34 @@ export function App() {
           value={speedValue}
           onChange={(ev) => setSpeed(ev.target.valueAsNumber)}
         />
+        <button type="button" onClick={() => setUnionSkin(!unionSkin)}>
+          {unionSkin ? "Disable" : "Enable"} union
+        </button>
         {pending && <span>pending..</span>}
       </div>
       <div className={$.image}>
-        {currentFrame && <ImageDataCanvas data={currentFrame.data} />}
+        {unionSkin && (
+          <>
+            {prevFrame && (
+              <ImageDataCanvas
+                className={cx($.canvas, $.isPrevFrame)}
+                data={prevFrame.data}
+              />
+            )}
+            {nextFrame && (
+              <ImageDataCanvas
+                className={cx($.canvas, $.isNextFrame)}
+                data={nextFrame.data}
+              />
+            )}
+          </>
+        )}
+        {currentFrame && (
+          <ImageDataCanvas
+            className={cx($.canvas, $.isCurrentFrame)}
+            data={currentFrame.data}
+          />
+        )}
       </div>
       {gifInfo && (
         <div className={$.thumbnails}>
