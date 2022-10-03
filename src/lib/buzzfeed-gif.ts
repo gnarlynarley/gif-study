@@ -946,23 +946,25 @@ export async function convertGif(file: File) {
         reject(new Error("no data received"));
       } else {
         let acc = 0;
+        const frames = data.frames.flatMap((frame, i, frames) => {
+          const nextFrame = frames[i + 1];
+          if (nextFrame) {
+            if (isPixelDataMatch(nextFrame.data, frame.data)) {
+              acc += frame.delay;
+              return [];
+            }
+          }
+          const delay: number = acc + frame.delay;
+          acc = 0;
+          return {
+            id: i.toString(),
+            ...frame,
+            delay,
+          };
+        });
         resolve({
           file,
-          frames: data.frames.flatMap((frame, i, frames) => {
-            const prevFrame = frames[i - 1];
-            if (prevFrame) {
-              if (isPixelDataMatch(prevFrame.data, frame.data)) {
-                acc += frame.delay;
-                return [];
-              }
-            }
-            acc = 0;
-            return {
-              id: i.toString(),
-              ...frame,
-              delay: acc + frame.delay,
-            };
-          }),
+          frames,
           width: data.width,
           height: data.height,
         });
