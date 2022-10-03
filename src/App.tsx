@@ -89,7 +89,6 @@ export function App() {
   }, [file]);
 
   React.useEffect(() => {
-    console.log(speedValue);
     if (playing === false) return;
     if (timeline === null) return;
     const max = timeline.timelineFrames.length;
@@ -132,6 +131,12 @@ export function App() {
     setTimelineOptions((prev) => ({ ...prev, [option]: value }));
   };
 
+  const [canvasCovered, setCanvasCovered] = useLocalForageState(
+    "canvasCovered",
+    1,
+    false
+  );
+
   return (
     <DropZone accept="image/gif" onFileDrop={setFile}>
       <div className={cx($.container)}>
@@ -163,6 +168,13 @@ export function App() {
                 step={0.2}
                 value={speedValue}
                 onChange={setSpeed}
+              />
+
+              <CheckboxInput
+                id="canvas-cover"
+                label="Scale the canvas"
+                checked={canvasCovered}
+                onChange={setCanvasCovered}
               />
 
               <CheckboxInput
@@ -201,7 +213,8 @@ export function App() {
             </DropDown>
           </div>
         </div>
-        <div className={$.image}>
+
+        <div className={cx($.image, canvasCovered && $.isCanvasCovered)}>
           {currentFrame && (
             <ImageDataCanvas
               className={cx($.canvas, $.isCurrentFrame)}

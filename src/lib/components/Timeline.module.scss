@@ -65,4 +65,8 @@
   &.isActive {
     filter: brightness(120%);
   }
+
+  &.isExtra {
+    filter: grayscale(100%);
+  }
 }

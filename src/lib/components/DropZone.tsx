@@ -18,7 +18,6 @@ export function DropZone({ accept, onFileDrop, children }: Props) {
         setActive(false);
 
         const file = ev.dataTransfer.items[0]?.getAsFile() ?? null;
-        console.log(file);
         if (file && file.type === accept) {
           onFileDrop(file);
         }

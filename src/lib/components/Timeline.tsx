@@ -15,6 +15,7 @@ type TimelineProps = {
   multiplierWidth?: number | null;
 };
 type TimelineFramesProps = {
+  extra?: boolean;
   frames: TimelineFrame[];
   currentFrame: TimelineFrame | null;
   onFrameChange: (frame: TimelineFrame) => void;
@@ -22,6 +23,7 @@ type TimelineFramesProps = {
 };
 
 function TimelineFrames({
+  extra,
   frames,
   currentFrame,
   multiplierWidth,
@@ -39,7 +41,7 @@ function TimelineFrames({
           <button
             key={frame.id}
             onClick={() => onFrameChange(frame)}
-            className={cx($.item, isActive && $.isActive)}
+            className={cx($.item, isActive && $.isActive, extra && $.isExtra)}
           >
             <ImageDataCanvas data={frame.data} width={cellWidth} />
             <span className={$.itemIndex}>{frame.index}</span>
@@ -77,6 +79,7 @@ export function Timeline({
         }}
       >
         <TimelineFrames
+          extra
           frames={frames}
           currentFrame={null}
           onFrameChange={onFrameChange}
@@ -89,6 +92,7 @@ export function Timeline({
           multiplierWidth={multiplierWidth}
         />
         <TimelineFrames
+          extra
           frames={frames}
           currentFrame={null}
           onFrameChange={onFrameChange}
