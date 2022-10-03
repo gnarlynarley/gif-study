@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist && vite build",
+    "preview": "vite preview",
     "dev": "vite dev",
     "deploy": "yarn run build && gh-pages -d dist"
   },
