@@ -1,6 +1,8 @@
 .container {
-  height: 3rem;
   white-space: nowrap;
+  height: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
 }
 
 .item {
@@ -10,6 +12,11 @@
   opacity: 0.5;
   position: relative;
   padding: 0;
+  overflow: hidden;
+
+  & + & {
+    border-left-width: 0;
+  }
 
   &.isActive {
     border-color: red;

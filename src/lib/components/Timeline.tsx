@@ -1,3 +1,4 @@
+import React from "react";
 import { GifFrame } from "../buzzfeed-gif";
 import { TimelineFrame } from "../models";
 import { cx } from "../utils/joinClassNames";
@@ -9,22 +10,24 @@ type TimelineProps = {
   currentFrame: TimelineFrame | null;
   onPointerDown?: () => void;
   onFrameChange: (frame: TimelineFrame) => void;
+  multiplierWidth?: number | null;
 };
-
-const WIDTH_MULTIPLIER = 0.05;
 
 export function Timeline({
   frames,
   currentFrame,
   onFrameChange,
   onPointerDown,
+  multiplierWidth = null,
 }: TimelineProps) {
   return (
     <div className={$.container} onPointerDown={onPointerDown}>
       {frames.map((frame) => {
         const isActive = frame === currentFrame;
-        const frameWidth = frame.data.width * WIDTH_MULTIPLIER;
-        const cellWidth = frameWidth * frame.hold;
+        const cellWidth =
+          multiplierWidth != null
+            ? frame.width * (multiplierWidth / 10) * frame.hold
+            : frame.width;
         return (
           <button
             key={frame.id}

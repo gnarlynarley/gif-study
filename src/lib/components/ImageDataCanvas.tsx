@@ -22,7 +22,7 @@ export function ImageDataCanvas({ data, className, width, height }: Props) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.putImageData(data, 0, 0);
     }
-  }, [data]);
+  }, [data, width, height]);
 
   return (
     <canvas

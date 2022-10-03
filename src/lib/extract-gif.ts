@@ -77,7 +77,6 @@ export async function parseGif(src: string) {
   const frames: HTMLImageElement[] = [];
 
   const [numFrames, width, height] = frameData.shape;
-  console.log(frameData.shape);
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   assert(context);
@@ -92,7 +91,6 @@ export async function parseGif(src: string) {
 
     let drawn = true;
     const part = frameData.data.slice(offset, offset + pixelBuffer);
-    console.log(part);
 
     part.forEach((value, i) => {
       imageData.data[i] = value;

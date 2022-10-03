@@ -1,27 +1,14 @@
 import * as React from "react";
-import localforage from "localforage";
 import { convertGif, type Gif } from "./lib/buzzfeed-gif";
-import { ImageDataCanvas } from "./lib/components";
+import {
+  ImageDataCanvas,
+  ResizableContainer,
+  Timeline,
+} from "./lib/components";
 import { cx } from "./lib/utils/joinClassNames";
 import type { Timeline as TimelineType, TimelineFrame } from "./lib/models";
-import { Timeline } from "./lib/components/Timeline";
+import { useKeybind, useLocalForageState } from "./lib/hooks";
 import $ from "./App.module.scss";
-import { useKeybind } from "./lib/hooks";
-
-function useLocalForageState<T>(key: string, version: number, defaultState: T) {
-  const storageKey = `${key}::${version}`;
-  const [state, setState] = React.useState<T | null>(defaultState);
-
-  React.useEffect(() => {
-    localforage.getItem<T>(storageKey).then(setState);
-  }, []);
-
-  React.useEffect(() => {
-    localforage.setItem(storageKey, state);
-  }, [state]);
-
-  return [state, setState] as const;
-}
 
 export function App() {
   const [playing, setPlaying] = React.useState(true);
@@ -65,7 +52,6 @@ export function App() {
     setPlaying(false);
     if (currentFrameIndex === -1) return;
     const nextFrameIndex = (length + currentFrameIndex + add) % length;
-    console.log(nextFrameIndex);
     const nextFrame = timeline?.frames[nextFrameIndex] ?? null;
     if (nextFrame) {
       setFrame(nextFrame.time);
@@ -114,44 +100,113 @@ export function App() {
     navigateFrame(1);
   });
 
+  const timelineOptionsDefaults = {
+    height: 100,
+    widthMultiplier: 0.5,
+    relativeCellWidth: true,
+  };
+  const [timelineOptions, setTimelineOptions] = useLocalForageState(
+    "timelineOptions",
+    1,
+    timelineOptionsDefaults
+  );
+  const changeTimelineOption = <
+    K extends keyof typeof timelineOptionsDefaults,
+    T extends typeof timelineOptionsDefaults[K]
+  >(
+    option: K,
+    value: T
+  ) => {
+    setTimelineOptions((prev) => ({ ...prev, [option]: value }));
+  };
+
   return (
     <div className={cx($.container, unionSkin && $.hasUnionSkin)}>
       <div className={$.toolbar}>
-        <button type="button" onClick={() => navigateFrame(-1)}>
-          previous frame (j)
-        </button>
-        <button type="button" onClick={() => setPlaying(!playing)}>
-          {playing ? "pause" : "play"} (k)
-        </button>
-        <button type="button" onClick={() => navigateFrame(1)}>
-          next frame (l)
-        </button>
-        <input
-          type="file"
-          accept="image/gif"
-          onChange={(ev) => {
-            const file = ev.target.files?.[0] ?? null;
-            setFile(file);
-            ev.target.value = "";
-          }}
-        />
-        <label htmlFor="speed">Speed</label>
-        <input
-          id="speed"
-          type="range"
-          min="0"
-          max="2"
-          step={0.2}
-          value={speedValue}
-          onChange={(ev) => setSpeed(ev.target.valueAsNumber)}
-        />
-        <button type="button" onClick={() => setUnionSkin(!unionSkin)}>
-          {unionSkin ? "Disable" : "Enable"} union
-        </button>
-        <button type="button" onClick={() => generateGif(gif?.file ?? null)}>
-          regenerate frames
-        </button>
-        {pending && <span>pending..</span>}
+        <div className={$.toolbarRow}>
+          <input
+            type="file"
+            accept="image/gif"
+            onChange={(ev) => {
+              const file = ev.target.files?.[0] ?? null;
+              setFile(file);
+              ev.target.value = "";
+            }}
+          />
+        </div>
+        <div className={$.toolbarRow}>
+          <button type="button" onClick={() => navigateFrame(-1)}>
+            previous frame (j)
+          </button>
+          <button type="button" onClick={() => setPlaying(!playing)}>
+            {playing ? "pause" : "play"} (k)
+          </button>
+          <button type="button" onClick={() => navigateFrame(1)}>
+            next frame (l)
+          </button>
+          <label htmlFor="speed">Speed</label>
+          <input
+            id="speed"
+            type="range"
+            min="0"
+            max="2"
+            step={0.2}
+            value={speedValue}
+            onChange={(ev) => setSpeed(ev.target.valueAsNumber)}
+          />
+          <button type="button" onClick={() => setUnionSkin(!unionSkin)}>
+            {unionSkin ? "Disable" : "Enable"} union
+          </button>
+          <button type="button" onClick={() => generateGif(gif?.file ?? null)}>
+            regenerate frames
+          </button>
+        </div>
+
+        <div className={$.toolbarRow}>
+          <label htmlFor="timeline-relative-width">use relative width</label>
+          <input
+            id="timeline-relative-width"
+            type="checkbox"
+            checked={timelineOptions.relativeCellWidth}
+            onChange={(ev) =>
+              changeTimelineOption("relativeCellWidth", ev.target.checked)
+            }
+          />
+          {timelineOptions.relativeCellWidth && (
+            <>
+              <label htmlFor="timeline-width">timeline width</label>
+              <input
+                id="timeline-width"
+                type="range"
+                min="0"
+                max="1"
+                step={0.1}
+                value={timelineOptions.widthMultiplier}
+                onChange={(ev) =>
+                  changeTimelineOption(
+                    "widthMultiplier",
+                    ev.target.valueAsNumber
+                  )
+                }
+              />
+            </>
+          )}
+        </div>
+
+        {pending && (
+          <span
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              background: "white",
+              padding: "1em",
+              border: "1px solid black",
+            }}
+          >
+            generating..
+          </span>
+        )}
       </div>
       <div className={$.image}>
         {unionSkin && (
@@ -177,16 +232,28 @@ export function App() {
           />
         )}
       </div>
-      {timeline && (
+      {timeline && timelineOptions !== null && (
         <div className={$.thumbnails}>
-          <Timeline
-            frames={timeline.frames}
-            currentFrame={currentFrame}
-            onFrameChange={(frame) => setFrame(frame.time)}
-            onPointerDown={() => {
-              setPlaying(false);
-            }}
-          />
+          <ResizableContainer
+            size={timelineOptions.height}
+            min={50}
+            max={600}
+            onChange={(value) => changeTimelineOption("height", value)}
+          >
+            <Timeline
+              frames={timeline.frames}
+              currentFrame={currentFrame}
+              onFrameChange={(frame) => setFrame(frame.time)}
+              onPointerDown={() => {
+                setPlaying(false);
+              }}
+              multiplierWidth={
+                timelineOptions.relativeCellWidth
+                  ? timelineOptions.widthMultiplier
+                  : null
+              }
+            />
+          </ResizableContainer>
         </div>
       )}
     </div>

@@ -17,7 +17,7 @@
 .image {
   position: relative;
   grid-area: image;
-  border: 1px solid red;
+  border: 1px solid black;
 
   .canvas {
     position: absolute;
@@ -38,33 +38,14 @@
 
 .thumbnails {
   grid-area: thumbnails;
-  overflow: auto;
-  white-space: nowrap;
-}
-
-.thumbnail {
-  display: inline-block;
-  border: 1px solid black;
-  width: 20%;
-  opacity: 0.5;
-
-  &.isActive {
-    border-color: red;
-    opacity: 1;
-  }
-
-  & + & {
-    margin-left: 1em;
-  }
-
-  canvas {
-    width: 100%;
-    height: 100%;
-  }
+  overflow: hidden;
 }
 
 .toolbar {
   grid-area: toolbar;
-  display: flex;
-  align-items: center;
+
+  &Row {
+    display: flex;
+    align-items: center;
+  }
 }
