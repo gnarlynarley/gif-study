@@ -4,14 +4,15 @@ import $ from "./FileInput.module.scss";
 
 type Props = {
   accept: string;
+  disabled?: boolean;
   label: string;
   onFile: (file: File) => void;
 };
 
-export function FileInput({ accept, label, onFile }: Props) {
+export function FileInput({ accept, disabled, label, onFile }: Props) {
   const id = React.useId();
   return (
-    <BaseButton>
+    <BaseButton disabled={disabled}>
       <label htmlFor={id}>{label}</label>
       <input
         id={id}
@@ -20,6 +21,7 @@ export function FileInput({ accept, label, onFile }: Props) {
         accept={accept}
         type="file"
         onChange={(ev) => {
+          if (disabled) return;
           const file = ev.target.files?.[0] ?? null;
           if (file) {
             onFile(file);

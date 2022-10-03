@@ -1,8 +1,10 @@
 import React from "react";
+import { cx } from "../utils/joinClassNames";
 import $ from "./Button.module.scss";
 
 type BaseButtonProps = React.PropsWithChildren<{
   element?: JSX.Element;
+  disabled?: boolean;
 }>;
 
 type ButtonProps = React.PropsWithChildren<{
@@ -10,9 +12,13 @@ type ButtonProps = React.PropsWithChildren<{
   icon?: JSX.Element;
 }>;
 
-export function BaseButton({ children, element = <span /> }: BaseButtonProps) {
+export function BaseButton({
+  children,
+  disabled,
+  element = <span />,
+}: BaseButtonProps) {
   return React.cloneElement(element, {
-    className: $.button,
+    className: cx($.button, disabled && $.isDisabled),
     children,
   });
 }

@@ -4,10 +4,11 @@ import $ from "./DropZone.module.scss";
 
 type Props = React.PropsWithChildren<{
   accept: string;
+  disabled?: boolean;
   onFileDrop: (file: File) => void;
 }>;
 
-export function DropZone({ accept, onFileDrop, children }: Props) {
+export function DropZone({ accept, onFileDrop, disabled, children }: Props) {
   const [active, setActive] = React.useState(false);
 
   return (
@@ -15,6 +16,7 @@ export function DropZone({ accept, onFileDrop, children }: Props) {
       className={cx($.container, active && $.isActive)}
       onDrop={(ev) => {
         ev.preventDefault();
+        if (disabled) return;
         setActive(false);
 
         const file = ev.dataTransfer.items[0]?.getAsFile() ?? null;
@@ -24,6 +26,7 @@ export function DropZone({ accept, onFileDrop, children }: Props) {
       }}
       onDragOver={(ev) => {
         ev.preventDefault();
+        if (disabled) return;
 
         setActive(true);
       }}

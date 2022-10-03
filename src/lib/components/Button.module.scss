@@ -14,7 +14,10 @@
   &:active {
     background: var(--accent);
   }
-}
 
-.icon {
+  &.isDisabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 }

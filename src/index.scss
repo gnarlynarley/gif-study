@@ -29,9 +29,9 @@ html {
   background-color: var(--paper);
   color: var(--ink);
   height: 100%;
-  background-image: linear-gradient(var(--muted-paper) 0.1em, transparent 0.1em),
-    linear-gradient(90deg, var(--muted-paper) 0.1em, transparent 0.1em);
-  background-size: 2em 2em;
+  background-image: linear-gradient(var(--muted-paper) 1px, transparent 1px),
+    linear-gradient(90deg, var(--muted-paper) 1px, transparent 1px);
+  background-size: 1.5em 1.5em;
   background-position: center center;
 }
 

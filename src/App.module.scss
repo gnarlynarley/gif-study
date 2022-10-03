@@ -10,6 +10,19 @@
   gap: var(--spacing);
 }
 
+.loading {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50%;
+  padding: 1em;
+  background: var(--primary);
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  font-weight: bold;
+  box-shadow: var(--drop-shadow);
+}
+
 .image {
   display: flex;
   align-items: center;

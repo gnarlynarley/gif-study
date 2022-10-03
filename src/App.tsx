@@ -74,11 +74,13 @@ export function App() {
 
   const generateGif = async (file: File | null) => {
     setTime(0);
+    setPlaying(false);
     if (!file) return;
     try {
       setPending(true);
       const nextGif = await convertGif(file);
       setGif(nextGif);
+      setPlaying(true);
     } finally {
       setPending(false);
     }
@@ -143,11 +145,17 @@ export function App() {
   const [zoom, setZoom] = useLocalForageState("zoom", 1, 1);
 
   return (
-    <DropZone accept="image/gif" onFileDrop={setFile}>
+    <DropZone accept="image/gif" disabled={pending} onFileDrop={setFile}>
+      {pending && <span className={$.loading}>Loading gif..</span>}
       <div className={cx($.container)}>
         <div className={$.toolbar}>
           <div className={$.toolbarRow}>
-            <FileInput accept="image/gif" label="Open gif" onFile={setFile} />
+            <FileInput
+              disabled={pending}
+              accept="image/gif"
+              label="Open gif"
+              onFile={setFile}
+            />
             <span className={$.toolbarDivider} />
             <IconButton
               label="next frame (l)"
@@ -164,6 +172,7 @@ export function App() {
             <IconButton label="next frame (l)" onClick={() => navigateFrame(1)}>
               <SkipNextIcon />
             </IconButton>
+
             <span className={$.toolbarPush} />
             <DropDown>
               <RangeInput
