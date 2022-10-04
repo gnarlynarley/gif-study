@@ -43,15 +43,16 @@ export function App() {
         height: frame.data.height,
       };
     });
-    const totalTime = frames.reduce((acc, frame) => acc + frame.duration, 0);
+    const timelineFrames = frames.flatMap((frame) =>
+      Array.from({ length: frame.duration }, () => frame)
+    );
+    const totalTime = timelineFrames.length;
     const averageFrameDelay = totalTime / frames.length;
 
     return {
       gifFile: gif.file,
       frames,
-      timelineFrames: frames.flatMap((frame) =>
-        Array.from({ length: frame.duration }, () => frame)
-      ),
+      timelineFrames,
       totalTime,
       averageFrameDelay,
     };
@@ -176,9 +177,11 @@ export function App() {
             </IconButton>
 
             <span className={$.toolbarDivider} />
+
             {currentFrame && (
               <span className={$.toolbarInfo}>
-                frame: {currentFrame.number}, duration: {currentFrame.duration}ms
+                frame: {currentFrame.number}, duration: {currentFrame.duration}
+                ms
               </span>
             )}
 
@@ -186,7 +189,7 @@ export function App() {
 
             <DropDown>
               <RangeInput
-                label="Playback speed"
+                label={`Playback speed ${speedValue * 100}%`}
                 min={0}
                 max={2}
                 step={0.2}
@@ -205,7 +208,9 @@ export function App() {
               {timelineOptions.relativeCellWidth && (
                 <>
                   <RangeInput
-                    label="Timeline width"
+                    label={`Timeline width ${
+                      timelineOptions.widthMultiplier * 100
+                    }%`}
                     min={0}
                     max={1}
                     step={0.05}

@@ -51,6 +51,10 @@ function TimelineFrames({
   );
 }
 
+function mod(value: number, add: number): number {
+  return ((value % add) + add) % add;
+}
+
 export function Timeline({
   time,
   timeline,
@@ -61,7 +65,6 @@ export function Timeline({
 }: TimelineProps) {
   const [active, setActive] = React.useState(false);
   const { frames, averageFrameDelay, totalTime } = timeline;
-  const firstFrame = frames.at(0);
   const percentage =
     multiplierWidth !== null
       ? (time / totalTime) * 100
@@ -83,7 +86,7 @@ export function Timeline({
       ev.preventDefault();
       const x = startingX - ev.clientX;
       const timeOffset = Math.floor(x / cellWidth);
-      const nextTime = (totalTime + timeOffset + startingTime) % totalTime;
+      const nextTime = mod(startingTime + timeOffset, totalTime);
       onTimeChange(nextTime);
     }
     function pointerupHandler(ev: MouseEvent) {
