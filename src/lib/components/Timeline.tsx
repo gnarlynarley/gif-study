@@ -35,7 +35,7 @@ function TimelineFrames({
         const isActive = frame === currentFrame;
         const cellWidth =
           multiplierWidth != null
-            ? frame.width * multiplierWidth * frame.hold
+            ? frame.height * (multiplierWidth / 4) * frame.hold
             : frame.width;
         return (
           <button

@@ -207,7 +207,7 @@ export function App() {
                     label="Timeline width"
                     min={0}
                     max={1}
-                    step={0.1}
+                    step={0.05}
                     value={timelineOptions.widthMultiplier}
                     onChange={(value) =>
                       changeTimelineOption("widthMultiplier", value)
