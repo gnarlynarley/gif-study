@@ -6,6 +6,12 @@
   border-radius: var(--border-radius);
   overflow: hidden;
   touch-action: none;
+  user-select: none;
+  cursor: grab;
+
+  &.isActive {
+    cursor: grabbing;
+  }
 }
 
 .frames {
@@ -28,8 +34,6 @@
   overflow: hidden;
   color: inherit;
   background: transparent;
-  cursor: pointer;
-  user-select: none;
   border: var(--border);
   border-color: var(--color);
 

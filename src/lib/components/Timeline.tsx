@@ -60,6 +60,7 @@ export function Timeline({
   onPointerDown,
   multiplierWidth = null,
 }: TimelineProps) {
+  const [active, setActive] = React.useState(false);
   const { frames, averageFrameDelay, totalTime } = timeline;
   const firstFrame = frames.at(0);
   const percentage =
@@ -74,6 +75,7 @@ export function Timeline({
     onPointerDown?.();
     const frameContainer = frameContainerRef.current;
     if (!frameContainer) return;
+    setActive(true);
     const startingTime = time;
     const startingX = ev.clientX;
     const cellWidth = frameContainer.offsetWidth / 3 / totalTime;
@@ -89,6 +91,7 @@ export function Timeline({
       ev.preventDefault();
       window.removeEventListener("pointermove", pointermoveHandler);
       window.removeEventListener("pointerup", pointerupHandler);
+      setActive(false);
     }
 
     window.addEventListener("pointermove", pointermoveHandler);
@@ -96,7 +99,10 @@ export function Timeline({
   };
 
   return (
-    <div className={$.container} onPointerDown={pointerDownHandler}>
+    <div
+      className={cx($.container, active && $.isActive)}
+      onPointerDown={pointerDownHandler}
+    >
       <div
         ref={frameContainerRef}
         className={$.frames}
