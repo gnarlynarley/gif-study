@@ -23,7 +23,7 @@ export async function downloadTimelineAsZip(timeline: Timeline) {
       if (!blob) return null;
 
       return {
-        name: `${createFileName(frame.index)}.png`,
+        name: `${createFileName(frame.number)}.png`,
         blob,
       };
     })

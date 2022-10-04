@@ -10,8 +10,8 @@ export interface TimelineFrame {
   id: string;
   data: ImageData;
   time: number;
-  delay: number;
+  duration: number;
   width: number;
   height: number;
-  index: number;
+  number: number;
 }

@@ -34,23 +34,23 @@ export function App() {
     const frames = gif.frames.map((frame): TimelineFrame => {
       time += frame.delay;
       return {
-        index: frame.frameIndex,
+        number: frame.frameIndex,
         id: frame.id,
         data: frame.data,
-        delay: frame.delay,
+        duration: frame.delay,
         time: time - frame.delay,
         width: frame.data.width,
         height: frame.data.height,
       };
     });
-    const totalTime = frames.reduce((acc, frame) => acc + frame.delay, 0);
+    const totalTime = frames.reduce((acc, frame) => acc + frame.duration, 0);
     const averageFrameDelay = totalTime / frames.length;
 
     return {
       gifFile: gif.file,
       frames,
       timelineFrames: frames.flatMap((frame) =>
-        Array.from({ length: frame.delay }, () => frame)
+        Array.from({ length: frame.duration }, () => frame)
       ),
       totalTime,
       averageFrameDelay,
@@ -175,7 +175,15 @@ export function App() {
               <SkipNextIcon />
             </IconButton>
 
+            <span className={$.toolbarDivider} />
+            {currentFrame && (
+              <span className={$.toolbarInfo}>
+                frame: {currentFrame.number}, duration: {currentFrame.duration}ms
+              </span>
+            )}
+
             <span className={$.toolbarPush} />
+
             <DropDown>
               <RangeInput
                 label="Playback speed"

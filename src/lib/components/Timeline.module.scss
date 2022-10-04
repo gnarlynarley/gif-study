@@ -23,6 +23,28 @@
   left: 50%;
 }
 
+.itemWrapper {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  height: 100%;
+
+  &.isHead::after,
+  &.isTail::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to left, transparent, var(--muted-paper));
+  }
+  &.isTail::after {
+    rotate: 180deg;
+  }
+}
+
 .item {
   --color: var(--muted-paper);
   position: relative;
@@ -47,8 +69,12 @@
   .itemIndex {
     border-color: inherit;
     padding: 0.2em;
-    font-size: 0.8em;
-    width: 2em;
+    font-size: 0.5em;
+    width: 1.5em;
+    height: 1.5em;
+    line-height: 1;
+    vertical-align: middle;
+    text-align: center;
   }
   .itemFrames {
     background: var(--color);
@@ -62,7 +88,7 @@
     bottom: 0;
     left: 0;
     border-top-right-radius: var(--border-radius);
-    text-shadow: 0 1px 1px rgba(black, 0.5);
+    text-shadow: 0 0 2px rgba(black, 1);
   }
 
   canvas {

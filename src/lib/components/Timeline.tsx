@@ -13,7 +13,8 @@ type TimelineProps = {
   multiplierWidth?: number | null;
 };
 type TimelineFramesProps = {
-  extra?: boolean;
+  head?: boolean;
+  tail?: boolean;
   frames: TimelineFrame[];
   currentFrame: TimelineFrame | null;
   multiplierWidth?: number | null;
@@ -21,34 +22,32 @@ type TimelineFramesProps = {
 };
 
 function TimelineFrames({
-  extra,
+  head,
+  tail,
   frames,
   currentFrame,
   multiplierWidth,
   averageFrameDelay,
 }: TimelineFramesProps) {
   return (
-    <>
+    <div className={cx($.itemWrapper, head && $.isHead, tail && $.isTail)}>
       {frames.map((frame) => {
         const isActive = frame === currentFrame;
         const cellWidth =
           multiplierWidth != null
             ? frame.height *
               (multiplierWidth * 1.5) *
-              (frame.delay / averageFrameDelay)
+              (frame.duration / averageFrameDelay)
             : frame.width;
         return (
-          <div
-            key={frame.id}
-            className={cx($.item, isActive && $.isActive, extra && $.isExtra)}
-          >
+          <div key={frame.id} className={cx($.item, isActive && $.isActive)}>
             <ImageDataCanvas data={frame.data} width={cellWidth} />
-            <span className={$.itemIndex}>{frame.index}</span>
-            <span className={$.itemFrames}>{frame.delay}</span>
+            <span className={$.itemIndex}>{frame.number}</span>
+            <span className={$.itemFrames}>{frame.duration}</span>
           </div>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -111,7 +110,7 @@ export function Timeline({
         }}
       >
         <TimelineFrames
-          extra
+          head
           frames={frames}
           currentFrame={null}
           multiplierWidth={multiplierWidth}
@@ -124,7 +123,7 @@ export function Timeline({
           averageFrameDelay={averageFrameDelay}
         />
         <TimelineFrames
-          extra
+          tail
           frames={frames}
           currentFrame={null}
           multiplierWidth={multiplierWidth}
