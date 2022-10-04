@@ -5,6 +5,7 @@
   background-color: var(--muted-paper);
   border-radius: var(--border-radius);
   overflow: hidden;
+  touch-action: none;
 }
 
 .frames {

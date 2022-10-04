@@ -1,3 +1,4 @@
+import React from "react";
 import { Timeline as TimelineType, TimelineFrame } from "../models";
 import { cx } from "../utils/joinClassNames";
 import { ImageDataCanvas } from "./ImageDataCanvas";
@@ -8,14 +9,13 @@ type TimelineProps = {
   timeline: TimelineType;
   currentFrame: TimelineFrame | null;
   onPointerDown?: () => void;
-  onFrameChange: (frame: TimelineFrame) => void;
+  onTimeChange: (time: number) => void;
   multiplierWidth?: number | null;
 };
 type TimelineFramesProps = {
   extra?: boolean;
   frames: TimelineFrame[];
   currentFrame: TimelineFrame | null;
-  onFrameChange: (frame: TimelineFrame) => void;
   multiplierWidth?: number | null;
   averageFrameDelay: number;
 };
@@ -25,7 +25,6 @@ function TimelineFrames({
   frames,
   currentFrame,
   multiplierWidth,
-  onFrameChange,
   averageFrameDelay,
 }: TimelineFramesProps) {
   return (
@@ -39,15 +38,14 @@ function TimelineFrames({
               (frame.delay / averageFrameDelay)
             : frame.width;
         return (
-          <button
+          <div
             key={frame.id}
-            onClick={() => onFrameChange(frame)}
             className={cx($.item, isActive && $.isActive, extra && $.isExtra)}
           >
             <ImageDataCanvas data={frame.data} width={cellWidth} />
             <span className={$.itemIndex}>{frame.index}</span>
             <span className={$.itemFrames}>{frame.delay}</span>
-          </button>
+          </div>
         );
       })}
     </>
@@ -58,11 +56,12 @@ export function Timeline({
   time,
   timeline,
   currentFrame,
-  onFrameChange,
+  onTimeChange,
   onPointerDown,
   multiplierWidth = null,
 }: TimelineProps) {
   const { frames, averageFrameDelay, totalTime } = timeline;
+  const firstFrame = frames.at(0);
   const percentage =
     multiplierWidth !== null
       ? (time / totalTime) * 100
@@ -70,10 +69,36 @@ export function Timeline({
       ? (frames.indexOf(currentFrame) / frames.length) * 100
       : 0;
   const relativePercentage = 100 / 3 + percentage / 3;
+  const frameContainerRef = React.useRef<HTMLDivElement>(null);
+  const pointerDownHandler = (ev: React.MouseEvent) => {
+    onPointerDown?.();
+    const frameContainer = frameContainerRef.current;
+    if (!frameContainer) return;
+    const startingTime = time;
+    const startingX = ev.clientX;
+    const cellWidth = frameContainer.offsetWidth / 3 / totalTime;
+
+    function pointermoveHandler(ev: MouseEvent) {
+      ev.preventDefault();
+      const x = startingX - ev.clientX;
+      const timeOffset = Math.floor(x / cellWidth);
+      const nextTime = (totalTime + timeOffset + startingTime) % totalTime;
+      onTimeChange(nextTime);
+    }
+    function pointerupHandler(ev: MouseEvent) {
+      ev.preventDefault();
+      window.removeEventListener("pointermove", pointermoveHandler);
+      window.removeEventListener("pointerup", pointerupHandler);
+    }
+
+    window.addEventListener("pointermove", pointermoveHandler);
+    window.addEventListener("pointerup", pointerupHandler);
+  };
 
   return (
-    <div className={$.container} onPointerDown={onPointerDown}>
+    <div className={$.container} onPointerDown={pointerDownHandler}>
       <div
+        ref={frameContainerRef}
         className={$.frames}
         style={{
           translate: `${relativePercentage * -1}%`,
@@ -83,14 +108,12 @@ export function Timeline({
           extra
           frames={frames}
           currentFrame={null}
-          onFrameChange={onFrameChange}
           multiplierWidth={multiplierWidth}
           averageFrameDelay={averageFrameDelay}
         />
         <TimelineFrames
           frames={frames}
           currentFrame={currentFrame}
-          onFrameChange={onFrameChange}
           multiplierWidth={multiplierWidth}
           averageFrameDelay={averageFrameDelay}
         />
@@ -98,7 +121,6 @@ export function Timeline({
           extra
           frames={frames}
           currentFrame={null}
-          onFrameChange={onFrameChange}
           multiplierWidth={multiplierWidth}
           averageFrameDelay={averageFrameDelay}
         />

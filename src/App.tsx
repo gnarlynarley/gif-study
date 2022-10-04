@@ -260,7 +260,7 @@ export function App() {
                 time={time}
                 timeline={timeline}
                 currentFrame={currentFrame}
-                onFrameChange={(frame) => setTime(frame.time)}
+                onTimeChange={setTime}
                 onPointerDown={() => {
                   setPlaying(false);
                 }}
