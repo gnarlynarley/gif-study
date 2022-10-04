@@ -146,8 +146,6 @@ export function App() {
     setTimelineOptions((prev) => ({ ...prev, [option]: value }));
   };
 
-  const [zoom, setZoom] = useLocalForageState("zoom", 1, 1);
-
   return (
     <DropZone accept="image/gif" disabled={pending} onFileDrop={setFile}>
       {pending && <span className={$.loading}>Loading gif..</span>}
@@ -179,15 +177,6 @@ export function App() {
 
             <span className={$.toolbarPush} />
             <DropDown>
-              <RangeInput
-                label="Zoom level"
-                min={0.1}
-                max={1}
-                step={0.1}
-                value={zoom}
-                onChange={setZoom}
-              />
-
               <RangeInput
                 label="Playback speed"
                 min={0}
@@ -240,7 +229,7 @@ export function App() {
             </DropDown>
           </div>
         </div>
-        <div className={cx($.image)} style={{ scale: `${zoom * 100}%` }}>
+        <div className={cx($.image)}>
           {currentFrame && (
             <ImageDataCanvas
               className={cx($.canvas, $.isCurrentFrame)}
