@@ -2,7 +2,7 @@ import React from "react";
 import { Timeline as TimelineType, TimelineFrame } from "../models";
 import { cx } from "../utils/joinClassNames";
 import { ImageDataCanvas } from "./ImageDataCanvas";
-import $ from "./Timeline.module.scss";
+import $ from "./TimelineBar.module.scss";
 
 type TimelineProps = {
   time: number;
@@ -55,7 +55,7 @@ function mod(value: number, add: number): number {
   return ((value % add) + add) % add;
 }
 
-export function Timeline({
+export function TimelineBar({
   time,
   timeline,
   currentFrame,

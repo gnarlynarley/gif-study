@@ -4,9 +4,8 @@ import {
   PlayIcon,
   PauseIcon,
   IconButton,
-  ImageDataCanvas,
   ResizableContainer,
-  Timeline,
+  TimelineBar,
   SkipPreviousIcon,
   SkipNextIcon,
   CheckboxInput,
@@ -21,6 +20,7 @@ import { FileInput } from "./lib/components/FileInput";
 import { Button } from "./lib/components/Button";
 import { downloadTimelineAsZip } from "./lib/utils/downloadTimelineAsZip";
 import $ from "./App.module.scss";
+import { TimelineCanvas } from "./lib/components/TimelineCanvas";
 
 export function App() {
   const [playing, setPlaying] = React.useState(true);
@@ -58,7 +58,6 @@ export function App() {
     };
   }, [gif]);
   const [file, setFile] = React.useState<File | null>(null);
-
   const [time, setTime] = React.useState(0);
 
   const currentFrame = timeline?.timelineFrames[time] ?? null;
@@ -131,10 +130,14 @@ export function App() {
     height: 100,
     widthMultiplier: 0.5,
     relativeCellWidth: true,
+    onionSkinEnabled: false,
+    onionSkinContrastLevel: 0.5,
+    onionSkinPrevColor: "#0000ff",
+    onionSkinNextColor: "ff6a00",
   };
   const [timelineOptions, setTimelineOptions] = useLocalForageState(
     "timelineOptions",
-    1,
+    2,
     timelineOptionsDefaults
   );
   const changeTimelineOption = <
@@ -181,7 +184,7 @@ export function App() {
             {currentFrame && (
               <span className={$.toolbarInfo}>
                 frame: {currentFrame.number}, duration: {currentFrame.duration}
-                ms
+                0ms
               </span>
             )}
 
@@ -233,6 +236,55 @@ export function App() {
                 </>
               )}
 
+              <h3>Onion skin options:</h3>
+
+              <CheckboxInput
+                id="union-enabled"
+                label="Enabled"
+                checked={timelineOptions.onionSkinEnabled}
+                onChange={(value) =>
+                  changeTimelineOption("onionSkinEnabled", value)
+                }
+              />
+              {timelineOptions.onionSkinEnabled && (
+                <>
+                  <RangeInput
+                    label={`Contrast ${Math.round(
+                      timelineOptions.onionSkinContrastLevel * 100
+                    )}%`}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={timelineOptions.onionSkinContrastLevel}
+                    onChange={(value) =>
+                      changeTimelineOption("onionSkinContrastLevel", value)
+                    }
+                  />
+                  <div>
+                    <input
+                      type="color"
+                      value={timelineOptions.onionSkinPrevColor}
+                      onChange={(ev) =>
+                        changeTimelineOption(
+                          "onionSkinPrevColor",
+                          ev.target.value
+                        )
+                      }
+                    />
+                    <input
+                      type="color"
+                      value={timelineOptions.onionSkinNextColor}
+                      onChange={(ev) =>
+                        changeTimelineOption(
+                          "onionSkinNextColor",
+                          ev.target.value
+                        )
+                      }
+                    />
+                  </div>
+                </>
+              )}
+
               <h3>Keybinds:</h3>
               <ul style={{ whiteSpace: "nowrap" }}>
                 <li>J = Previous frame</li>
@@ -243,12 +295,14 @@ export function App() {
           </div>
         </div>
         <div className={cx($.image)}>
-          {currentFrame && (
-            <ImageDataCanvas
-              className={cx($.canvas, $.isCurrentFrame)}
-              data={currentFrame.data}
-            />
-          )}
+          <TimelineCanvas
+            currentFrame={currentFrame}
+            timeline={timeline}
+            onionSkinEnabled={timelineOptions.onionSkinEnabled}
+            onionSkinContrastLevel={timelineOptions.onionSkinContrastLevel}
+            onionSkinPrevColor={timelineOptions.onionSkinPrevColor}
+            onionSkinNextColor={timelineOptions.onionSkinNextColor}
+          />
         </div>
         {timeline && timelineOptions !== null && (
           <div className={$.thumbnails}>
@@ -258,7 +312,7 @@ export function App() {
               max={600}
               onChange={(value) => changeTimelineOption("height", value)}
             >
-              <Timeline
+              <TimelineBar
                 time={time}
                 timeline={timeline}
                 currentFrame={currentFrame}
