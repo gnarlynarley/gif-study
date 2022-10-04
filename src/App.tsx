@@ -6,7 +6,7 @@ import {
   IconButton,
   ImageDataCanvas,
   ResizableContainer,
-  Timeline,
+  TimelineBar,
   SkipPreviousIcon,
   SkipNextIcon,
   CheckboxInput,
@@ -21,6 +21,7 @@ import { FileInput } from "./lib/components/FileInput";
 import { Button } from "./lib/components/Button";
 import { downloadTimelineAsZip } from "./lib/utils/downloadTimelineAsZip";
 import $ from "./App.module.scss";
+import { TimelineCanvas } from "./lib/components/TimelineCanvas";
 
 export function App() {
   const [playing, setPlaying] = React.useState(true);
@@ -55,6 +56,7 @@ export function App() {
       timelineFrames,
       totalTime,
       averageFrameDelay,
+      renderCache: new WeakMap(),
     };
   }, [gif]);
   const [file, setFile] = React.useState<File | null>(null);
@@ -243,12 +245,7 @@ export function App() {
           </div>
         </div>
         <div className={cx($.image)}>
-          {currentFrame && (
-            <ImageDataCanvas
-              className={cx($.canvas, $.isCurrentFrame)}
-              data={currentFrame.data}
-            />
-          )}
+          <TimelineCanvas currentFrame={currentFrame} timeline={timeline} />
         </div>
         {timeline && timelineOptions !== null && (
           <div className={$.thumbnails}>
@@ -258,7 +255,7 @@ export function App() {
               max={600}
               onChange={(value) => changeTimelineOption("height", value)}
             >
-              <Timeline
+              <TimelineBar
                 time={time}
                 timeline={timeline}
                 currentFrame={currentFrame}

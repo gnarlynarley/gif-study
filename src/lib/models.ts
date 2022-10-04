@@ -4,6 +4,7 @@ export interface Timeline {
   timelineFrames: TimelineFrame[];
   totalTime: number;
   averageFrameDelay: number;
+  renderCache: WeakMap<ImageData, ImageData>;
 }
 
 export interface TimelineFrame {
