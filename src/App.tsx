@@ -37,19 +37,23 @@ export function App() {
         index: frame.frameIndex,
         id: frame.id,
         data: frame.data,
-        hold: frame.delay,
+        delay: frame.delay,
         time: time - frame.delay,
         width: frame.data.width,
         height: frame.data.height,
       };
     });
+    const totalTime = frames.reduce((acc, frame) => acc + frame.delay, 0);
+    const averageFrameDelay = totalTime / frames.length;
+
     return {
       gifFile: gif.file,
       frames,
       timelineFrames: frames.flatMap((frame) =>
-        Array.from({ length: frame.hold }, () => frame)
+        Array.from({ length: frame.delay }, () => frame)
       ),
-      totalTime: frames.reduce((acc, frame) => acc + frame.hold, 0),
+      totalTime,
+      averageFrameDelay,
     };
   }, [gif]);
   const [file, setFile] = React.useState<File | null>(null);
@@ -254,8 +258,7 @@ export function App() {
             >
               <Timeline
                 time={time}
-                totalTime={timeline.totalTime}
-                frames={timeline.frames}
+                timeline={timeline}
                 currentFrame={currentFrame}
                 onFrameChange={(frame) => setTime(frame.time)}
                 onPointerDown={() => {

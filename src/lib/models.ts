@@ -3,13 +3,14 @@ export interface Timeline {
   frames: TimelineFrame[];
   timelineFrames: TimelineFrame[];
   totalTime: number;
+  averageFrameDelay: number;
 }
 
 export interface TimelineFrame {
   id: string;
   data: ImageData;
   time: number;
-  hold: number;
+  delay: number;
   width: number;
   height: number;
   index: number;

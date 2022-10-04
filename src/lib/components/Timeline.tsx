@@ -1,14 +1,11 @@
-import React from "react";
-import { GifFrame } from "../buzzfeed-gif";
-import { TimelineFrame } from "../models";
+import { Timeline as TimelineType, TimelineFrame } from "../models";
 import { cx } from "../utils/joinClassNames";
 import { ImageDataCanvas } from "./ImageDataCanvas";
 import $ from "./Timeline.module.scss";
 
 type TimelineProps = {
   time: number;
-  totalTime: number;
-  frames: TimelineFrame[];
+  timeline: TimelineType;
   currentFrame: TimelineFrame | null;
   onPointerDown?: () => void;
   onFrameChange: (frame: TimelineFrame) => void;
@@ -20,6 +17,7 @@ type TimelineFramesProps = {
   currentFrame: TimelineFrame | null;
   onFrameChange: (frame: TimelineFrame) => void;
   multiplierWidth?: number | null;
+  averageFrameDelay: number;
 };
 
 function TimelineFrames({
@@ -28,6 +26,7 @@ function TimelineFrames({
   currentFrame,
   multiplierWidth,
   onFrameChange,
+  averageFrameDelay,
 }: TimelineFramesProps) {
   return (
     <>
@@ -35,7 +34,9 @@ function TimelineFrames({
         const isActive = frame === currentFrame;
         const cellWidth =
           multiplierWidth != null
-            ? frame.height * (multiplierWidth / 4) * frame.hold
+            ? frame.height *
+              (multiplierWidth * 1.5) *
+              (frame.delay / averageFrameDelay)
             : frame.width;
         return (
           <button
@@ -45,7 +46,7 @@ function TimelineFrames({
           >
             <ImageDataCanvas data={frame.data} width={cellWidth} />
             <span className={$.itemIndex}>{frame.index}</span>
-            <span className={$.itemFrames}>{frame.hold}</span>
+            <span className={$.itemFrames}>{frame.delay}</span>
           </button>
         );
       })}
@@ -55,13 +56,13 @@ function TimelineFrames({
 
 export function Timeline({
   time,
-  totalTime,
-  frames,
+  timeline,
   currentFrame,
   onFrameChange,
   onPointerDown,
   multiplierWidth = null,
 }: TimelineProps) {
+  const { frames, averageFrameDelay, totalTime } = timeline;
   const percentage =
     multiplierWidth !== null
       ? (time / totalTime) * 100
@@ -84,12 +85,14 @@ export function Timeline({
           currentFrame={null}
           onFrameChange={onFrameChange}
           multiplierWidth={multiplierWidth}
+          averageFrameDelay={averageFrameDelay}
         />
         <TimelineFrames
           frames={frames}
           currentFrame={currentFrame}
           onFrameChange={onFrameChange}
           multiplierWidth={multiplierWidth}
+          averageFrameDelay={averageFrameDelay}
         />
         <TimelineFrames
           extra
@@ -97,6 +100,7 @@ export function Timeline({
           currentFrame={null}
           onFrameChange={onFrameChange}
           multiplierWidth={multiplierWidth}
+          averageFrameDelay={averageFrameDelay}
         />
       </div>
     </div>
