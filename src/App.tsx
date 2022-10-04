@@ -134,12 +134,14 @@ export function App() {
     onionSkinContrastLevel: 0.5,
     onionSkinPrevColor: "#0000ff",
     onionSkinNextColor: "ff6a00",
+    onionSkinOpacity: 0.3,
   };
-  const [timelineOptions, setTimelineOptions] = useLocalForageState(
+  const [_timelineOptions, setTimelineOptions] = useLocalForageState(
     "timelineOptions",
     2,
     timelineOptionsDefaults
   );
+  const timelineOptions = { ...timelineOptionsDefaults, ..._timelineOptions };
   const changeTimelineOption = <
     K extends keyof typeof timelineOptionsDefaults,
     T extends typeof timelineOptionsDefaults[K]
@@ -260,6 +262,18 @@ export function App() {
                       changeTimelineOption("onionSkinContrastLevel", value)
                     }
                   />
+                  <RangeInput
+                    label={`Opacity ${Math.round(
+                      timelineOptions.onionSkinOpacity * 100
+                    )}%`}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={timelineOptions.onionSkinOpacity ?? 0}
+                    onChange={(value) =>
+                      changeTimelineOption("onionSkinOpacity", value)
+                    }
+                  />
                   <div>
                     <input
                       type="color"
@@ -302,6 +316,7 @@ export function App() {
             onionSkinContrastLevel={timelineOptions.onionSkinContrastLevel}
             onionSkinPrevColor={timelineOptions.onionSkinPrevColor}
             onionSkinNextColor={timelineOptions.onionSkinNextColor}
+            onionSkinOpacity={timelineOptions.onionSkinOpacity}
           />
         </div>
         {timeline && timelineOptions !== null && (
