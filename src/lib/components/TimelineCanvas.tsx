@@ -85,7 +85,6 @@ export function TimelineCanvas({
   const cache = React.useMemo(() => {
     return new WeakMap<ImageData, ImageData>();
   }, [
-    onionSkinEnabled,
     onionSkinContrastLevel,
     onionSkinPrevColor,
     onionSkinNextColor,
@@ -117,6 +116,7 @@ export function TimelineCanvas({
     return data;
   }, [
     currentFrame,
+    onionSkinEnabled,
     onionSkinContrastLevel,
     onionSkinPrevColor,
     onionSkinNextColor,
