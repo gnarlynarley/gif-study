@@ -927,6 +927,7 @@ export interface GifFrame {
   frameIndex: number;
 }
 export interface Gif {
+  id: string;
   file: File;
   frames: GifFrame[];
   width: number;
@@ -966,6 +967,7 @@ export async function convertGif(file: File) {
           };
         });
         resolve({
+          id: `${Math.random()}`,
           file,
           frames,
           width: data.width,

@@ -10,9 +10,14 @@
   display: inline-flex;
   align-items: center;
 
-  &:hover,
-  &:active {
-    background: var(--accent);
+  &:not(.isDisabled),
+  &:not([disabled]) {
+    &:hover {
+      background: var(--muted-accent);
+    }
+    &:active {
+      background: var(--accent);
+    }
   }
 
   &.isDisabled,

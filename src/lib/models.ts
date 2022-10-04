@@ -1,4 +1,5 @@
 export interface Timeline {
+  id: string;
   gifFile: File;
   frames: TimelineFrame[];
   timelineFrames: TimelineFrame[];

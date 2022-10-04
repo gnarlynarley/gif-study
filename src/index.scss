@@ -7,7 +7,7 @@
 }
 
 $c-paper: #222;
-$c-muted-paper: lighten($c-paper, 8%);
+$c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
 $c-ink: #fff;
 $c-primary: #07aa35;
 
@@ -15,13 +15,15 @@ $c-primary: #07aa35;
   --paper: #{$c-paper};
   --muted-paper: #{$c-muted-paper};
   --ink: #{$c-ink};
+  --muted-accent: #{darken($c-ink, 65%)};
   --accent: #{darken($c-ink, 30%)};
-  --spacing: 1em;
+  --spacing: 0.8em;
   --primary: #{$c-primary};
   --border-width: 2px;
   --border: var(--border-width) solid var(--primary);
   --border-radius: 0.3em;
   --drop-shadow: 0 1px 4px #{rgba(black, 0.1)};
+  --backdrop-filter: blur(0.3em);
 }
 
 html {
@@ -50,4 +52,8 @@ hr {
 
 h3 {
   margin: 0;
+}
+
+label {
+  cursor: inherit;
 }

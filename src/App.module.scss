@@ -1,19 +1,14 @@
 .container {
   width: 100vw;
   height: 100vh;
-  display: grid;
-  grid-template:
-    "toolbar" auto
-    "image" 1fr
-    "thumbnails" auto;
-  padding: var(--spacing);
-  gap: var(--spacing);
+  position: relative;
 }
 
 .loading {
   position: absolute;
   top: 0;
   left: 50%;
+  z-index: 2;
   translate: -50%;
   padding: 1em;
   background: var(--primary);
@@ -23,42 +18,20 @@
   box-shadow: var(--drop-shadow);
 }
 
-.image {
+.toolbar {
+  position: absolute;
+  top: var(--spacing);
+  left: var(--spacing);
+  width: calc(100% - var(--spacing) * 2);
+  grid-area: toolbar;
+  z-index: 1;
+  background-color: var(--muted-paper);
+  box-shadow: var(--drop-shadow);
+  backdrop-filter: var(--backdrop-filter);
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
-  grid-area: image;
-
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: scale-down;
-  }
-}
-
-.thumbnails {
-  grid-area: thumbnails;
-  overflow: hidden;
-}
-
-.toolbar {
-  grid-area: toolbar;
-  position: relative;
-  z-index: 1;
-
-  &Row {
-    display: flex;
-    align-items: center;
-  }
-
-  &Push {
-    width: 100%;
-    display: block;
-  }
+  padding: var(--spacing);
 
   &Divider {
     width: 1px;
@@ -68,6 +41,32 @@
   }
 
   &Info {
+    width: 100%;
+    display: block;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-area: image;
+}
+
+.timeline {
+  position: absolute;
+  position: absolute;
+  bottom: var(--spacing);
+  left: var(--spacing);
+  z-index: 1;
+  width: calc(100% - var(--spacing) * 2);
+  overflow: hidden;
 }

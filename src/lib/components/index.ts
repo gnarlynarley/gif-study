@@ -4,6 +4,7 @@ export * from "./DropDown";
 export * from "./RangeInput";
 export * from "./CheckboxInput";
 export * from "./TimelineBar";
+export * from "./TimelineCanvas";
 export * from "./ResizableContainer";
 export * from "./DropZone";
 export * from "./ImageDataCanvas";

@@ -1,5 +1,6 @@
 import React from "react";
 import { Timeline as TimelineType, TimelineFrame } from "../models";
+import { calcModulo } from "../utils/calcModulo";
 import { cx } from "../utils/joinClassNames";
 import { ImageDataCanvas } from "./ImageDataCanvas";
 import $ from "./TimelineBar.module.scss";
@@ -51,10 +52,6 @@ function TimelineFrames({
   );
 }
 
-function mod(value: number, add: number): number {
-  return ((value % add) + add) % add;
-}
-
 export function TimelineBar({
   time,
   timeline,
@@ -86,7 +83,7 @@ export function TimelineBar({
       ev.preventDefault();
       const x = startingX - ev.clientX;
       const timeOffset = Math.floor(x / cellWidth);
-      const nextTime = mod(startingTime + timeOffset, totalTime);
+      const nextTime = calcModulo(startingTime + timeOffset, totalTime);
       onTimeChange(nextTime);
     }
     function pointerupHandler(ev: MouseEvent) {

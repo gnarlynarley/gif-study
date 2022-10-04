@@ -1,6 +1,6 @@
 import { assert } from "./assert";
 
-export function createCanvas(width: number, height: number) {
+export function createCanvas(width: number = 0, height: number = 0) {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   assert(context);

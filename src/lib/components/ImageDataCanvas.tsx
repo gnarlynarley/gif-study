@@ -2,7 +2,7 @@ import React from "react";
 
 type Props = {
   className?: string;
-  data: ImageData;
+  data: ImageData | null;
   width?: number;
   height?: number;
 };
@@ -18,7 +18,7 @@ export function ImageDataCanvas({ data, className, width, height }: Props) {
   React.useEffect(() => {
     const canvas = canvasRef.current;
     const context = contextRef.current;
-    if (canvas && context) {
+    if (canvas && context && data) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.putImageData(data, 0, 0);
     }
@@ -28,8 +28,8 @@ export function ImageDataCanvas({ data, className, width, height }: Props) {
     <canvas
       ref={canvasRef}
       className={className}
-      width={width ?? data.width}
-      height={height ?? data.height}
+      width={width ?? data?.width}
+      height={height ?? data?.height}
     />
   );
 }

@@ -6,6 +6,7 @@ import {
   IconButton,
   ResizableContainer,
   TimelineBar,
+  TimelineCanvas,
   SkipPreviousIcon,
   SkipNextIcon,
   CheckboxInput,
@@ -19,15 +20,46 @@ import { useKeybind, useLocalForageState } from "./lib/hooks";
 import { FileInput } from "./lib/components/FileInput";
 import { Button } from "./lib/components/Button";
 import { downloadTimelineAsZip } from "./lib/utils/downloadTimelineAsZip";
+import { toggleFullScreen } from "./lib/utils/toggleFullScreen";
 import $ from "./App.module.scss";
-import { TimelineCanvas } from "./lib/components/TimelineCanvas";
+
+function useTimelineOptions() {
+  const timelineOptionsDefaults = {
+    height: 100,
+    widthMultiplier: 0.5,
+    relativeCellWidth: true,
+    onionSkinEnabled: false,
+    onionSkinContrastLevel: 0.3,
+    onionSkinPrevColor: "#0000ff",
+    onionSkinNextColor: "#ff6a00",
+    onionSkinOpacity: 0.3,
+  };
+  const [options, setOptions] = useLocalForageState(
+    "timelineOptions",
+    3,
+    timelineOptionsDefaults
+  );
+  const setOption = <
+    K extends keyof typeof timelineOptionsDefaults,
+    T extends typeof timelineOptionsDefaults[K]
+  >(
+    option: K,
+    value: T
+  ) => {
+    setOptions((prev) => ({ ...prev, [option]: value }));
+  };
+
+  return {
+    options,
+    setOption,
+  };
+}
 
 export function App() {
   const [playing, setPlaying] = React.useState(true);
-  const [speed, setSpeed] = useLocalForageState<number>("speed", 2, 1);
-  const speedValue = speed ?? 1;
   const [pending, setPending] = React.useState(false);
-  const [gif, setGif] = useLocalForageState<Gif | null>("data", 2, null);
+  const [speed, setSpeed] = useLocalForageState<number>("speed", 2, 1);
+  const [gif, setGif] = useLocalForageState<Gif | null>("gif", 1, null);
   const timeline = React.useMemo((): TimelineType | null => {
     if (!gif) return null;
     let time = 0;
@@ -50,6 +82,7 @@ export function App() {
     const averageFrameDelay = totalTime / frames.length;
 
     return {
+      id: gif.id,
       gifFile: gif.file,
       frames,
       timelineFrames,
@@ -59,6 +92,7 @@ export function App() {
   }, [gif]);
   const [file, setFile] = React.useState<File | null>(null);
   const [time, setTime] = React.useState(0);
+  const { options, setOption } = useTimelineOptions();
 
   const currentFrame = timeline?.timelineFrames[time] ?? null;
 
@@ -100,12 +134,12 @@ export function App() {
     const max = timeline.timelineFrames.length;
     const id = setInterval(() => {
       setTime((prev) => (prev + 1) % max);
-    }, 10 - 10 * (speedValue - 1));
+    }, 10 - 10 * (speed - 1));
 
     return () => {
       clearInterval(id);
     };
-  }, [timeline, playing, speedValue]);
+  }, [timeline, playing, speed]);
 
   useKeybind("k", () => {
     setPlaying(!playing);
@@ -125,207 +159,164 @@ export function App() {
   useKeybind("right", () => {
     navigateFrame(1);
   });
-
-  const timelineOptionsDefaults = {
-    height: 100,
-    widthMultiplier: 0.5,
-    relativeCellWidth: true,
-    onionSkinEnabled: false,
-    onionSkinContrastLevel: 0.5,
-    onionSkinPrevColor: "#0000ff",
-    onionSkinNextColor: "ff6a00",
-    onionSkinOpacity: 0.3,
-  };
-  const [_timelineOptions, setTimelineOptions] = useLocalForageState(
-    "timelineOptions",
-    2,
-    timelineOptionsDefaults
-  );
-  const timelineOptions = { ...timelineOptionsDefaults, ..._timelineOptions };
-  const changeTimelineOption = <
-    K extends keyof typeof timelineOptionsDefaults,
-    T extends typeof timelineOptionsDefaults[K]
-  >(
-    option: K,
-    value: T
-  ) => {
-    setTimelineOptions((prev) => ({ ...prev, [option]: value }));
-  };
+  useKeybind("f", () => {
+    toggleFullScreen();
+  });
 
   return (
     <DropZone accept="image/gif" disabled={pending} onFileDrop={setFile}>
       {pending && <span className={$.loading}>Loading gif..</span>}
       <div className={cx($.container)}>
         <div className={$.toolbar}>
-          <div className={$.toolbarRow}>
-            <FileInput
-              disabled={pending}
-              accept="image/gif"
-              label="Open gif"
-              onFile={setFile}
+          <FileInput
+            disabled={pending}
+            accept="image/gif"
+            label="Open gif"
+            onFile={setFile}
+          />
+          <span className={$.toolbarDivider} />
+          <IconButton label="next frame (l)" onClick={() => navigateFrame(-1)}>
+            <SkipPreviousIcon />
+          </IconButton>
+          <IconButton
+            label={playing ? "Pause (k)" : "Play (k)"}
+            onClick={() => setPlaying(!playing)}
+          >
+            {playing ? <PauseIcon /> : <PlayIcon />}
+          </IconButton>
+          <IconButton label="next frame (l)" onClick={() => navigateFrame(1)}>
+            <SkipNextIcon />
+          </IconButton>
+
+          <span className={$.toolbarDivider} />
+
+          <span className={$.toolbarInfo}>
+            frame: {currentFrame?.number ?? 0}, duration:{" "}
+            {currentFrame?.duration ?? ""}
+            0ms
+          </span>
+
+          <span className={$.toolbarPush} />
+
+          <DropDown>
+            <RangeInput
+              label={`Playback speed ${speed * 100}%`}
+              min={0}
+              max={2}
+              step={0.2}
+              value={speed}
+              onChange={setSpeed}
             />
-            <span className={$.toolbarDivider} />
-            <IconButton
-              label="next frame (l)"
-              onClick={() => navigateFrame(-1)}
-            >
-              <SkipPreviousIcon />
-            </IconButton>
-            <IconButton
-              label={playing ? "Pause (k)" : "Play (k)"}
-              onClick={() => setPlaying(!playing)}
-            >
-              {playing ? <PauseIcon /> : <PlayIcon />}
-            </IconButton>
-            <IconButton label="next frame (l)" onClick={() => navigateFrame(1)}>
-              <SkipNextIcon />
-            </IconButton>
 
-            <span className={$.toolbarDivider} />
-
-            {currentFrame && (
-              <span className={$.toolbarInfo}>
-                frame: {currentFrame.number}, duration: {currentFrame.duration}
-                0ms
-              </span>
+            <CheckboxInput
+              id="timeline-relative-width"
+              label="use relative width"
+              checked={options.relativeCellWidth}
+              onChange={(value) => setOption("relativeCellWidth", value)}
+            />
+            {options.relativeCellWidth && (
+              <>
+                <RangeInput
+                  label={`Timeline width ${options.widthMultiplier * 100}%`}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={options.widthMultiplier}
+                  onChange={(value) => setOption("widthMultiplier", value)}
+                />
+              </>
             )}
 
-            <span className={$.toolbarPush} />
+            {timeline && (
+              <>
+                <Button onClick={() => generateGif(timeline.gifFile)}>
+                  regenerate frames
+                </Button>
+                <Button onClick={() => downloadTimelineAsZip(timeline)}>
+                  download frames
+                </Button>
+              </>
+            )}
 
-            <DropDown>
-              <RangeInput
-                label={`Playback speed ${speedValue * 100}%`}
-                min={0}
-                max={2}
-                step={0.2}
-                value={speedValue}
-                onChange={setSpeed}
-              />
+            <h3>Onion skin options:</h3>
 
-              <CheckboxInput
-                id="timeline-relative-width"
-                label="use relative width"
-                checked={timelineOptions.relativeCellWidth}
-                onChange={(value) =>
-                  changeTimelineOption("relativeCellWidth", value)
-                }
-              />
-              {timelineOptions.relativeCellWidth && (
-                <>
-                  <RangeInput
-                    label={`Timeline width ${
-                      timelineOptions.widthMultiplier * 100
-                    }%`}
-                    min={0}
-                    max={1}
-                    step={0.05}
-                    value={timelineOptions.widthMultiplier}
-                    onChange={(value) =>
-                      changeTimelineOption("widthMultiplier", value)
+            <CheckboxInput
+              id="union-enabled"
+              label="Enabled"
+              checked={options.onionSkinEnabled}
+              onChange={(value) => setOption("onionSkinEnabled", value)}
+            />
+            {options.onionSkinEnabled && (
+              <>
+                <RangeInput
+                  label={`Contrast ${Math.round(
+                    options.onionSkinContrastLevel * 100
+                  )}%`}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={options.onionSkinContrastLevel}
+                  onChange={(value) =>
+                    setOption("onionSkinContrastLevel", value)
+                  }
+                />
+                <RangeInput
+                  label={`Opacity ${Math.round(
+                    options.onionSkinOpacity * 100
+                  )}%`}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={options.onionSkinOpacity ?? 0}
+                  onChange={(value) => setOption("onionSkinOpacity", value)}
+                />
+                <div>
+                  <input
+                    type="color"
+                    value={options.onionSkinPrevColor}
+                    onChange={(ev) =>
+                      setOption("onionSkinPrevColor", ev.target.value)
                     }
                   />
-                </>
-              )}
-
-              {timeline && (
-                <>
-                  <Button onClick={() => generateGif(timeline.gifFile)}>
-                    regenerate frames
-                  </Button>
-                  <Button onClick={() => downloadTimelineAsZip(timeline)}>
-                    download frames
-                  </Button>
-                </>
-              )}
-
-              <h3>Onion skin options:</h3>
-
-              <CheckboxInput
-                id="union-enabled"
-                label="Enabled"
-                checked={timelineOptions.onionSkinEnabled}
-                onChange={(value) =>
-                  changeTimelineOption("onionSkinEnabled", value)
-                }
-              />
-              {timelineOptions.onionSkinEnabled && (
-                <>
-                  <RangeInput
-                    label={`Contrast ${Math.round(
-                      timelineOptions.onionSkinContrastLevel * 100
-                    )}%`}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={timelineOptions.onionSkinContrastLevel}
-                    onChange={(value) =>
-                      changeTimelineOption("onionSkinContrastLevel", value)
+                  <input
+                    type="color"
+                    value={options.onionSkinNextColor}
+                    onChange={(ev) =>
+                      setOption("onionSkinNextColor", ev.target.value)
                     }
                   />
-                  <RangeInput
-                    label={`Opacity ${Math.round(
-                      timelineOptions.onionSkinOpacity * 100
-                    )}%`}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={timelineOptions.onionSkinOpacity ?? 0}
-                    onChange={(value) =>
-                      changeTimelineOption("onionSkinOpacity", value)
-                    }
-                  />
-                  <div>
-                    <input
-                      type="color"
-                      value={timelineOptions.onionSkinPrevColor}
-                      onChange={(ev) =>
-                        changeTimelineOption(
-                          "onionSkinPrevColor",
-                          ev.target.value
-                        )
-                      }
-                    />
-                    <input
-                      type="color"
-                      value={timelineOptions.onionSkinNextColor}
-                      onChange={(ev) =>
-                        changeTimelineOption(
-                          "onionSkinNextColor",
-                          ev.target.value
-                        )
-                      }
-                    />
-                  </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
 
-              <h3>Keybinds:</h3>
-              <ul style={{ whiteSpace: "nowrap" }}>
-                <li>J = Previous frame</li>
-                <li>L = Next frame</li>
-                <li>K = Toggle playback</li>
-              </ul>
-            </DropDown>
-          </div>
+            <h3>Keybinds:</h3>
+            <ul style={{ whiteSpace: "nowrap" }}>
+              <li>J = Previous frame</li>
+              <li>L = Next frame</li>
+              <li>K = Toggle playback</li>
+            </ul>
+          </DropDown>
         </div>
-        <div className={cx($.image)}>
+
+        <div className={cx($.canvas)}>
           <TimelineCanvas
             currentFrame={currentFrame}
             timeline={timeline}
-            onionSkinEnabled={timelineOptions.onionSkinEnabled}
-            onionSkinContrastLevel={timelineOptions.onionSkinContrastLevel}
-            onionSkinPrevColor={timelineOptions.onionSkinPrevColor}
-            onionSkinNextColor={timelineOptions.onionSkinNextColor}
-            onionSkinOpacity={timelineOptions.onionSkinOpacity}
+            onionSkinEnabled={options.onionSkinEnabled}
+            onionSkinContrastLevel={options.onionSkinContrastLevel}
+            onionSkinPrevColor={options.onionSkinPrevColor}
+            onionSkinNextColor={options.onionSkinNextColor}
+            onionSkinOpacity={options.onionSkinOpacity}
           />
         </div>
-        {timeline && timelineOptions !== null && (
-          <div className={$.thumbnails}>
+
+        {timeline && options !== null && (
+          <div className={$.timeline}>
             <ResizableContainer
-              size={timelineOptions.height}
+              size={options.height}
               min={50}
               max={600}
-              onChange={(value) => changeTimelineOption("height", value)}
+              onChange={(value) => setOption("height", value)}
             >
               <TimelineBar
                 time={time}
@@ -336,9 +327,7 @@ export function App() {
                   setPlaying(false);
                 }}
                 multiplierWidth={
-                  timelineOptions.relativeCellWidth
-                    ? timelineOptions.widthMultiplier
-                    : null
+                  options.relativeCellWidth ? options.widthMultiplier : null
                 }
               />
             </ResizableContainer>
