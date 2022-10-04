@@ -1,4 +1,5 @@
 .container {
+  --spacing: 0.2em;
   position: relative;
   z-index: 0;
   height: 100%;
@@ -15,7 +16,6 @@
 }
 
 .frames {
-  --spacing: 0.2em;
   height: calc(100% - var(--spacing) * 2);
   white-space: nowrap;
   position: absolute;
@@ -56,8 +56,18 @@
   overflow: hidden;
   color: inherit;
   background: transparent;
-  border: var(--border);
-  border-color: var(--color);
+
+  &:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: var(--border);
+    border-color: var(--color);
+  }
 
   &:hover,
   &:active {

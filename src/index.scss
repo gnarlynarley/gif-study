@@ -14,9 +14,8 @@ $c-primary: #07aa35;
 :root {
   --paper: #{$c-paper};
   --muted-paper: #{$c-muted-paper};
-  --muted-paper--transparent: #{rgba($c-muted-paper, 0)};
   --ink: #{$c-ink};
-  --accent: #{darken($c-ink, 50%)};
+  --accent: #{darken($c-ink, 30%)};
   --spacing: 1em;
   --primary: #{$c-primary};
   --border-width: 2px;
