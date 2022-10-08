@@ -79,3 +79,28 @@ export function useDebouncedValue<T>(value: T, ms: number): T {
 
   return debouncedValue;
 }
+
+export function usePreviousValue<T>(value: T): T | null {
+  const ref = React.useRef<T | null>(null);
+  const initialLoadRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (initialLoadRef.current) {
+      ref.current = value;
+    } else {
+      initialLoadRef.current = true;
+    }
+  }, [value]);
+
+  return ref.current;
+}
+
+export function useValueRef<T>(value: T): React.MutableRefObject<T> {
+  const ref = React.useRef(value);
+
+  React.useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref;
+}

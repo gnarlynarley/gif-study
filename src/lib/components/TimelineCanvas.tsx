@@ -1,4 +1,5 @@
 import React from "react";
+import { usePreviousValue, useValueRef } from "../hooks";
 import { Timeline, TimelineFrame } from "../models";
 import { createCanvas } from "../utils/createCanvas";
 import { cx } from "../utils/joinClassNames";
@@ -57,55 +58,61 @@ function createApplyOnionSkin({
   const offscreen = createCanvas();
   const destination = createCanvas();
 
-  return function applyOnionSkin(
-    current: ImageData,
-    prev: ImageData,
-    next: ImageData
-  ): ImageData {
-    let result = cache.get(current);
+  return {
+    applyOnionSkin(
+      current: ImageData,
+      prev: ImageData,
+      next: ImageData
+    ): ImageData {
+      let result = cache.get(current);
 
-    if (!result) {
-      const { width, height } = current;
-      offscreen.canvas.width = width;
-      offscreen.canvas.height = height;
-      destination.canvas.width = width;
-      destination.canvas.height = height;
+      if (!result) {
+        const { width, height } = current;
+        offscreen.canvas.width = width;
+        offscreen.canvas.height = height;
+        destination.canvas.width = width;
+        destination.canvas.height = height;
 
-      destination.context.putImageData(
-        applyContrast(current, contrastLevel),
-        0,
-        0
-      );
-      destination.context.globalAlpha = opacity;
-      destination.context.drawImage(offscreen.canvas, 0, 0);
-
-      [
-        { color: prevColor, frame: prev },
-        { color: nextColor, frame: next },
-      ].forEach(({ color, frame }) => {
-        offscreen.context.putImageData(
-          applyContrast(frame, contrastLevel),
+        destination.context.putImageData(
+          applyContrast(current, contrastLevel),
           0,
           0
         );
-        offscreen.context.globalCompositeOperation = "screen";
-        offscreen.context.fillStyle = color;
-        offscreen.context.fillRect(0, 0, width, height);
-
-        destination.context.globalCompositeOperation = "multiply";
+        destination.context.globalAlpha = opacity;
         destination.context.drawImage(offscreen.canvas, 0, 0);
-      });
 
-      result = destination.context.getImageData(
-        0,
-        0,
-        destination.canvas.width,
-        destination.canvas.height
-      );
-      cache.set(current, result);
-    }
+        [
+          { color: prevColor, frame: prev },
+          { color: nextColor, frame: next },
+        ].forEach(({ color, frame }) => {
+          offscreen.context.putImageData(
+            applyContrast(frame, contrastLevel),
+            0,
+            0
+          );
+          offscreen.context.globalCompositeOperation = "screen";
+          offscreen.context.fillStyle = color;
+          offscreen.context.fillRect(0, 0, width, height);
 
-    return result;
+          destination.context.globalCompositeOperation = "multiply";
+          destination.context.drawImage(offscreen.canvas, 0, 0);
+        });
+
+        result = destination.context.getImageData(
+          0,
+          0,
+          destination.canvas.width,
+          destination.canvas.height
+        );
+        cache.set(current, result);
+      }
+
+      return result;
+    },
+    cleanup() {
+      offscreen.cleanup();
+      destination.cleanup();
+    },
   };
 }
 
@@ -118,7 +125,7 @@ export function TimelineCanvas({
   onionSkinNextColor,
   onionSkinOpacity,
 }: Props) {
-  const applyOnionSkin = React.useMemo(() => {
+  const onionSkin = React.useMemo(() => {
     return createApplyOnionSkin({
       contrastLevel: onionSkinContrastLevel * 255,
       prevColor: onionSkinPrevColor,
@@ -132,6 +139,12 @@ export function TimelineCanvas({
     onionSkinOpacity,
   ]);
 
+  const lastOnionSkin = usePreviousValue(onionSkin);
+
+  React.useEffect(() => {
+    lastOnionSkin?.cleanup();
+  }, [lastOnionSkin]);
+
   const imageData = React.useMemo((): ImageData | null => {
     if (timeline === null || currentFrame === null) return null;
     const { frames } = timeline;
@@ -141,11 +154,15 @@ export function TimelineCanvas({
     const prevFrame = frames.at(currentIndex - 1);
     const nextFrame = frames.at((currentIndex + 1) % frames.length);
     if (prevFrame && nextFrame) {
-      return applyOnionSkin(currentFrame.data, prevFrame.data, nextFrame.data);
+      return onionSkin.applyOnionSkin(
+        currentFrame.data,
+        prevFrame.data,
+        nextFrame.data
+      );
     }
 
     return null;
-  }, [currentFrame, applyOnionSkin, onionSkinEnabled]);
+  }, [currentFrame, onionSkin, onionSkinEnabled]);
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const contextRef = React.useRef<CanvasRenderingContext2D | null>(null);
@@ -188,8 +205,9 @@ export function TimelineCanvas({
   }, [imageData]);
 
   const [zoom, setZoom] = React.useState(1);
+  const zoomRef = useValueRef(zoom);
   const [position, setPosition] = React.useState({ x: 0, y: 0 });
-  const positionRef = React.useRef(position);
+  const positionRef = useValueRef(position);
 
   React.useEffect(() => {
     const container = containerRef.current;
@@ -197,7 +215,7 @@ export function TimelineCanvas({
     function handler(ev: WheelEvent) {
       ev.preventDefault();
 
-      const delta = (ev.deltaY * -1) / 100;
+      const delta = (ev.deltaY * -1) / 1000;
       setPosition((prev) => ({ x: prev.x + delta, y: prev.y + delta }));
       setZoom((value) => Math.min(Math.max(0.01, value + delta), 10));
 
@@ -252,17 +270,25 @@ export function TimelineCanvas({
       onPointerDown={(ev) => {
         const container = containerRef.current;
         if (!container) return;
+        const zoomingMode = ev.metaKey || ev.ctrlKey || false;
         setActive(true);
         const startingX = ev.clientX;
         const startingY = ev.clientY;
-        const startingPosition = position;
+        const startingPosition = positionRef.current;
+        const startingZoom = zoomRef.current;
 
         function pointermoveHandler(ev: MouseEvent) {
           ev.preventDefault();
-          const x = startingPosition.x + (startingX - ev.clientX);
-          const y = startingPosition.y + (startingY - ev.clientY);
+          const movedX = startingX - ev.clientX;
+          const movedY = startingY - ev.clientY;
+          if (zoomingMode) {
+            setZoom(Math.min(Math.max(0.01, startingZoom + movedY / 100), 10));
+          } else {
+            const x = startingPosition.x + movedX;
+            const y = startingPosition.y + movedY;
 
-          setPosition({ x, y });
+            setPosition({ x, y });
+          }
         }
         function pointerupHandler(ev: MouseEvent) {
           ev.preventDefault();

@@ -1,5 +1,6 @@
 import { GifReader } from "omggif";
 import ndarray from "ndarray";
+import { createCanvas } from "./utils/createCanvas";
 
 function handleGif(data: Uint8Array) {
   return new Promise<ndarray.NdArray<Uint8Array>>((resolve, reject) => {
@@ -77,9 +78,7 @@ export async function parseGif(src: string) {
   const frames: HTMLImageElement[] = [];
 
   const [numFrames, width, height] = frameData.shape;
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  assert(context);
+  const { canvas, context, cleanup } = createCanvas(width, height);
   canvas.width = width;
   canvas.height = height;
   const imageData = context.getImageData(0, 0, width, height);
@@ -102,6 +101,8 @@ export async function parseGif(src: string) {
       frames.push(frame);
     }
   }
+
+  cleanup();
 
   return frames;
 }
