@@ -19,7 +19,10 @@ import type { Timeline as TimelineType, TimelineFrame } from "./lib/models";
 import { useKeybind, useLocalForageState } from "./lib/hooks";
 import { FileInput } from "./lib/components/FileInput";
 import { Button } from "./lib/components/Button";
-import { downloadTimelineAsZip } from "./lib/utils/downloadTimelineAsZip";
+import {
+  downloadTimelineAsZip,
+  downloadTimelineFrame,
+} from "./lib/utils/downloadTimelineAsZip";
 import { toggleFullScreen } from "./lib/utils/toggleFullScreen";
 import $ from "./App.module.scss";
 
@@ -236,6 +239,11 @@ export function App() {
                   download frames
                 </Button>
               </>
+            )}
+            {currentFrame && (
+              <Button onClick={() => downloadTimelineFrame(currentFrame)}>
+                download current screen
+              </Button>
             )}
 
             <h3>Onion skin options:</h3>

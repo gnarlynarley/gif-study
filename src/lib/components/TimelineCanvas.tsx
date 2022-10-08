@@ -25,7 +25,7 @@ function applyContrast(imageData: ImageData, removeBelow: number) {
     const average = (r + g + b) / 3;
 
     if (average < removeBelow) {
-      const color = 0;
+      const color = (average / 255) * removeBelow;
       copy.data[i] = color;
       copy.data[i + 1] = color;
       copy.data[i + 2] = color;
