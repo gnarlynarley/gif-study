@@ -25,7 +25,7 @@ function applyContrast(imageData: ImageData, removeBelow: number) {
     const average = (r + g + b) / 3;
 
     if (average < removeBelow) {
-      const color = (average / 255) * removeBelow;
+      const color = 0;
       copy.data[i] = color;
       copy.data[i + 1] = color;
       copy.data[i + 2] = color;
@@ -46,6 +46,8 @@ interface ApplyOnionSkinOptions {
   prevColor: string;
   nextColor: string;
   opacity: number;
+  unionFrames: number;
+  frames: ImageData[];
 }
 
 function createApplyOnionSkin({
@@ -53,18 +55,30 @@ function createApplyOnionSkin({
   nextColor,
   prevColor,
   opacity,
+  frames,
+  unionFrames,
 }: ApplyOnionSkinOptions) {
+  const maxUnionFrames = Math.floor(frames.length / 2);
+  const frameCache = new WeakMap<ImageData, ImageData>();
   const cache = new WeakMap<ImageData, ImageData>();
   const offscreen = createCanvas();
   const destination = createCanvas();
 
+  function createFrame(frame: ImageData) {
+    let result = frameCache.get(frame);
+
+    if (!result) {
+      result = applyContrast(frame, contrastLevel);
+      frameCache.set(frame, result);
+    }
+
+    return result;
+  }
+
   return {
-    applyOnionSkin(
-      current: ImageData,
-      prev: ImageData,
-      next: ImageData
-    ): ImageData {
+    applyOnionSkin(current: ImageData): ImageData {
       let result = cache.get(current);
+      const currentIndex = frames.indexOf(current);
 
       if (!result) {
         const { width, height } = current;
@@ -73,30 +87,27 @@ function createApplyOnionSkin({
         destination.canvas.width = width;
         destination.canvas.height = height;
 
-        destination.context.putImageData(
-          applyContrast(current, contrastLevel),
-          0,
-          0
-        );
-        destination.context.globalAlpha = opacity;
+        destination.context.putImageData(createFrame(current), 0, 0);
         destination.context.drawImage(offscreen.canvas, 0, 0);
+        const _unionFrames = Math.min(maxUnionFrames, unionFrames);
 
-        [
-          { color: prevColor, frame: prev },
-          { color: nextColor, frame: next },
-        ].forEach(({ color, frame }) => {
-          offscreen.context.putImageData(
-            applyContrast(frame, contrastLevel),
-            0,
-            0
+        for (let i = _unionFrames * -1; i < _unionFrames + 1; i += 1) {
+          if (i === 0) i = 1;
+
+          const frame = frames.at(
+            (frames.length + i + currentIndex) % frames.length
           );
-          offscreen.context.globalCompositeOperation = "screen";
-          offscreen.context.fillStyle = color;
-          offscreen.context.fillRect(0, 0, width, height);
-
-          destination.context.globalCompositeOperation = "multiply";
-          destination.context.drawImage(offscreen.canvas, 0, 0);
-        });
+          const currentOpacity = opacity;
+          if (frame) {
+            destination.context.globalAlpha = currentOpacity;
+            offscreen.context.putImageData(createFrame(frame), 0, 0);
+            offscreen.context.globalCompositeOperation = "screen";
+            offscreen.context.fillStyle = i > 0 ? nextColor : prevColor;
+            offscreen.context.fillRect(0, 0, width, height);
+            destination.context.globalCompositeOperation = "multiply";
+            destination.context.drawImage(offscreen.canvas, 0, 0);
+          }
+        }
 
         result = destination.context.getImageData(
           0,
@@ -131,8 +142,11 @@ export function TimelineCanvas({
       prevColor: onionSkinPrevColor,
       nextColor: onionSkinNextColor,
       opacity: onionSkinOpacity,
+      frames: timeline?.frames.map((frame) => frame.data) ?? [],
+      unionFrames: 1,
     });
   }, [
+    timeline?.frames,
     onionSkinContrastLevel,
     onionSkinPrevColor,
     onionSkinNextColor,
@@ -147,21 +161,9 @@ export function TimelineCanvas({
 
   const imageData = React.useMemo((): ImageData | null => {
     if (timeline === null || currentFrame === null) return null;
-    const { frames } = timeline;
     if (!onionSkinEnabled) return currentFrame.data;
 
-    const currentIndex = frames.indexOf(currentFrame);
-    const prevFrame = frames.at(currentIndex - 1);
-    const nextFrame = frames.at((currentIndex + 1) % frames.length);
-    if (prevFrame && nextFrame) {
-      return onionSkin.applyOnionSkin(
-        currentFrame.data,
-        prevFrame.data,
-        nextFrame.data
-      );
-    }
-
-    return null;
+    return onionSkin.applyOnionSkin(currentFrame.data);
   }, [currentFrame, onionSkin, onionSkinEnabled]);
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -175,6 +177,7 @@ export function TimelineCanvas({
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [size, setSize] = React.useState({ width: 0, height: 0 });
+
   React.useEffect(() => {
     const container = containerRef.current as HTMLDivElement;
     const observer = new ResizeObserver(() => {
