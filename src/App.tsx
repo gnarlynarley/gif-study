@@ -65,7 +65,7 @@ function usePwaUpdate() {
     offlineReady: [offlineReady],
     needRefresh: [needRefresh],
   } = useRegisterSW({
-    onRegisteredSW(swUrl: string, r: any) {
+    onRegisteredSW(swUrl, r) {
       if (reloadSW === "true") {
         r &&
           setInterval(() => {

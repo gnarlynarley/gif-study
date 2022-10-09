@@ -1,1 +1,1 @@
-declare module "virtual:pwa-register/react";
+/// <reference types="vite-plugin-pwa/client" />
