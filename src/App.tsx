@@ -64,6 +64,7 @@ function usePwaUpdate() {
   const {
     offlineReady: [offlineReady],
     needRefresh: [needRefresh],
+    updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       if (reloadSW === "true") {
@@ -92,7 +93,7 @@ function usePwaUpdate() {
       addToast(
         <>
           <span>New content available, click</span>
-          <Button onClick={() => window.location.reload()}>here</Button>
+          <Button onClick={() => updateServiceWorker(true)}>here</Button>
           <span>to reload.</span>
         </>,
         "message",
