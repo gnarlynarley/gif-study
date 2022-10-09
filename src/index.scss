@@ -17,6 +17,7 @@ $c-primary: #07aa35;
   --ink: #{$c-ink};
   --muted-accent: #{darken($c-ink, 65%)};
   --accent: #{darken($c-ink, 30%)};
+  --error: #9e0000;
   --spacing: 0.8em;
   --primary: #{$c-primary};
   --border-width: 2px;
@@ -50,7 +51,13 @@ hr {
   border-top: var(--border);
 }
 
-h3 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   margin: 0;
 }
 

@@ -16,3 +16,11 @@ export interface TimelineFrame {
   height: number;
   number: number;
 }
+
+export type ToastMessageType = "message" | "error";
+export interface ToastMessage {
+  id: string;
+  message: string | JSX.Element;
+  type: ToastMessageType;
+  duration: number | null;
+}

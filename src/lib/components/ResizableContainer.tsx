@@ -1,4 +1,5 @@
 import React from "react";
+import { cx } from "../utils/joinClassNames";
 import $ from "./ResizableContainer.module.scss";
 
 type Props = React.PropsWithChildren<{
@@ -15,7 +16,7 @@ export function ResizableContainer({
   onChange,
   children,
 }: Props) {
-  const pointerDownRef = React.useRef(false);
+  const [active, setActive] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const setChange = (value: number) => {
@@ -27,13 +28,14 @@ export function ResizableContainer({
     const startingSize = size;
     const startingY = ev.clientY;
 
+    setActive(true);
+
     function mousemoveHandler(ev: MouseEvent) {
-      pointerDownRef.current = true;
       const y = startingY - ev.clientY;
       setChange(startingSize + y);
     }
     function mouseupHandler() {
-      pointerDownRef.current = false;
+      setActive(false);
       window.removeEventListener("mousemove", mousemoveHandler);
       window.removeEventListener("mouseup", mouseupHandler);
     }
@@ -43,11 +45,8 @@ export function ResizableContainer({
   };
 
   return (
-    <div ref={containerRef} className={$.container} style={{ height: "100%" }}>
-      <div
-        className={$.handle}
-        onPointerDown={onPointerDownHandler}
-      ></div>
+    <div ref={containerRef} className={cx($.container, active && $.isActive)}>
+      <div className={$.handle} onPointerDown={onPointerDownHandler}></div>
       <div style={{ height: size }}>{children}</div>
     </div>
   );

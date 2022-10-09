@@ -6,9 +6,16 @@ type Props = React.PropsWithChildren<{
   accept: string;
   disabled?: boolean;
   onFileDrop: (file: File) => void;
+  onInvalid?: () => void;
 }>;
 
-export function DropZone({ accept, onFileDrop, disabled, children }: Props) {
+export function DropZone({
+  accept,
+  onFileDrop,
+  onInvalid,
+  disabled,
+  children,
+}: Props) {
   const [active, setActive] = React.useState(false);
 
   return (
@@ -20,8 +27,12 @@ export function DropZone({ accept, onFileDrop, disabled, children }: Props) {
         setActive(false);
 
         const file = ev.dataTransfer.items[0]?.getAsFile() ?? null;
-        if (file && file.type === accept) {
-          onFileDrop(file);
+        if (file) {
+          if (file.type === accept) {
+            onFileDrop(file);
+          } else {
+            onInvalid?.();
+          }
         }
       }}
       onDragOver={(ev) => {
@@ -34,7 +45,7 @@ export function DropZone({ accept, onFileDrop, disabled, children }: Props) {
         setActive(false);
       }}
     >
-      {children}
+      <div className={$.inner}>{children}</div>
     </div>
   );
 }

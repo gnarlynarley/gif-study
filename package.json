@@ -34,6 +34,7 @@
     "normalize.css": "^8.0.1",
     "omggif": "^1.0.10",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "recoil": "^0.7.5"
   }
 }

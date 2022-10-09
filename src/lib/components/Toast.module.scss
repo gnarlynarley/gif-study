@@ -1,0 +1,51 @@
+.container {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  padding: var(--spacing);
+  box-shadow: var(--drop-shadow);
+  border-radius: var(--border-radius);
+  animation: appear 300ms ease-in forwards;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  > * + * {
+    margin-left: 0.5em;
+  }
+
+  &.isError {
+    background-color: var(--error);
+  }
+
+  &:not(.hasNoDuration)::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: var(--border-width);
+    background: currentColor;
+    transform-origin: top left;
+    animation: bar-fill linear calc(var(--duration) * 1ms) forwards;
+  }
+}
+
+@keyframes bar-fill {
+  0% {
+    scale: 0 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

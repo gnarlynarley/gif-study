@@ -1,6 +1,7 @@
 import React from "react";
 import { usePreviousValue, useValueRef } from "../hooks";
 import { Timeline, TimelineFrame } from "../models";
+import { toPercentage } from "../utils/calcModulo";
 import { createCanvas } from "../utils/createCanvas";
 import { cx } from "../utils/joinClassNames";
 import $ from "./TimelineCanvas.module.scss";
@@ -127,6 +128,9 @@ function createApplyOnionSkin({
   };
 }
 
+const MIN_ZOOM_LEVEL = 0.01;
+const MAX_ZOOM_LEVEL = 5;
+
 export function TimelineCanvas({
   timeline,
   currentFrame,
@@ -220,7 +224,9 @@ export function TimelineCanvas({
 
       const delta = (ev.deltaY * -1) / 1000;
       setPosition((prev) => ({ x: prev.x + delta, y: prev.y + delta }));
-      setZoom((value) => Math.min(Math.max(0.01, value + delta), 10));
+      setZoom((value) =>
+        Math.min(Math.max(MIN_ZOOM_LEVEL, value + delta), MAX_ZOOM_LEVEL)
+      );
 
       const context = contextRef.current as CanvasRenderingContext2D;
 
@@ -267,49 +273,64 @@ export function TimelineCanvas({
     setZoom(1);
   }, [timeline?.id]);
 
+  const pointerDownHandler = (ev: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const zoomingMode = ev.metaKey || ev.ctrlKey || false;
+    setActive(true);
+    const startingX = ev.clientX;
+    const startingY = ev.clientY;
+    const startingPosition = positionRef.current;
+    const startingZoom = zoomRef.current;
+
+    function pointermoveHandler(ev: MouseEvent) {
+      ev.preventDefault();
+      const movedX = startingX - ev.clientX;
+      const movedY = startingY - ev.clientY;
+      if (zoomingMode) {
+        setZoom(
+          Math.min(
+            Math.max(MIN_ZOOM_LEVEL, startingZoom + movedY / 100),
+            MAX_ZOOM_LEVEL
+          )
+        );
+      } else {
+        const x = startingPosition.x + movedX;
+        const y = startingPosition.y + movedY;
+
+        setPosition({ x, y });
+      }
+    }
+    function pointerupHandler(ev: MouseEvent) {
+      ev.preventDefault();
+      window.removeEventListener("pointermove", pointermoveHandler);
+      window.removeEventListener("pointerup", pointerupHandler);
+      setActive(false);
+    }
+
+    window.addEventListener("pointermove", pointermoveHandler);
+    window.addEventListener("pointerup", pointerupHandler);
+  };
+
   return (
-    <div
-      className={cx($.container, active && $.isActive)}
-      onPointerDown={(ev) => {
-        const container = containerRef.current;
-        if (!container) return;
-        const zoomingMode = ev.metaKey || ev.ctrlKey || false;
-        setActive(true);
-        const startingX = ev.clientX;
-        const startingY = ev.clientY;
-        const startingPosition = positionRef.current;
-        const startingZoom = zoomRef.current;
+    <div className={cx($.container, active && $.isActive)} ref={containerRef}>
+      <div
+        className={$.zoomBar}
+        style={{
+          ["--progress" as any]: toPercentage(
+            MIN_ZOOM_LEVEL,
+            MAX_ZOOM_LEVEL,
+            zoom
+          ),
+        }}
+      ></div>
 
-        function pointermoveHandler(ev: MouseEvent) {
-          ev.preventDefault();
-          const movedX = startingX - ev.clientX;
-          const movedY = startingY - ev.clientY;
-          if (zoomingMode) {
-            setZoom(Math.min(Math.max(0.01, startingZoom + movedY / 100), 10));
-          } else {
-            const x = startingPosition.x + movedX;
-            const y = startingPosition.y + movedY;
-
-            setPosition({ x, y });
-          }
-        }
-        function pointerupHandler(ev: MouseEvent) {
-          ev.preventDefault();
-          window.removeEventListener("pointermove", pointermoveHandler);
-          window.removeEventListener("pointerup", pointerupHandler);
-          setActive(false);
-        }
-
-        window.addEventListener("pointermove", pointermoveHandler);
-        window.addEventListener("pointerup", pointerupHandler);
-      }}
-      ref={containerRef}
-    >
       <canvas
         ref={canvasRef}
         className={$.canvas}
         width={size.width}
         height={size.height}
+        onPointerDown={pointerDownHandler}
       />
     </div>
   );

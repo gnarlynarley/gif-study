@@ -70,3 +70,10 @@
   width: calc(100% - var(--spacing) * 2);
   overflow: hidden;
 }
+
+.toasts {
+  position: absolute;
+  bottom: var(--spacing);
+  right: var(--spacing);
+  z-index: 2;
+}

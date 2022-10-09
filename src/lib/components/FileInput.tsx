@@ -7,9 +7,16 @@ type Props = {
   disabled?: boolean;
   label: string;
   onFile: (file: File) => void;
+  onInvalid?: () => void;
 };
 
-export function FileInput({ accept, disabled, label, onFile }: Props) {
+export function FileInput({
+  accept,
+  disabled,
+  label,
+  onFile,
+  onInvalid,
+}: Props) {
   const id = React.useId();
   return (
     <BaseButton disabled={disabled}>
@@ -24,7 +31,11 @@ export function FileInput({ accept, disabled, label, onFile }: Props) {
           if (disabled) return;
           const file = ev.target.files?.[0] ?? null;
           if (file) {
-            onFile(file);
+            if (file.type === accept) {
+              onFile(file);
+            } else {
+              onInvalid?.();
+            }
           }
           ev.target.value = "";
         }}

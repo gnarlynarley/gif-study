@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useRegisterSW } from "virtual:pwa-register/react";
 import { convertGif, type Gif } from "./lib/buzzfeed-gif";
 import {
   PlayIcon,
@@ -16,14 +17,12 @@ import {
 } from "./lib/components";
 import { cx } from "./lib/utils/joinClassNames";
 import type { Timeline as TimelineType, TimelineFrame } from "./lib/models";
-import { useKeybind, useLocalForageState } from "./lib/hooks";
+import { useKeybind, useLocalForageState, useToast } from "./lib/hooks";
 import { FileInput } from "./lib/components/FileInput";
 import { Button } from "./lib/components/Button";
-import {
-  downloadTimelineAsZip,
-  downloadTimelineFrame,
-} from "./lib/utils/downloadTimelineAsZip";
+import { downloadTimelineAsZip } from "./lib/utils/downloadTimelineAsZip";
 import { toggleFullScreen } from "./lib/utils/toggleFullScreen";
+import { Toast } from "./lib/components/Toast";
 import $ from "./App.module.scss";
 
 function useTimelineOptions() {
@@ -58,11 +57,58 @@ function useTimelineOptions() {
   };
 }
 
+const reloadSW = "__RELOAD_SW__" as string;
+
+function usePwaUpdate() {
+  const { addToast } = useToast();
+  const {
+    offlineReady: [offlineReady],
+    needRefresh: [needRefresh],
+  } = useRegisterSW({
+    onRegisteredSW(swUrl: string, r: any) {
+      if (reloadSW === "true") {
+        r &&
+          setInterval(() => {
+            console.log("Checking for sw update");
+            r.update();
+          }, 20000 /* 20s for testing purposes */);
+      } else {
+        console.log("SW Registered: " + r);
+      }
+    },
+    onRegisterError(error: any) {
+      console.log("SW registration error", error);
+    },
+  });
+
+  React.useEffect(() => {
+    if (offlineReady) {
+      addToast("App ready to work offline");
+    }
+  }, [offlineReady]);
+
+  React.useEffect(() => {
+    if (needRefresh) {
+      addToast(
+        <>
+          <span>New content available, click</span>
+          <Button onClick={() => window.location.reload()}>here</Button>
+          <span>to reload.</span>
+        </>,
+        "message",
+        null
+      );
+    }
+  }, [needRefresh]);
+}
+
 export function App() {
+  usePwaUpdate();
   const [playing, setPlaying] = React.useState(true);
   const [pending, setPending] = React.useState(false);
   const [speed, setSpeed] = useLocalForageState<number>("speed", 2, 1);
   const [gif, setGif] = useLocalForageState<Gif | null>("gif", 1, null);
+
   const timeline = React.useMemo((): TimelineType | null => {
     if (!gif) return null;
     let time = 0;
@@ -93,7 +139,7 @@ export function App() {
       averageFrameDelay,
     };
   }, [gif]);
-  const [file, setFile] = React.useState<File | null>(null);
+
   const [time, setTime] = React.useState(0);
   const { options, setOption } = useTimelineOptions();
 
@@ -126,10 +172,14 @@ export function App() {
       setPending(false);
     }
   };
-
-  React.useEffect(() => {
+  const setGifFile = (file: File) => {
     generateGif(file);
-  }, [file]);
+  };
+
+  const { toasts, addToast } = useToast();
+  const addInvalidGifToast = () => {
+    addToast("Invalid file, only .gif files are supported right now", "error");
+  };
 
   React.useEffect(() => {
     if (playing === false) return;
@@ -167,7 +217,12 @@ export function App() {
   });
 
   return (
-    <DropZone accept="image/gif" disabled={pending} onFileDrop={setFile}>
+    <DropZone
+      accept="image/gif"
+      disabled={pending}
+      onFileDrop={setGifFile}
+      onInvalid={addInvalidGifToast}
+    >
       {pending && <span className={$.loading}>Loading gif..</span>}
       <div className={cx($.container)}>
         <div className={$.toolbar}>
@@ -175,7 +230,8 @@ export function App() {
             disabled={pending}
             accept="image/gif"
             label="Open gif"
-            onFile={setFile}
+            onFile={setGifFile}
+            onInvalid={addInvalidGifToast}
           />
           <span className={$.toolbarDivider} />
           <IconButton label="next frame (l)" onClick={() => navigateFrame(-1)}>
@@ -239,11 +295,6 @@ export function App() {
                   download frames
                 </Button>
               </>
-            )}
-            {currentFrame && (
-              <Button onClick={() => downloadTimelineFrame(currentFrame)}>
-                download current screen
-              </Button>
             )}
 
             <h3>Onion skin options:</h3>
@@ -341,6 +392,12 @@ export function App() {
             </ResizableContainer>
           </div>
         )}
+
+        <div className={$.toasts}>
+          {toasts.map((toast) => (
+            <Toast key={toast.id} toast={toast} />
+          ))}
+        </div>
       </div>
     </DropZone>
   );

@@ -12,11 +12,12 @@ export default defineConfig({
     commonjs(),
     VitePWA({
       injectRegister: "auto",
+      registerType: 'prompt',
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
       manifest: {
-        name: "My Awesome App",
-        short_name: "MyApp",
-        description: "My Awesome App description",
+        name: "Gif Study",
+        short_name: "Gif Study",
+        description: "Studying app for exploring every gif frame",
         theme_color: "#222222",
         icons: [
           {
