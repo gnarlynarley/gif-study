@@ -63,12 +63,10 @@
 
 .timeline {
   position: absolute;
-  position: absolute;
   bottom: var(--spacing);
   left: var(--spacing);
   z-index: 1;
   width: calc(100% - var(--spacing) * 2);
-  overflow: hidden;
 }
 
 .toasts {

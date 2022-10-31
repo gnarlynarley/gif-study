@@ -64,6 +64,7 @@
 */
 
 import { createImage } from "./utils/createImage";
+import isPixelDataMatch from "./utils/isPixelDataMatch";
 
 // Generic functions
 var bitsToNum = function (ba: number[]): number {
@@ -120,14 +121,6 @@ export class Stream {
     var a = this.readBytes(2);
     return (a[1] << 8) + a[0];
   }
-}
-
-export function isPixelDataMatch(a: ImageData, b: ImageData) {
-  if (a.data.length !== b.data.length) return false;
-  for (var i = 0; i < a.data.length; i++) {
-    if (a.data[i] != b.data[i]) return false;
-  }
-  return true;
 }
 
 var lzwDecode = function (minCodeSize: number, data: string) {

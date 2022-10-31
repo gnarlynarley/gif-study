@@ -14,25 +14,15 @@
   cursor: grab;
 }
 
-.zoomBar {
-  $height: 60%;
-  --progress: 0;
-  position: absolute;
-  top: (100% - $height) * 0.5;
-  right: var(--spacing);
-  height: $height;
-  width: 0.3em;
-  background: var(--muted-paper);
+.tools {
   z-index: 1;
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  left: var(--spacing);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--muted-paper);
   border-radius: var(--border-radius);
-  overflow: hidden;
-  box-shadow: var(--drop-shadow);
-
-  &::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: calc(var(--progress) * 1%);
-    background: var(--ink);
-  }
+  padding: 0.2em;
 }

@@ -195,27 +195,13 @@ export function App() {
     };
   }, [timeline, playing, speed]);
 
-  useKeybind("k", () => {
-    setPlaying(!playing);
-  });
-  useKeybind("space", () => {
-    setPlaying(!playing);
-  });
-  useKeybind("j", () => {
-    navigateFrame(-1);
-  });
-  useKeybind("left", () => {
-    navigateFrame(-1);
-  });
-  useKeybind("l", () => {
-    navigateFrame(1);
-  });
-  useKeybind("right", () => {
-    navigateFrame(1);
-  });
-  useKeybind("f", () => {
-    toggleFullScreen();
-  });
+  useKeybind("k", () => setPlaying(!playing));
+  useKeybind("space", () => setPlaying(!playing));
+  useKeybind("j", () => navigateFrame(-1));
+  useKeybind("left", () => navigateFrame(-1));
+  useKeybind("l", () => navigateFrame(1));
+  useKeybind("right", () => navigateFrame(1));
+  useKeybind("f", () => toggleFullScreen());
 
   return (
     <DropZone

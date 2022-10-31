@@ -4,6 +4,8 @@ import { Timeline, TimelineFrame } from "../models";
 import { toPercentage } from "../utils/calcModulo";
 import { createCanvas } from "../utils/createCanvas";
 import { cx } from "../utils/joinClassNames";
+import { IconButton } from "./IconButton";
+import { ZoomInIcon, ZoomOutIcon } from "./Icons";
 import $ from "./TimelineCanvas.module.scss";
 
 type Props = {
@@ -130,6 +132,7 @@ function createApplyOnionSkin({
 
 const MIN_ZOOM_LEVEL = 0.01;
 const MAX_ZOOM_LEVEL = 5;
+const ZOOM_AMOUNT = 0.2;
 
 export function TimelineCanvas({
   timeline,
@@ -170,11 +173,11 @@ export function TimelineCanvas({
     return onionSkin.applyOnionSkin(currentFrame.data);
   }, [currentFrame, onionSkin, onionSkinEnabled]);
 
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const playbackCanvasRef = React.useRef<HTMLCanvasElement>(null);
   const contextRef = React.useRef<CanvasRenderingContext2D | null>(null);
 
   React.useEffect(() => {
-    contextRef.current = canvasRef.current?.getContext("2d") ?? null;
+    contextRef.current = playbackCanvasRef.current?.getContext("2d") ?? null;
     if (contextRef.current === null)
       throw new Error("Something went wrong with the setup");
   }, []);
@@ -314,19 +317,30 @@ export function TimelineCanvas({
 
   return (
     <div className={cx($.container, active && $.isActive)} ref={containerRef}>
-      <div
-        className={$.zoomBar}
-        style={{
-          ["--progress" as any]: toPercentage(
-            MIN_ZOOM_LEVEL,
-            MAX_ZOOM_LEVEL,
-            zoom
-          ),
-        }}
-      ></div>
-
+      <div className={$.tools}>
+        <IconButton
+          onClick={() => setZoom((prev) => prev + ZOOM_AMOUNT)}
+          label="Zoom in"
+        >
+          <ZoomInIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => setZoom((prev) => prev - ZOOM_AMOUNT)}
+          label="Zoom out"
+        >
+          <ZoomOutIcon />
+        </IconButton>
+        <span className={$.toolsLine} />
+      </div>
       <canvas
-        ref={canvasRef}
+        ref={playbackCanvasRef}
+        className={$.canvas}
+        width={size.width}
+        height={size.height}
+        onPointerDown={pointerDownHandler}
+      />
+      <canvas
+        ref={playbackCanvasRef}
         className={$.canvas}
         width={size.width}
         height={size.height}

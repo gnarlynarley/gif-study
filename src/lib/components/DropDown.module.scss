@@ -13,8 +13,20 @@
   box-shadow: var(--drop-shadow);
   padding: var(--spacing);
   border-radius: var(--border-radius);
+  animation: appear forwards 200ms;
 
   > * + * {
     margin-top: var(--spacing);
+  }
+}
+
+@keyframes appear {
+  from {
+    transform: translateY(-1em);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
   }
 }
