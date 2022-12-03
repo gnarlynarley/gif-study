@@ -246,9 +246,9 @@ export function App() {
           <span className={$.toolbarDivider} />
 
           <span className={$.toolbarInfo}>
-            repeating frame: {currentFrame?.number ?? 0}, duration:{" "}
-            {currentFrame?.duration ?? ""}
-            {" frames"}
+            <span>current frame: {time} | </span>
+            <span>repeating frame: {currentFrame?.number ?? 0} | </span>
+            <span>duration: {currentFrame?.duration ?? ""} frames</span>
           </span>
 
           <span className={$.toolbarPush} />
