@@ -146,6 +146,13 @@ export function App() {
 
   const currentFrame = timeline?.timelineFrames[time] ?? null;
 
+  const navigateTime = (add: number) => {
+    setPlaying(false);
+    setTime((prev) => {
+      const max = timeline?.timelineFrames.length ?? 0;
+      return (max + prev + add) % max;
+    });
+  };
   const navigateFrame = (add: number) => {
     const currentFrameIndex = currentFrame
       ? timeline?.frames.indexOf(currentFrame) ?? -1
@@ -197,10 +204,12 @@ export function App() {
 
   useKeybind("k", () => setPlaying(!playing));
   useKeybind("space", () => setPlaying(!playing));
-  useKeybind("j", () => navigateFrame(-1));
-  useKeybind("left", () => navigateFrame(-1));
-  useKeybind("l", () => navigateFrame(1));
-  useKeybind("right", () => navigateFrame(1));
+  useKeybind("n", () => navigateFrame(-1));
+  useKeybind("m", () => navigateFrame(1));
+  useKeybind("j", () => navigateTime(-1));
+  useKeybind("left", () => navigateTime(-1));
+  useKeybind("l", () => navigateTime(1));
+  useKeybind("right", () => navigateTime(1));
   useKeybind("f", () => toggleFullScreen());
 
   return (
