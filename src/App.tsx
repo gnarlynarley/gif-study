@@ -24,6 +24,7 @@ import { downloadTimelineAsZip } from "./lib/utils/downloadTimelineAsZip";
 import { toggleFullScreen } from "./lib/utils/toggleFullScreen";
 import { Toast } from "./lib/components/Toast";
 import $ from "./App.module.scss";
+import MovableTimelineCanvas from "./lib/canvas/MovableTimelineCanvas";
 
 function useTimelineOptions() {
   const timelineOptionsDefaults = {
@@ -142,33 +143,50 @@ export function App() {
   }, [gif]);
 
   const [time, setTime] = React.useState(0);
+  const [timelineCanvasInstance, setTimelineCanvasInstance] =
+    React.useState<MovableTimelineCanvas | null>(null);
+
+  React.useEffect(() => {
+    if (timeline) {
+      const instance = new MovableTimelineCanvas(timeline);
+
+      setTimelineCanvasInstance(instance);
+
+      return () => {
+        instance.destroy();
+      };
+    }
+    setTimelineCanvasInstance(null);
+  }, [timeline]);
+
+  React.useEffect(() => {
+    if (timelineCanvasInstance) {
+      const timeChangedUnsub =
+        timelineCanvasInstance.events.timeChanged.on(setTime);
+
+      return () => {
+        timeChangedUnsub();
+      };
+    }
+  }, [timelineCanvasInstance]);
+
   const { options, setOption } = useTimelineOptions();
 
   const currentFrame = timeline?.timelineFrames[time] ?? null;
 
   const navigateTime = (add: number) => {
     setPlaying(false);
-    setTime((prev) => {
-      const max = timeline?.timelineFrames.length ?? 0;
-      return (max + prev + add) % max;
-    });
+    // setTime((prev) => {
+    //   const max = timeline?.timelineFrames.length ?? 0;
+    //   return (max + prev + add) % max;
+    // });
   };
   const navigateFrame = (add: number) => {
-    const currentFrameIndex = currentFrame
-      ? timeline?.frames.indexOf(currentFrame) ?? -1
-      : -1;
-    setPlaying(false);
-    if (currentFrameIndex === -1) return;
-    const length = timeline?.frames.length ?? 0;
-    const nextFrameIndex = (length + currentFrameIndex + add) % length;
-    const nextFrame = timeline?.frames[nextFrameIndex] ?? null;
-    if (nextFrame) {
-      setTime(nextFrame.time);
-    }
+    timelineCanvasInstance?.navigateFrame(add);
   };
 
   const generateGif = async (file: File | null) => {
-    setTime(0);
+    // setTime(0);
     setPlaying(false);
     if (!file) return;
     try {
@@ -189,27 +207,22 @@ export function App() {
     addToast("Invalid file, only .gif files are supported right now", "error");
   };
 
-  React.useEffect(() => {
-    if (playing === false) return;
-    if (timeline === null) return;
-    const max = timeline.timelineFrames.length;
-    const id = setInterval(() => {
-      setTime((prev) => (prev + 1) % max);
-    }, 10 - 10 * (speed - 1));
+  const togglePlay = () => {
+    if (timelineCanvasInstance) {
+      if (timelineCanvasInstance.playing) {
+        timelineCanvasInstance.pause();
+      } else {
+        timelineCanvasInstance.play();
+      }
+    }
+  };
 
-    return () => {
-      clearInterval(id);
-    };
-  }, [timeline, playing, speed]);
-
-  useKeybind("k", () => setPlaying(!playing));
-  useKeybind("space", () => setPlaying(!playing));
-  useKeybind("n", () => navigateFrame(-1));
-  useKeybind("m", () => navigateFrame(1));
-  useKeybind("j", () => navigateTime(-1));
-  useKeybind("left", () => navigateTime(-1));
-  useKeybind("l", () => navigateTime(1));
-  useKeybind("right", () => navigateTime(1));
+  useKeybind("k", togglePlay);
+  useKeybind("space", togglePlay);
+  useKeybind("j", () => navigateFrame(-1));
+  useKeybind("left", () => navigateFrame(-1));
+  useKeybind("l", () => navigateFrame(1));
+  useKeybind("right", () => navigateFrame(1));
   useKeybind("f", () => toggleFullScreen());
 
   return (
@@ -354,15 +367,18 @@ export function App() {
         </div>
 
         <div className={cx($.canvas)}>
-          <TimelineCanvas
-            currentFrame={currentFrame}
-            timeline={timeline}
-            onionSkinEnabled={options.onionSkinEnabled}
-            onionSkinContrastLevel={options.onionSkinContrastLevel}
-            onionSkinPrevColor={options.onionSkinPrevColor}
-            onionSkinNextColor={options.onionSkinNextColor}
-            onionSkinOpacity={options.onionSkinOpacity}
-          />
+          {timelineCanvasInstance && (
+            <TimelineCanvas
+              timelineCanvasInstance={timelineCanvasInstance}
+              currentFrame={currentFrame}
+              timeline={timeline}
+              onionSkinEnabled={options.onionSkinEnabled}
+              onionSkinContrastLevel={options.onionSkinContrastLevel}
+              onionSkinPrevColor={options.onionSkinPrevColor}
+              onionSkinNextColor={options.onionSkinNextColor}
+              onionSkinOpacity={options.onionSkinOpacity}
+            />
+          )}
         </div>
 
         {timeline && options !== null && (

@@ -1,4 +1,5 @@
 import React from "react";
+import type MovableTimelineCanvas from "../canvas/MovableTimelineCanvas";
 import { usePreviousValue, useValueRef } from "../hooks";
 import { Timeline, TimelineFrame } from "../models";
 import { toPercentage } from "../utils/calcModulo";
@@ -9,6 +10,7 @@ import { ZoomInIcon, ZoomOutIcon } from "./Icons";
 import $ from "./TimelineCanvas.module.scss";
 
 type Props = {
+  timelineCanvasInstance: MovableTimelineCanvas;
   timeline: Timeline | null;
   currentFrame: TimelineFrame | null;
   onionSkinEnabled: boolean;
@@ -135,6 +137,7 @@ const MAX_ZOOM_LEVEL = 5;
 const ZOOM_AMOUNT = 0.2;
 
 export function TimelineCanvas({
+  timelineCanvasInstance,
   timeline,
   currentFrame,
   onionSkinEnabled,
@@ -143,209 +146,206 @@ export function TimelineCanvas({
   onionSkinNextColor,
   onionSkinOpacity,
 }: Props) {
-  const onionSkin = React.useMemo(() => {
-    return createApplyOnionSkin({
-      contrastLevel: onionSkinContrastLevel * 255,
-      prevColor: onionSkinPrevColor,
-      nextColor: onionSkinNextColor,
-      opacity: onionSkinOpacity,
-      frames: timeline?.frames.map((frame) => frame.data) ?? [],
-      unionFrames: 1,
-    });
-  }, [
-    timeline?.frames,
-    onionSkinContrastLevel,
-    onionSkinPrevColor,
-    onionSkinNextColor,
-    onionSkinOpacity,
-  ]);
+  // const onionSkin = React.useMemo(() => {
+  //   return createApplyOnionSkin({
+  //     contrastLevel: onionSkinContrastLevel * 255,
+  //     prevColor: onionSkinPrevColor,
+  //     nextColor: onionSkinNextColor,
+  //     opacity: onionSkinOpacity,
+  //     frames: timeline?.frames.map((frame) => frame.data) ?? [],
+  //     unionFrames: 1,
+  //   });
+  // }, [
+  //   timeline?.frames,
+  //   onionSkinContrastLevel,
+  //   onionSkinPrevColor,
+  //   onionSkinNextColor,
+  //   onionSkinOpacity,
+  // ]);
 
-  const lastOnionSkin = usePreviousValue(onionSkin);
+  // const lastOnionSkin = usePreviousValue(onionSkin);
 
-  React.useEffect(() => {
-    lastOnionSkin?.cleanup();
-  }, [lastOnionSkin]);
+  // React.useEffect(() => {
+  //   lastOnionSkin?.cleanup();
+  // }, [lastOnionSkin]);
 
-  const imageData = React.useMemo((): ImageData | null => {
-    if (timeline === null || currentFrame === null) return null;
-    if (!onionSkinEnabled) return currentFrame.data;
+  // const imageData = React.useMemo((): ImageData | null => {
+  //   if (timeline === null || currentFrame === null) return null;
+  //   if (!onionSkinEnabled) return currentFrame.data;
 
-    return onionSkin.applyOnionSkin(currentFrame.data);
-  }, [currentFrame, onionSkin, onionSkinEnabled]);
+  //   return onionSkin.applyOnionSkin(currentFrame.data);
+  // }, [currentFrame, onionSkin, onionSkinEnabled]);
 
-  const playbackCanvasRef = React.useRef<HTMLCanvasElement>(null);
-  const contextRef = React.useRef<CanvasRenderingContext2D | null>(null);
+  // const playbackCanvasRef = React.useRef<HTMLCanvasElement>(null);
+  // const contextRef = React.useRef<CanvasRenderingContext2D | null>(null);
 
-  React.useEffect(() => {
-    contextRef.current = playbackCanvasRef.current?.getContext("2d") ?? null;
-    if (contextRef.current === null)
-      throw new Error("Something went wrong with the setup");
-  }, []);
+  // React.useEffect(() => {
+  //   contextRef.current = playbackCanvasRef.current?.getContext("2d") ?? null;
+  //   if (contextRef.current === null)
+  //     throw new Error("Something went wrong with the setup");
+  // }, []);
+
+  // const containerRef = React.useRef<HTMLDivElement>(null);
+  // const [size, setSize] = React.useState({ width: 0, height: 0 });
+
+  // React.useEffect(() => {
+  //   const container = containerRef.current as HTMLDivElement;
+  //   const observer = new ResizeObserver(() => {
+  //     setSize({ width: container.offsetWidth, height: container.offsetHeight });
+  //   });
+  //   observer.observe(container);
+
+  //   return () => {
+  //     observer.disconnect();
+  //   };
+  // }, []);
+
+  // const [canvasCache] = React.useState(
+  //   () => new WeakMap<ImageData, HTMLCanvasElement>()
+  // );
+  // const imageCanvas = React.useMemo(() => {
+  //   if (!imageData) return null;
+  //   let canvas = canvasCache.get(imageData);
+
+  //   if (!canvas) {
+  //     canvas = document.createElement("canvas");
+  //     canvas.width = imageData.width;
+  //     canvas.height = imageData.height;
+  //     canvas.getContext("2d")?.putImageData(imageData, 0, 0);
+  //   }
+
+  //   return canvas;
+  // }, [imageData]);
+
+  // const [zoom, setZoom] = React.useState(1);
+  // const zoomRef = useValueRef(zoom);
+  // const [position, setPosition] = React.useState({ x: 0, y: 0 });
+  // const positionRef = useValueRef(position);
+
+  // React.useEffect(() => {
+  //   const container = containerRef.current;
+  //   if (!container) return;
+  //   function handler(ev: WheelEvent) {
+  //     ev.preventDefault();
+
+  //     const delta = (ev.deltaY * -1) / 1000;
+  //     setPosition((prev) => ({ x: prev.x + delta, y: prev.y + delta }));
+  //     setZoom((value) =>
+  //       Math.min(Math.max(MIN_ZOOM_LEVEL, value + delta), MAX_ZOOM_LEVEL)
+  //     );
+
+  //     const context = contextRef.current as CanvasRenderingContext2D;
+
+  //     const transform = context.getTransform();
+  //     const invertedScaleX = 1 / transform.a;
+  //     const invertedScaleY = 1 / transform.d;
+
+  //     const transformedX =
+  //       invertedScaleX * positionRef.current.x - invertedScaleX * transform.e;
+  //     const transformedY =
+  //       invertedScaleY * positionRef.current.y - invertedScaleY * transform.f;
+
+  //     setPosition({ x: transformedX, y: transformedY });
+  //   }
+  //   container.addEventListener("wheel", handler, false);
+
+  //   return () => {
+  //     container.removeEventListener("wheel", handler);
+  //   };
+  // }, []);
+
+  // React.useEffect(() => {
+  //   if (!imageCanvas) return;
+  //   const context = contextRef.current as CanvasRenderingContext2D;
+  //   context.clearRect(0, 0, size.width, size.height);
+  //   context.save();
+  //   context.translate(
+  //     size.width / 2 + position.x * -1,
+  //     size.height / 2 + position.y * -1
+  //   );
+  //   context.scale(zoom, zoom);
+  //   context.drawImage(
+  //     imageCanvas,
+  //     imageCanvas.width * -0.5,
+  //     imageCanvas.height * -0.5
+  //   );
+  //   context.restore();
+  // }, [imageCanvas, size, position, zoom]);
+
+  // const [active, setActive] = React.useState(false);
+
+  // React.useEffect(() => {
+  //   setPosition({ x: 0, y: 0 });
+  //   setZoom(1);
+  // }, [timeline?.id]);
+
+  // const pointerDownHandler = (ev: React.MouseEvent) => {
+  //   const container = containerRef.current;
+  //   if (!container) return;
+  //   const zoomingMode = ev.metaKey || ev.ctrlKey || false;
+  //   setActive(true);
+  //   const startingX = ev.clientX;
+  //   const startingY = ev.clientY;
+  //   const startingPosition = positionRef.current;
+  //   const startingZoom = zoomRef.current;
+
+  //   function pointermoveHandler(ev: MouseEvent) {
+  //     ev.preventDefault();
+  //     const movedX = startingX - ev.clientX;
+  //     const movedY = startingY - ev.clientY;
+  //     if (zoomingMode) {
+  //       setZoom(
+  //         Math.min(
+  //           Math.max(MIN_ZOOM_LEVEL, startingZoom + movedY / 100),
+  //           MAX_ZOOM_LEVEL
+  //         )
+  //       );
+  //     } else {
+  //       const x = startingPosition.x + movedX;
+  //       const y = startingPosition.y + movedY;
+
+  //       setPosition({ x, y });
+  //     }
+  //   }
+  //   function pointerupHandler(ev: MouseEvent) {
+  //     ev.preventDefault();
+  //     window.removeEventListener("pointermove", pointermoveHandler);
+  //     window.removeEventListener("pointerup", pointerupHandler);
+  //     setActive(false);
+  //   }
+
+  //   window.addEventListener("pointermove", pointermoveHandler);
+  //   window.addEventListener("pointerup", pointerupHandler);
+  // };
 
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const [size, setSize] = React.useState({ width: 0, height: 0 });
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const zoomIn = () => {};
+  const zoomOut = () => {};
 
   React.useEffect(() => {
-    const container = containerRef.current as HTMLDivElement;
-    const observer = new ResizeObserver(() => {
-      setSize({ width: container.offsetWidth, height: container.offsetHeight });
-    });
-    observer.observe(container);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      timelineCanvasInstance.setCanvas(canvas);
 
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  const [canvasCache] = React.useState(
-    () => new WeakMap<ImageData, HTMLCanvasElement>()
-  );
-  const imageCanvas = React.useMemo(() => {
-    if (!imageData) return null;
-    let canvas = canvasCache.get(imageData);
-
-    if (!canvas) {
-      canvas = document.createElement("canvas");
-      canvas.width = imageData.width;
-      canvas.height = imageData.height;
-      canvas.getContext("2d")?.putImageData(imageData, 0, 0);
+      return () => {
+        timelineCanvasInstance.setCanvas(null);
+      };
     }
-
-    return canvas;
-  }, [imageData]);
-
-  const [zoom, setZoom] = React.useState(1);
-  const zoomRef = useValueRef(zoom);
-  const [position, setPosition] = React.useState({ x: 0, y: 0 });
-  const positionRef = useValueRef(position);
-
-  React.useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    function handler(ev: WheelEvent) {
-      ev.preventDefault();
-
-      const delta = (ev.deltaY * -1) / 1000;
-      setPosition((prev) => ({ x: prev.x + delta, y: prev.y + delta }));
-      setZoom((value) =>
-        Math.min(Math.max(MIN_ZOOM_LEVEL, value + delta), MAX_ZOOM_LEVEL)
-      );
-
-      const context = contextRef.current as CanvasRenderingContext2D;
-
-      const transform = context.getTransform();
-      const invertedScaleX = 1 / transform.a;
-      const invertedScaleY = 1 / transform.d;
-
-      const transformedX =
-        invertedScaleX * positionRef.current.x - invertedScaleX * transform.e;
-      const transformedY =
-        invertedScaleY * positionRef.current.y - invertedScaleY * transform.f;
-
-      setPosition({ x: transformedX, y: transformedY });
-    }
-    container.addEventListener("wheel", handler, false);
-
-    return () => {
-      container.removeEventListener("wheel", handler);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (!imageCanvas) return;
-    const context = contextRef.current as CanvasRenderingContext2D;
-    context.clearRect(0, 0, size.width, size.height);
-    context.save();
-    context.translate(
-      size.width / 2 + position.x * -1,
-      size.height / 2 + position.y * -1
-    );
-    context.scale(zoom, zoom);
-    context.drawImage(
-      imageCanvas,
-      imageCanvas.width * -0.5,
-      imageCanvas.height * -0.5
-    );
-    context.restore();
-  }, [imageCanvas, size, position, zoom]);
-
-  const [active, setActive] = React.useState(false);
-
-  React.useEffect(() => {
-    setPosition({ x: 0, y: 0 });
-    setZoom(1);
-  }, [timeline?.id]);
-
-  const pointerDownHandler = (ev: React.MouseEvent) => {
-    const container = containerRef.current;
-    if (!container) return;
-    const zoomingMode = ev.metaKey || ev.ctrlKey || false;
-    setActive(true);
-    const startingX = ev.clientX;
-    const startingY = ev.clientY;
-    const startingPosition = positionRef.current;
-    const startingZoom = zoomRef.current;
-
-    function pointermoveHandler(ev: MouseEvent) {
-      ev.preventDefault();
-      const movedX = startingX - ev.clientX;
-      const movedY = startingY - ev.clientY;
-      if (zoomingMode) {
-        setZoom(
-          Math.min(
-            Math.max(MIN_ZOOM_LEVEL, startingZoom + movedY / 100),
-            MAX_ZOOM_LEVEL
-          )
-        );
-      } else {
-        const x = startingPosition.x + movedX;
-        const y = startingPosition.y + movedY;
-
-        setPosition({ x, y });
-      }
-    }
-    function pointerupHandler(ev: MouseEvent) {
-      ev.preventDefault();
-      window.removeEventListener("pointermove", pointermoveHandler);
-      window.removeEventListener("pointerup", pointerupHandler);
-      setActive(false);
-    }
-
-    window.addEventListener("pointermove", pointermoveHandler);
-    window.addEventListener("pointerup", pointerupHandler);
-  };
+  }, [timelineCanvasInstance]);
 
   return (
-    <div className={cx($.container, active && $.isActive)} ref={containerRef}>
+    <div className={$.container} ref={containerRef}>
       <div className={$.tools}>
-        <IconButton
-          onClick={() => setZoom((prev) => prev + ZOOM_AMOUNT)}
-          label="Zoom in"
-        >
+        <IconButton onClick={zoomIn} label="Zoom in">
           <ZoomInIcon />
         </IconButton>
-        <IconButton
-          onClick={() => setZoom((prev) => prev - ZOOM_AMOUNT)}
-          label="Zoom out"
-        >
+        <IconButton onClick={zoomOut} label="Zoom out">
           <ZoomOutIcon />
         </IconButton>
         <span className={$.toolsLine} />
       </div>
-      <canvas
-        ref={playbackCanvasRef}
-        className={$.canvas}
-        width={size.width}
-        height={size.height}
-        onPointerDown={pointerDownHandler}
-      />
-      <canvas
-        ref={playbackCanvasRef}
-        className={$.canvas}
-        width={size.width}
-        height={size.height}
-        onPointerDown={pointerDownHandler}
-      />
+      <canvas ref={canvasRef} className={$.canvas} />
     </div>
   );
 }
