@@ -290,6 +290,7 @@ export function App() {
                 <Button onClick={() => downloadTimelineAsZip(timeline)}>
                   download frames
                 </Button>
+                <Button onClick={() => setGif(null)}>clear frames</Button>
               </>
             )}
 

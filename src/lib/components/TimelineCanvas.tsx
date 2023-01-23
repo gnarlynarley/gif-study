@@ -252,9 +252,9 @@ export function TimelineCanvas({
   }, []);
 
   React.useEffect(() => {
-    if (!imageCanvas) return;
     const context = contextRef.current as CanvasRenderingContext2D;
     context.clearRect(0, 0, size.width, size.height);
+    if (!imageCanvas) return;
     context.save();
     context.translate(
       size.width / 2 + position.x * -1,
@@ -332,13 +332,6 @@ export function TimelineCanvas({
         </IconButton>
         <span className={$.toolsLine} />
       </div>
-      <canvas
-        ref={playbackCanvasRef}
-        className={$.canvas}
-        width={size.width}
-        height={size.height}
-        onPointerDown={pointerDownHandler}
-      />
       <canvas
         ref={playbackCanvasRef}
         className={$.canvas}
