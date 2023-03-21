@@ -5,6 +5,23 @@ export interface Timeline {
   timelineFrames: TimelineFrame[];
   totalTime: number;
   averageFrameDelay: number;
+  width: number;
+  height: number;
+}
+
+export interface GifFrame {
+  id: string;
+  data: ImageData;
+  delay: number;
+  frameIndex: number;
+}
+
+export interface GifData {
+  id: string;
+  file: File;
+  frames: GifFrame[];
+  width: number;
+  height: number;
 }
 
 export interface TimelineFrame {

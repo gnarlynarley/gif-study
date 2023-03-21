@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 import react from "@vitejs/plugin-react";
 import commonjs from "@rollup/plugin-commonjs";
 import { VitePWA } from "vite-plugin-pwa";
@@ -8,11 +9,12 @@ const publicPath = "/gif-study/";
 export default defineConfig({
   base: publicPath,
   plugins: [
+    tsconfigPaths(),
     react(),
     commonjs(),
     VitePWA({
       injectRegister: "auto",
-      registerType: 'prompt',
+      registerType: "prompt",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
       manifest: {
         name: "Gif Study",
