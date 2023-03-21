@@ -1,5 +1,6 @@
 import React from "react";
-import { useEvent, useToast } from "../hooks";
+import useEvent from "$lib/hooks/useEvent";
+import useToast from "$lib/hooks/useToast";
 import { ToastMessage } from "../models";
 import { cx } from "../utils/joinClassNames";
 import { IconButton } from "./IconButton";
@@ -44,3 +45,5 @@ export function Toast({ toast }: Props) {
     </div>
   );
 }
+
+export default Toast;

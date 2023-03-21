@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export function useEvent<T, A extends any[]>(cb: (...args: A) => T) {
+export default function useEvent<T, A extends any[]>(cb: (...args: A) => T) {
   const cbRef = React.useRef(cb);
 
   React.useEffect(() => {

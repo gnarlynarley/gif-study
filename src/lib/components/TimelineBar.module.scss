@@ -2,7 +2,6 @@
   --spacing: 0.2em;
   position: relative;
   z-index: 0;
-  height: 100%;
   background-color: var(--muted-paper);
   backdrop-filter: var(--backdrop-filter);
   border-radius: var(--border-radius);
@@ -10,109 +9,27 @@
   touch-action: none;
   user-select: none;
   box-shadow: var(--drop-shadow);
-  cursor: grab;
-
-  &.isActive {
-    cursor: grabbing;
-  }
+  padding: var(--spacing);
 }
 
-.frames {
-  height: calc(100% - var(--spacing) * 2);
-  white-space: nowrap;
-  position: absolute;
-  top: var(--spacing);
-  left: 50%;
-}
-
-.itemWrapper {
-  position: relative;
-  display: inline-block;
-  white-space: nowrap;
-  height: 100%;
-
-  &.isHead::after,
-  &.isTail::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    background-image: linear-gradient(to left, transparent, var(--muted-paper));
-  }
-  &.isTail::after {
-    rotate: 180deg;
-  }
-}
-
-.item {
-  --color: var(--muted-paper);
+.progressWrapper {
   position: relative;
   height: 100%;
-  display: inline-block;
-  position: relative;
-  padding: 0;
-  border: none;
   overflow: hidden;
-  color: inherit;
-  background: transparent;
+}
 
-  &:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: var(--border);
-    border-color: var(--color);
-  }
+.timeWrapper {
+  width: 100%;
+  position: relative;
+  height: 0.5em;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+}
 
-  &:hover,
-  &:active {
-    opacity: 0.8;
-    outline: none;
-  }
-
-  .itemFrames,
-  .itemIndex {
-    border-color: inherit;
-    padding: 0.2em;
-    font-size: 0.5em;
-    width: 1.5em;
-    height: 1.5em;
-    line-height: 1;
-    vertical-align: middle;
-    text-align: center;
-  }
-  .itemFrames {
-    background: var(--color);
-    position: absolute;
-    top: 0;
-    right: 0;
-    border-bottom-left-radius: var(--border-radius);
-  }
-  .itemIndex {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    border-top-right-radius: var(--border-radius);
-    text-shadow: 0 0 2px rgba(black, 1);
-  }
-
-  canvas {
-    height: 100%;
-    width: auto;
-  }
-
-  &.isActive {
-    --color: var(--accent);
-  }
-
-  &.isExtra {
-    filter: grayscale(100%);
-  }
+.timeIndicator {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--primary);
+  pointer-events: none;
 }

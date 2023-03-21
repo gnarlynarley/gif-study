@@ -1,35 +1,7 @@
+import React from "react";
 import localforage from "localforage";
-import * as React from "react";
 
-const keyMap: Record<string, string> = {
-  " ": "space",
-  ArrowRight: "right",
-  ArrowLeft: "left",
-};
-
-export function useKeybind(key: string, cb: () => void) {
-  const cbRef = React.useRef(cb);
-
-  React.useEffect(() => {
-    cbRef.current = cb;
-  }, [cb]);
-
-  React.useEffect(() => {
-    function handler(ev: KeyboardEvent) {
-      const pressedKey = keyMap[ev.key] ?? ev.key.toLowerCase();
-      if (pressedKey === key) {
-        cbRef.current();
-      }
-    }
-
-    document.addEventListener("keydown", handler);
-    return () => {
-      document.removeEventListener("keydown", handler);
-    };
-  }, []);
-}
-
-export function useLocalForageState<T>(
+export default function usePersistedState<T>(
   key: string,
   version: number,
   defaultState: T
@@ -104,6 +76,3 @@ export function useValueRef<T>(value: T): React.MutableRefObject<T> {
 
   return ref;
 }
-
-export * from "./useEvent";
-export * from "./useToast";

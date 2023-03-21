@@ -7,7 +7,7 @@ const toastsAtom = atom<ToastMessage[]>({
   default: [],
 });
 
-export function useToast() {
+export default function useToast() {
   const [toasts, setToasts] = useRecoilState(toastsAtom);
 
   const removeToast = (id: ToastMessage["id"]) => {

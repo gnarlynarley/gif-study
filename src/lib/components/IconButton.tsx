@@ -2,7 +2,7 @@ import $ from "./IconButton.module.scss";
 
 type Props = React.PropsWithChildren<{
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
 }>;
 
 export function IconButton({ children, label, onClick }: Props) {

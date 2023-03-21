@@ -2,9 +2,25 @@ export interface Timeline {
   id: string;
   gifFile: File;
   frames: TimelineFrame[];
-  timelineFrames: TimelineFrame[];
   totalTime: number;
   averageFrameDelay: number;
+  width: number;
+  height: number;
+}
+
+export interface GifFrame {
+  id: string;
+  data: ImageData;
+  delay: number;
+  frameIndex: number;
+}
+
+export interface GifData {
+  id: string;
+  file: File;
+  frames: GifFrame[];
+  width: number;
+  height: number;
 }
 
 export interface TimelineFrame {
@@ -15,6 +31,7 @@ export interface TimelineFrame {
   width: number;
   height: number;
   number: number;
+  index: number;
 }
 
 export type ToastMessageType = "message" | "error";

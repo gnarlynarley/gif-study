@@ -63,6 +63,7 @@
 
 */
 
+import { GifFrame, GifData } from "./models";
 import { createImage } from "./utils/createImage";
 import isPixelDataMatch from "./utils/isPixelDataMatch";
 
@@ -913,26 +914,12 @@ var SuperGif = function (gif: HTMLImageElement) {
   };
 };
 
-export interface GifFrame {
-  id: string;
-  data: ImageData;
-  delay: number;
-  frameIndex: number;
-}
-export interface Gif {
-  id: string;
-  file: File;
-  frames: GifFrame[];
-  width: number;
-  height: number;
-}
-
-export async function convertGif(file: File) {
+export async function convertGif(file: Blob) {
   const url = URL.createObjectURL(file);
   const image = await createImage(url);
   const parser = SuperGif(image);
 
-  return new Promise<Gif>((resolve, reject) => {
+  return new Promise<GifData>((resolve, reject) => {
     parser.load((err, data) => {
       if (err) {
         reject(err);
@@ -956,7 +943,7 @@ export async function convertGif(file: File) {
             id: i.toString(),
             frameIndex: frameIndex,
             ...frame,
-            delay,
+            delay: delay * 10,
           };
         });
         resolve({

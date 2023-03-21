@@ -1,0 +1,28 @@
+.container {
+  background-color: var(--muted-paper);
+  box-shadow: var(--drop-shadow);
+  backdrop-filter: var(--backdrop-filter);
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  padding: var(--spacing);
+}
+
+.divider {
+  width: 1px;
+  height: 2em;
+  background: var(--accent);
+  margin: 0 var(--spacing);
+}
+
+.push {
+  width: 100%;
+}
+
+.info {
+  width: 100%;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
