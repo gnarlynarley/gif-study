@@ -12,6 +12,7 @@ import {
   ZoomOutIcon,
 } from "./Icons";
 import $ from "./TimelineControlBar.module.scss";
+import { TimelineFrame } from "../models";
 
 const ZOOM_AMOUNT = 0.2;
 
@@ -27,19 +28,16 @@ export function TimelineControlBar({
   timelinePlayback,
 }: Props) {
   const [playing, setPlaying] = React.useState(false);
-  const [time, setTime] = React.useState(0);
   React.useEffect(() => {
-    if (timelinePlayback) {
-      const cleanups = [
-        timelinePlayback.events.playingChanged.on(setPlaying),
-        timelinePlayback.events.timeChanged.on(setTime),
-      ];
+    if (!timelinePlayback) {
+      setPlaying(false);
+    } else {
+      const cleanups = [timelinePlayback.events.playingChanged.on(setPlaying)];
 
       return () => {
         cleanups.forEach((cleanup) => cleanup());
       };
     }
-    setPlaying(false);
   }, [timelinePlayback]);
 
   const togglePlay = () => {
@@ -48,6 +46,8 @@ export function TimelineControlBar({
 
   useKeyboard("k", togglePlay);
   useKeyboard("space", togglePlay);
+  useKeyboard("j", () => timelinePlayback?.previousFrame());
+  useKeyboard("l", () => timelinePlayback?.nextFrame());
 
   return (
     <div className={$.container}>
@@ -71,13 +71,13 @@ export function TimelineControlBar({
         <SkipNextIcon />
       </IconButton>
 
-      <span className={$.divider} />
+      {/* <span className={$.divider} />
 
       <span className={$.info}>
-        <span>current frame: {time} | </span>
+        <span>current frame: {0} | </span>
         <span>repeating frame: {0} | </span>
         <span>duration: {0} frames</span>
-      </span>
+      </span> */}
 
       <span className={$.toolbarPush} />
 

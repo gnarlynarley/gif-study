@@ -1,17 +1,14 @@
 import React from "react";
-import { Timeline as TimelineType, TimelineFrame } from "../models";
+import type { Timeline as TimelineType, TimelineFrame } from "../models";
 import { calcModulo } from "../utils/calcModulo";
 import { cx } from "../utils/joinClassNames";
 import { ImageDataCanvas } from "./ImageDataCanvas";
 import $ from "./TimelineBar.module.scss";
+import type TimelinePlayback from "../TimelinePlayback";
 
 type TimelineProps = {
-  time: number;
   timeline: TimelineType;
-  currentFrame: TimelineFrame | null;
-  onPointerDown?: () => void;
-  onTimeChange: (time: number) => void;
-  multiplierWidth?: number | null;
+  timelinePlayback: TimelinePlayback;
 };
 type TimelineFramesProps = {
   head?: boolean;
@@ -52,16 +49,30 @@ function TimelineFrames({
   );
 }
 
-export function TimelineBar({
-  time,
-  timeline,
-  currentFrame,
-  onTimeChange,
-  onPointerDown,
-  multiplierWidth = null,
-}: TimelineProps) {
+export function TimelineBar({ timeline, timelinePlayback }: TimelineProps) {
+  const [playing, setPlaying] = React.useState(false);
+  const [time, setTime] = React.useState(0);
+  const [currentFrame, setCurrentFrame] = React.useState<TimelineFrame | null>(
+    null
+  );
+  React.useEffect(() => {
+    if (timelinePlayback) {
+      const cleanups = [
+        timelinePlayback.events.playingChanged.on(setPlaying),
+        timelinePlayback.events.timeChanged.on(setTime),
+        timelinePlayback.events.frameChanged.on(setCurrentFrame),
+      ];
+
+      return () => {
+        cleanups.forEach((cleanup) => cleanup());
+      };
+    }
+    setPlaying(false);
+  }, [timelinePlayback]);
+
   const [active, setActive] = React.useState(false);
   const { frames, averageFrameDelay, totalTime } = timeline;
+  const multiplierWidth = 100;
   const percentage =
     multiplierWidth !== null
       ? (time / totalTime) * 100
@@ -71,7 +82,7 @@ export function TimelineBar({
   const relativePercentage = 100 / 3 + percentage / 3;
   const frameContainerRef = React.useRef<HTMLDivElement>(null);
   const pointerDownHandler = (ev: React.MouseEvent) => {
-    onPointerDown?.();
+    timelinePlayback.pause();
     const frameContainer = frameContainerRef.current;
     if (!frameContainer) return;
     setActive(true);
@@ -84,7 +95,7 @@ export function TimelineBar({
       const x = startingX - ev.clientX;
       const timeOffset = Math.floor(x / cellWidth);
       const nextTime = calcModulo(startingTime + timeOffset, totalTime);
-      onTimeChange(nextTime);
+      timelinePlayback.setCurrentTime(nextTime);
     }
     function pointerupHandler(ev: MouseEvent) {
       ev.preventDefault();

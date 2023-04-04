@@ -1,14 +1,15 @@
 import { EventEmitter } from "./utils/EventEmitter";
 import { Timeline, TimelineFrame } from "./models";
 import GameLoop from "./utils/game/GameLoop";
+import { calcModulo } from "./utils/calcModulo";
 
 function findFrameByTime(
   reversedFrames: TimelineFrame[],
   time: number
-): TimelineFrame | null {
-  for (const frame of reversedFrames) {
+): { frame: TimelineFrame; index: number } | null {
+  for (const [index, frame] of reversedFrames.entries()) {
     if (time >= frame.time) {
-      return frame;
+      return { frame, index };
     }
   }
   return null;
@@ -21,6 +22,7 @@ export class TimelinePlayback {
   #reversedFrames: TimelineFrame[];
   currentTime = 0;
   currentFrame: TimelineFrame | null = null;
+  currentFrameIndex: number | null = null;
   events = {
     timeChanged: new EventEmitter<number>(),
     frameChanged: new EventEmitter<TimelineFrame | null>(),
@@ -31,14 +33,27 @@ export class TimelinePlayback {
     this.timeline = timeline;
     this.#reversedFrames = [...this.timeline.frames].reverse();
     this.loop = new GameLoop({
-      update: this.updateFrame,
+      fps: 60,
+      update: this.setCurrentTimeByDelta,
     });
+    this.updateFrame();
   }
 
-  updateFrame = (delta: number) => {
+  setCurrentTime = (currentTime: number) => {
+    this.currentTime = currentTime;
+    this.updateFrame();
+  };
+
+  setCurrentTimeByDelta = (delta: number) => {
     this.currentTime = (this.currentTime + delta) % this.timeline.totalTime;
+    this.updateFrame();
+  };
+
+  updateFrame = () => {
     this.events.timeChanged.emit(this.currentTime);
-    this.currentFrame = findFrameByTime(this.#reversedFrames, this.currentTime);
+    const found = findFrameByTime(this.#reversedFrames, this.currentTime);
+    this.currentFrame = found?.frame ?? null;
+    this.currentFrameIndex = found?.index ?? null;
     this.events.frameChanged.emit(this.currentFrame);
   };
 
@@ -64,6 +79,26 @@ export class TimelinePlayback {
     } else {
       this.play();
     }
+  };
+
+  navigateFrame = (offset: number) => {
+    this.pause();
+    if (this.currentFrameIndex !== null) {
+      const { frames } = this.timeline;
+      const nextFrameIndex = calcModulo(
+        this.currentFrameIndex + offset,
+        frames.length - 1
+      );
+      this.currentFrame = frames[nextFrameIndex];
+      this.currentFrameIndex = nextFrameIndex;
+    }
+  };
+
+  previousFrame = () => {
+    this.navigateFrame(-1);
+  };
+  nextFrame = () => {
+    this.navigateFrame(1);
   };
 }
 

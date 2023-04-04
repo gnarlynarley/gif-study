@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",
+    "@types/color": "^3.0.3",
     "@types/file-saver": "^2.0.5",
     "@types/ndarray": "^1.0.11",
     "@types/omggif": "^1.0.3",
@@ -27,6 +28,7 @@
     "vite-tsconfig-paths": "^4.0.5"
   },
   "dependencies": {
+    "color": "^4.2.3",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "localforage": "^1.10.0",

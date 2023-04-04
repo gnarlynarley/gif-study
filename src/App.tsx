@@ -75,39 +75,12 @@ export default function App() {
     null
   );
 
-  const setGifFile = async (gifFile: File) => {
-    setPending(true);
-    const nextGifData = await createGifDatafromBlob(gifFile);
-    setGifData(nextGifData);
-    setPending(false);
-  };
-
   const timeline = React.useMemo(
     () => (gifData ? createTimelineFromGifData(gifData) : null),
     [gifData]
   );
   const [timelinePlayback, setTimelinePlayback] =
     React.useState<TimelinePlayback | null>(null);
-
-  const [playing, setPlaying] = React.useState(false);
-  const [time, setTime] = React.useState(0);
-  const [currentFrame, setCurrentFrame] = React.useState<TimelineFrame | null>(
-    null
-  );
-  React.useEffect(() => {
-    if (timelinePlayback) {
-      const cleanups = [
-        timelinePlayback.events.playingChanged.on(setPlaying),
-        timelinePlayback.events.timeChanged.on(setTime),
-        timelinePlayback.events.frameChanged.on(setCurrentFrame),
-      ];
-
-      return () => {
-        cleanups.forEach((cleanup) => cleanup());
-      };
-    }
-    setPlaying(false);
-  }, [timelinePlayback]);
 
   React.useEffect(() => {
     if (timeline) {
@@ -121,6 +94,13 @@ export default function App() {
       setTimelinePlayback(null);
     }
   }, [timeline]);
+
+  const setGifFile = async (gifFile: File) => {
+    setPending(true);
+    const nextGifData = await createGifDatafromBlob(gifFile);
+    setGifData(nextGifData);
+    setPending(false);
+  };
 
   return (
     <DropZone accept="image/gif" disabled={pending} onFileDrop={setGifFile}>
@@ -139,17 +119,11 @@ export default function App() {
           </div>
         )}
 
-        {timeline && (
+        {timeline && timelinePlayback && (
           <div className={$.timeline}>
             <TimelineBar
-              time={time}
               timeline={timeline}
-              currentFrame={currentFrame}
-              onTimeChange={setTime}
-              onPointerDown={() => {
-                setPlaying(false);
-              }}
-              multiplierWidth={100}
+              timelinePlayback={timelinePlayback}
             />
           </div>
         )}

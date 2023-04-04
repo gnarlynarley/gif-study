@@ -1,5 +1,6 @@
 import React from "react";
 import { Timeline, TimelineFrame } from "../models";
+import MovableCanvasRender from "../MovableCanvasRender";
 import TimelinePlayback from "../TimelinePlayback";
 import { toPercentage } from "../utils/calcModulo";
 import { createCanvas } from "../utils/createCanvas";
@@ -300,7 +301,6 @@ export function TimelineCanvas({ timelinePlayback }: Props) {
   //   window.addEventListener("pointermove", pointermoveHandler);
   //   window.addEventListener("pointerup", pointerupHandler);
   // };
-
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = React.useState({
     width: 0,
@@ -323,6 +323,16 @@ export function TimelineCanvas({ timelinePlayback }: Props) {
   }, []);
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current as HTMLCanvasElement;
+    const instance = new MovableCanvasRender({ timelinePlayback });
+
+    instance.setCanvas(canvas);
+
+    return () => instance.destroy();
+  }, [timelinePlayback]);
+
   const setZoom = (add: number) => {};
 
   return (
