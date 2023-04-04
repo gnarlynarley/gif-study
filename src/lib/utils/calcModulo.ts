@@ -1,5 +1,5 @@
-export function calcModulo(value: number, add: number): number {
-  return ((value % add) + add) % add;
+export function calcModulo(a: number, b: number): number {
+  return ((a % b) + b) % b;
 }
 
 export function toPercentage(min: number, max: number, value: number) {

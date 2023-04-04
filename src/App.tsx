@@ -33,20 +33,19 @@ import TimelinePlayback from "~src/lib/TimelinePlayback";
 import createTimelineFromGifData from "$lib/timeline/createTimelineFromGifData";
 import createGifDatafromBlob from "$lib/timeline/createGifDatafromBlob";
 import { TimelineControlBar } from "./lib/components/TimelineControlBar";
+import type { OnionSkinFilterOptions } from "./lib/OnionSkinFilter";
 
-function useTimelineOptions() {
-  const timelineOptionsDefaults = {
-    height: 100,
-    widthMultiplier: 0.5,
-    relativeCellWidth: true,
-    onionSkinEnabled: false,
-    onionSkinContrastLevel: 0.3,
-    onionSkinPrevColor: "#0000ff",
-    onionSkinNextColor: "#ff6a00",
-    onionSkinOpacity: 0.3,
+function useOnionSkinFilter() {
+  const timelineOptionsDefaults: OnionSkinFilterOptions = {
+    enabled: false,
+    contrastLevel: 0.3,
+    prevColor: "#0000ff",
+    nextColor: "#ff6a00",
+    opacity: 0.3,
+    steps: 1,
   };
   const [options, setOptions] = usePersistedState(
-    "timelineOptions",
+    "onionSkinOptions",
     3,
     timelineOptionsDefaults
   );
@@ -74,13 +73,7 @@ export default function App() {
     2,
     null
   );
-
-  const setGifFile = async (gifFile: File) => {
-    setPending(true);
-    const nextGifData = await createGifDatafromBlob(gifFile);
-    setGifData(nextGifData);
-    setPending(false);
-  };
+  const onionSkinFilter = useOnionSkinFilter();
 
   const timeline = React.useMemo(
     () => (gifData ? createTimelineFromGifData(gifData) : null),
@@ -88,26 +81,6 @@ export default function App() {
   );
   const [timelinePlayback, setTimelinePlayback] =
     React.useState<TimelinePlayback | null>(null);
-
-  const [playing, setPlaying] = React.useState(false);
-  const [time, setTime] = React.useState(0);
-  const [currentFrame, setCurrentFrame] = React.useState<TimelineFrame | null>(
-    null
-  );
-  React.useEffect(() => {
-    if (timelinePlayback) {
-      const cleanups = [
-        timelinePlayback.events.playingChanged.on(setPlaying),
-        timelinePlayback.events.timeChanged.on(setTime),
-        timelinePlayback.events.frameChanged.on(setCurrentFrame),
-      ];
-
-      return () => {
-        cleanups.forEach((cleanup) => cleanup());
-      };
-    }
-    setPlaying(false);
-  }, [timelinePlayback]);
 
   React.useEffect(() => {
     if (timeline) {
@@ -122,6 +95,17 @@ export default function App() {
     }
   }, [timeline]);
 
+  const setGifFile = async (gifFile: File | null) => {
+    if (gifFile) {
+      setPending(true);
+      const nextGifData = await createGifDatafromBlob(gifFile);
+      setGifData(nextGifData);
+      setPending(false);
+    } else {
+      setGifData(null);
+    }
+  };
+
   return (
     <DropZone accept="image/gif" disabled={pending} onFileDrop={setGifFile}>
       {pending && <span className={$.loading}>Loading gif..</span>}
@@ -131,25 +115,24 @@ export default function App() {
             timelinePlayback={timelinePlayback}
             disableGifFileInput={pending}
             setGifFile={setGifFile}
+            onionSkinFilterOptions={onionSkinFilter.options}
+            setOnionSkinFilterOptions={onionSkinFilter.setOption}
           />
         </div>
         {timelinePlayback && (
           <div className={cx($.canvas)}>
-            <TimelineCanvas timelinePlayback={timelinePlayback} />
+            <TimelineCanvas
+              timelinePlayback={timelinePlayback}
+              onionSkinFilterOptions={onionSkinFilter.options}
+            />
           </div>
         )}
 
-        {timeline && (
+        {timeline && timelinePlayback && (
           <div className={$.timeline}>
             <TimelineBar
-              time={time}
               timeline={timeline}
-              currentFrame={currentFrame}
-              onTimeChange={setTime}
-              onPointerDown={() => {
-                setPlaying(false);
-              }}
-              multiplierWidth={100}
+              timelinePlayback={timelinePlayback}
             />
           </div>
         )}

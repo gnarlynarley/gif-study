@@ -12,34 +12,49 @@ import {
   ZoomOutIcon,
 } from "./Icons";
 import $ from "./TimelineControlBar.module.scss";
+import { TimelineFrame } from "../models";
+import { DropDown } from "./DropDown";
+import { CheckboxInput } from "./CheckboxInput";
+import { RangeInput } from "./RangeInput";
+import { OnionSkinFilterOptions } from "../OnionSkinFilter";
+import { downloadTimelineAsZip } from "../utils/downloadTimelineAsZip";
+import { Button } from "./Button";
 
 const ZOOM_AMOUNT = 0.2;
 
 type Props = {
   disableGifFileInput: boolean;
   timelinePlayback: TimelinePlayback | null;
-  setGifFile: (file: File) => void;
+  setGifFile: (file: File | null) => void;
+  onionSkinFilterOptions: OnionSkinFilterOptions;
+  setOnionSkinFilterOptions: <T extends keyof OnionSkinFilterOptions>(
+    key: T,
+    value: OnionSkinFilterOptions[T]
+  ) => void;
 };
 
 export function TimelineControlBar({
   disableGifFileInput,
   setGifFile,
   timelinePlayback,
+  onionSkinFilterOptions,
+  setOnionSkinFilterOptions,
 }: Props) {
   const [playing, setPlaying] = React.useState(false);
-  const [time, setTime] = React.useState(0);
+  const [speed, setSpeed] = React.useState(timelinePlayback?.speed ?? 1);
+
   React.useEffect(() => {
-    if (timelinePlayback) {
-      const cleanups = [
-        timelinePlayback.events.playingChanged.on(setPlaying),
-        timelinePlayback.events.timeChanged.on(setTime),
-      ];
+    if (!timelinePlayback) {
+      setPlaying(false);
+      setSpeed(1);
+    } else {
+      const cleanups = [timelinePlayback.events.playingChanged.on(setPlaying)];
+      setSpeed(timelinePlayback.speed);
 
       return () => {
         cleanups.forEach((cleanup) => cleanup());
       };
     }
-    setPlaying(false);
   }, [timelinePlayback]);
 
   const togglePlay = () => {
@@ -48,6 +63,8 @@ export function TimelineControlBar({
 
   useKeyboard("k", togglePlay);
   useKeyboard("space", togglePlay);
+  useKeyboard("j", () => timelinePlayback?.previousFrame());
+  useKeyboard("l", () => timelinePlayback?.nextFrame());
 
   return (
     <div className={$.container}>
@@ -71,115 +88,110 @@ export function TimelineControlBar({
         <SkipNextIcon />
       </IconButton>
 
-      <span className={$.divider} />
+      {/* <span className={$.divider} />
 
       <span className={$.info}>
-        <span>current frame: {time} | </span>
+        <span>current frame: {0} | </span>
         <span>repeating frame: {0} | </span>
         <span>duration: {0} frames</span>
-      </span>
+      </span> */}
 
-      <span className={$.toolbarPush} />
+      <span className={$.push} />
 
-      {/* <DropDown>
-            <RangeInput
-              label={`Playback speed ${speed * 100}%`}
-              min={0}
-              max={2}
-              step={0.2}
-              value={speed}
-              onChange={setSpeed}
-            />
+      {timelinePlayback && (
+        <DropDown>
+          <RangeInput
+            label={`Playback speed ${Math.round(
+              timelinePlayback.speed * 100
+            )}%`}
+            min={0}
+            max={3}
+            step={0.05}
+            value={speed}
+            onChange={(value) => {
+              setSpeed(value);
+              timelinePlayback.setSpeed(value);
+            }}
+          />
 
-            <CheckboxInput
-              id="timeline-relative-width"
-              label="use relative width"
-              checked={options.relativeCellWidth}
-              onChange={(value) => setOption("relativeCellWidth", value)}
-            />
-            {options.relativeCellWidth && (
-              <>
-                <RangeInput
-                  label={`Timeline width ${options.widthMultiplier * 100}%`}
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={options.widthMultiplier}
-                  onChange={(value) => setOption("widthMultiplier", value)}
-                />
-              </>
-            )}
+          <>
+            <Button
+              onClick={() => downloadTimelineAsZip(timelinePlayback.timeline)}
+            >
+              download frames
+            </Button>
+            <Button onClick={() => setGifFile(null)}>clear frames</Button>
+          </>
 
-            {timeline && (
-              <>
-                <Button onClick={() => generateGif(timeline.gifFile)}>
-                  regenerate frames
-                </Button>
-                <Button onClick={() => downloadTimelineAsZip(timeline)}>
-                  download frames
-                </Button>
-                <Button onClick={() => setGif(null)}>clear frames</Button>
-              </>
-            )}
+          <h3>Onion skin options:</h3>
 
-            <h3>Onion skin options:</h3>
-
-            <CheckboxInput
-              id="union-enabled"
-              label="Enabled"
-              checked={options.onionSkinEnabled}
-              onChange={(value) => setOption("onionSkinEnabled", value)}
-            />
-            {options.onionSkinEnabled && (
-              <>
-                <RangeInput
-                  label={`Contrast ${Math.round(
-                    options.onionSkinContrastLevel * 100
-                  )}%`}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={options.onionSkinContrastLevel}
-                  onChange={(value) =>
-                    setOption("onionSkinContrastLevel", value)
+          <CheckboxInput
+            id="union-enabled"
+            label="Enabled"
+            checked={onionSkinFilterOptions.enabled}
+            onChange={(value) => setOnionSkinFilterOptions("enabled", value)}
+          />
+          {onionSkinFilterOptions.enabled && (
+            <>
+              <RangeInput
+                label={`Contrast ${Math.round(
+                  onionSkinFilterOptions.contrastLevel * 100
+                )}%`}
+                min={0}
+                max={1}
+                step={0.01}
+                value={onionSkinFilterOptions.contrastLevel}
+                onChange={(value) =>
+                  setOnionSkinFilterOptions("contrastLevel", value)
+                }
+              />
+              <RangeInput
+                label={`Opacity ${Math.round(
+                  onionSkinFilterOptions.opacity * 100
+                )}%`}
+                min={0}
+                max={1}
+                step={0.01}
+                value={onionSkinFilterOptions.opacity ?? 0}
+                onChange={(value) =>
+                  setOnionSkinFilterOptions("opacity", value)
+                }
+              />
+              <RangeInput
+                label={`Steps: ${onionSkinFilterOptions.steps}`}
+                min={0}
+                max={5}
+                step={1}
+                value={onionSkinFilterOptions.steps ?? 0}
+                onChange={(value) => setOnionSkinFilterOptions("steps", value)}
+              />
+              <div>
+                <input
+                  type="color"
+                  value={onionSkinFilterOptions.prevColor}
+                  onChange={(ev) =>
+                    setOnionSkinFilterOptions("prevColor", ev.target.value)
                   }
                 />
-                <RangeInput
-                  label={`Opacity ${Math.round(
-                    options.onionSkinOpacity * 100
-                  )}%`}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={options.onionSkinOpacity ?? 0}
-                  onChange={(value) => setOption("onionSkinOpacity", value)}
+                <input
+                  type="color"
+                  value={onionSkinFilterOptions.nextColor}
+                  onChange={(ev) =>
+                    setOnionSkinFilterOptions("nextColor", ev.target.value)
+                  }
                 />
-                <div>
-                  <input
-                    type="color"
-                    value={options.onionSkinPrevColor}
-                    onChange={(ev) =>
-                      setOption("onionSkinPrevColor", ev.target.value)
-                    }
-                  />
-                  <input
-                    type="color"
-                    value={options.onionSkinNextColor}
-                    onChange={(ev) =>
-                      setOption("onionSkinNextColor", ev.target.value)
-                    }
-                  />
-                </div>
-              </>
-            )}
+              </div>
+            </>
+          )}
 
-            <h3>Keybinds:</h3>
-            <ul style={{ whiteSpace: "nowrap" }}>
-              <li>J = Previous frame</li>
-              <li>L = Next frame</li>
-              <li>K = Toggle playback</li>
-            </ul>
-          </DropDown> */}
+          <h3>Keybinds:</h3>
+          <ul style={{ whiteSpace: "nowrap" }}>
+            <li>J = Previous frame</li>
+            <li>L = Next frame</li>
+            <li>K = Toggle playback</li>
+          </ul>
+        </DropDown>
+      )}
     </div>
   );
 }

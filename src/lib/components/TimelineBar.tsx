@@ -1,134 +1,85 @@
 import React from "react";
-import { Timeline as TimelineType, TimelineFrame } from "../models";
-import { calcModulo } from "../utils/calcModulo";
-import { cx } from "../utils/joinClassNames";
-import { ImageDataCanvas } from "./ImageDataCanvas";
+import type { Timeline as TimelineType, TimelineFrame } from "../models";
+import type TimelinePlayback from "../TimelinePlayback";
 import $ from "./TimelineBar.module.scss";
+import setMoveEvent from "../utils/setMoveEvent";
 
 type TimelineProps = {
-  time: number;
   timeline: TimelineType;
-  currentFrame: TimelineFrame | null;
-  onPointerDown?: () => void;
-  onTimeChange: (time: number) => void;
-  multiplierWidth?: number | null;
-};
-type TimelineFramesProps = {
-  head?: boolean;
-  tail?: boolean;
-  frames: TimelineFrame[];
-  currentFrame: TimelineFrame | null;
-  multiplierWidth?: number | null;
-  averageFrameDelay: number;
+  timelinePlayback: TimelinePlayback;
 };
 
-function TimelineFrames({
-  head,
-  tail,
-  frames,
-  currentFrame,
-  multiplierWidth,
-  averageFrameDelay,
-}: TimelineFramesProps) {
+function Progress({
+  timelinePlayback,
+}: {
+  timelinePlayback: TimelinePlayback;
+}) {
+  const [time, setTime] = React.useState(0);
+  const { totalTime } = timelinePlayback.timeline;
+  const progress = time / totalTime;
+  const [rect, setRect] = React.useState({ w: 0, l: 0 });
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const observer = new ResizeObserver(([entry]) => {
+      const rect = entry.target.getBoundingClientRect();
+      setRect({ w: rect.width, l: rect.left });
+    });
+
+    observer.observe(containerRef.current as HTMLDivElement);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const destroy = timelinePlayback.events.timeChanged.on(setTime);
+
+    return () => destroy();
+  }, [timelinePlayback]);
+
+  React.useEffect(() => {
+    const cleanup = setMoveEvent(
+      containerRef.current as HTMLDivElement,
+      ({ x }) => {
+        const currentTime = ((x - rect.l) / rect.w) * totalTime;
+        timelinePlayback.pause();
+        timelinePlayback.setCurrentTime(currentTime);
+      }
+    );
+
+    return () => cleanup();
+  }, []);
+
   return (
-    <div className={cx($.itemWrapper, head && $.isHead, tail && $.isTail)}>
-      {frames.map((frame) => {
-        const isActive = frame === currentFrame;
-        const cellWidth =
-          multiplierWidth != null
-            ? frame.height *
-              (multiplierWidth * 1.5) *
-              (frame.duration / averageFrameDelay)
-            : frame.width;
-        return (
-          <div key={frame.id} className={cx($.item, isActive && $.isActive)}>
-            <ImageDataCanvas data={frame.data} width={cellWidth} />
-            <span className={$.itemIndex}>{frame.number}</span>
-            <span className={$.itemFrames}>{frame.duration}</span>
-          </div>
-        );
-      })}
+    <div
+      ref={containerRef}
+      className={$.timeWrapper}
+      onClick={(ev) => {
+        const currentTime = ((ev.clientX - rect.l) / rect.w) * totalTime;
+        timelinePlayback.pause();
+        timelinePlayback.setCurrentTime(currentTime);
+      }}
+    >
+      <div
+        className={$.timeIndicator}
+        style={{ translate: `${progress * 100 - 100}%` }}
+      ></div>
     </div>
   );
 }
 
-export function TimelineBar({
-  time,
-  timeline,
-  currentFrame,
-  onTimeChange,
-  onPointerDown,
-  multiplierWidth = null,
-}: TimelineProps) {
-  const [active, setActive] = React.useState(false);
-  const { frames, averageFrameDelay, totalTime } = timeline;
-  const percentage =
-    multiplierWidth !== null
-      ? (time / totalTime) * 100
-      : currentFrame
-      ? (frames.indexOf(currentFrame) / frames.length) * 100
-      : 0;
-  const relativePercentage = 100 / 3 + percentage / 3;
-  const frameContainerRef = React.useRef<HTMLDivElement>(null);
-  const pointerDownHandler = (ev: React.MouseEvent) => {
-    onPointerDown?.();
-    const frameContainer = frameContainerRef.current;
-    if (!frameContainer) return;
-    setActive(true);
-    const startingTime = time;
-    const startingX = ev.clientX;
-    const cellWidth = frameContainer.offsetWidth / 3 / totalTime;
-
-    function pointermoveHandler(ev: MouseEvent) {
-      ev.preventDefault();
-      const x = startingX - ev.clientX;
-      const timeOffset = Math.floor(x / cellWidth);
-      const nextTime = calcModulo(startingTime + timeOffset, totalTime);
-      onTimeChange(nextTime);
-    }
-    function pointerupHandler(ev: MouseEvent) {
-      ev.preventDefault();
-      window.removeEventListener("pointermove", pointermoveHandler);
-      window.removeEventListener("pointerup", pointerupHandler);
-      setActive(false);
-    }
-
-    window.addEventListener("pointermove", pointermoveHandler);
-    window.addEventListener("pointerup", pointerupHandler);
-  };
+export function TimelineBar({ timelinePlayback }: TimelineProps) {
+  const frames = timelinePlayback.timeline.frames;
 
   return (
-    <div
-      className={cx($.container, active && $.isActive)}
-      onPointerDown={pointerDownHandler}
-    >
-      <div
-        ref={frameContainerRef}
-        className={$.frames}
-        style={{
-          translate: `${relativePercentage * -1}%`,
-        }}
-      >
-        <TimelineFrames
-          head
-          frames={frames}
-          currentFrame={null}
-          multiplierWidth={multiplierWidth}
-          averageFrameDelay={averageFrameDelay}
-        />
-        <TimelineFrames
-          frames={frames}
-          currentFrame={currentFrame}
-          multiplierWidth={multiplierWidth}
-          averageFrameDelay={averageFrameDelay}
-        />
-        <TimelineFrames
-          tail
-          frames={frames}
-          currentFrame={null}
-          multiplierWidth={multiplierWidth}
-          averageFrameDelay={averageFrameDelay}
-        />
+    <div className={$.container}>
+      {frames.map((frame) => (
+        <div key={frame.id} className={$.frame}></div>
+      ))}
+      <div className={$.progressWrapper}>
+        <Progress timelinePlayback={timelinePlayback} />
       </div>
     </div>
   );

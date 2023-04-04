@@ -2,7 +2,7 @@ import type { Timeline, TimelineFrame, GifData } from "../models";
 
 export default function createTimelineFromGifData(gifData: GifData): Timeline {
   let time = 0;
-  const frames = gifData.frames.map((frame): TimelineFrame => {
+  const frames = gifData.frames.map((frame, index): TimelineFrame => {
     time += frame.delay;
     return {
       number: frame.frameIndex,
@@ -12,19 +12,17 @@ export default function createTimelineFromGifData(gifData: GifData): Timeline {
       time: time - frame.delay,
       width: frame.data.width,
       height: frame.data.height,
+      index,
     };
   });
-  const timelineFrames = frames.flatMap((frame) =>
-    Array.from({ length: frame.duration }, () => frame)
-  );
-  const totalTime = timelineFrames.length;
+  const lastFrame = frames[frames.length - 1];
+  const totalTime = lastFrame.time + lastFrame.duration;
   const averageFrameDelay = totalTime / frames.length;
 
   return {
     id: gifData.id,
     gifFile: gifData.file,
     frames,
-    timelineFrames,
     totalTime,
     averageFrameDelay,
     width: gifData.width,

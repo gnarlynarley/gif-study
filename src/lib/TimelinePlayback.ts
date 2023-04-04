@@ -1,20 +1,21 @@
 import { EventEmitter } from "./utils/EventEmitter";
 import { Timeline, TimelineFrame } from "./models";
 import GameLoop from "./utils/game/GameLoop";
-
-function findFrameByTime(
-  reversedFrames: TimelineFrame[],
-  time: number
-): TimelineFrame | null {
-  for (const frame of reversedFrames) {
-    if (time >= frame.time) {
-      return frame;
-    }
-  }
-  return null;
-}
+import { calcModulo } from "./utils/calcModulo";
 
 export class TimelinePlayback {
+  static findFrameByTime(
+    reversedFrames: TimelineFrame[],
+    time: number
+  ): { frame: TimelineFrame; index: number } | null {
+    for (const [index, frame] of reversedFrames.entries()) {
+      if (time >= frame.time) {
+        return { frame, index };
+      }
+    }
+    return null;
+  }
+
   playing: boolean = false;
   loop: GameLoop;
   timeline: Timeline;
@@ -31,14 +32,34 @@ export class TimelinePlayback {
     this.timeline = timeline;
     this.#reversedFrames = [...this.timeline.frames].reverse();
     this.loop = new GameLoop({
-      update: this.updateFrame,
+      fps: 60,
+      update: this.#setCurrentTimeByDelta,
     });
+    this.#updateFrame();
   }
 
-  updateFrame = (delta: number) => {
-    this.currentTime = (this.currentTime + delta) % this.timeline.totalTime;
-    this.events.timeChanged.emit(this.currentTime);
-    this.currentFrame = findFrameByTime(this.#reversedFrames, this.currentTime);
+  #setCurrentTimeByDelta = (delta: number) => {
+    this.setCurrentTime(
+      (this.currentTime + delta * this.speed) % this.timeline.totalTime
+    );
+  };
+
+  setCurrentTime = (currentTime: number) => {
+    this.currentTime = currentTime;
+    this.events.timeChanged.emit(currentTime);
+    this.#updateFrame();
+  };
+
+  #updateFrame = () => {
+    const found = TimelinePlayback.findFrameByTime(
+      this.#reversedFrames,
+      this.currentTime
+    );
+    this.#setFrame(found?.frame ?? null);
+  };
+
+  #setFrame = (frame: TimelineFrame | null) => {
+    this.currentFrame = frame;
     this.events.frameChanged.emit(this.currentFrame);
   };
 
@@ -64,6 +85,34 @@ export class TimelinePlayback {
     } else {
       this.play();
     }
+  };
+
+  speed = 1;
+
+  setSpeed = (speed: number) => {
+    this.speed = speed;
+  };
+
+  navigateFrame = (offset: number) => {
+    this.pause();
+    const currentIndex = this.currentFrame?.index ?? null;
+    if (currentIndex !== null) {
+      const { frames } = this.timeline;
+      const nextFrameIndex = calcModulo(
+        currentIndex + offset,
+        frames.length - 1
+      );
+      const nextFrame = frames[nextFrameIndex];
+      this.setCurrentTime(nextFrame.time);
+    }
+  };
+
+  previousFrame = () => {
+    this.navigateFrame(-1);
+  };
+
+  nextFrame = () => {
+    this.navigateFrame(1);
   };
 }
 

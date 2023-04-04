@@ -3,17 +3,19 @@ import noop from "../noop";
 type UpdateMethod = (delta: number) => void;
 
 interface GameLoopOptions {
+  fps?: number;
   update?: UpdateMethod;
   render?: () => void;
 }
 
 export default class GameLoop {
-  fps = 10;
+  fps: number;
   update: UpdateMethod;
   render: () => void;
   rafId: number | null = null;
 
-  constructor({ render, update }: GameLoopOptions) {
+  constructor({ fps = 60, render, update }: GameLoopOptions) {
+    this.fps = fps;
     this.update = update ?? noop;
     this.render = render ?? noop;
   }
