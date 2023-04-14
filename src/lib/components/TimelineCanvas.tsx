@@ -3,12 +3,12 @@ import MovableCanvasRender from "../MovableCanvasRender";
 import TimelinePlayback from "../TimelinePlayback";
 import { IconButton } from "./IconButton";
 import { ZoomInIcon, ZoomOutIcon } from "./Icons";
+import type { ScreenFilterOptions } from "../ScreenFilter";
 import $ from "./TimelineCanvas.module.scss";
-import { OnionSkinFilterOptions } from "../OnionSkinFilter";
 
 type Props = {
   timelinePlayback: TimelinePlayback;
-  onionSkinFilterOptions: OnionSkinFilterOptions;
+  onionSkinFilterOptions: ScreenFilterOptions;
 };
 
 const ZOOM_AMOUNT = 0.2;
