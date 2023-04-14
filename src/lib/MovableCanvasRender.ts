@@ -1,5 +1,5 @@
 import { TimelineFrame } from "./models";
-import OnionSkinFilter, { OnionSkinFilterOptions } from "./OnionSkinFilter";
+import ScreenFilter, { ScreenFilterOptions } from "./ScreenFilter";
 import type { TimelinePlayback } from "./TimelinePlayback";
 import clamp from "./utils/clamp";
 import GameLoop from "./utils/game/GameLoop";
@@ -9,7 +9,7 @@ const MAX_ZOOM = 5;
 
 interface Options {
   timelinePlayback: TimelinePlayback;
-  onionSkinFilterOptions: OnionSkinFilterOptions;
+  onionSkinFilterOptions: ScreenFilterOptions;
 }
 
 export default class MovableCanvasRender {
@@ -19,7 +19,7 @@ export default class MovableCanvasRender {
   #canvas: HTMLCanvasElement | null = null;
   #context: CanvasRenderingContext2D | null = null;
   #timelinePlayback: TimelinePlayback;
-  onionSkinFilter: OnionSkinFilter;
+  onionSkinFilter: ScreenFilter;
 
   constructor({ timelinePlayback, onionSkinFilterOptions }: Options) {
     this.#timelinePlayback = timelinePlayback;
@@ -27,9 +27,9 @@ export default class MovableCanvasRender {
       render: this.#render,
     });
     this.#loop.play();
-    this.onionSkinFilter = new OnionSkinFilter(
+    this.onionSkinFilter = new ScreenFilter(
       onionSkinFilterOptions,
-      timelinePlayback.timeline.frames
+      timelinePlayback.timeline.frames,
     );
   }
 
@@ -71,7 +71,7 @@ export default class MovableCanvasRender {
       context.scale(this.#zoom, this.#zoom);
       context.translate(
         frame.width * -0.5 + x / this.#zoom,
-        frame.height * -0.5 + y / this.#zoom
+        frame.height * -0.5 + y / this.#zoom,
       );
       context.drawImage(image, 0, 0);
       context.restore();
@@ -121,7 +121,7 @@ export default class MovableCanvasRender {
     this.#loop.stop();
   }
 
-  setOnionSkinOptions(options: OnionSkinFilterOptions) {
+  setOnionSkinOptions(options: ScreenFilterOptions) {
     this.onionSkinFilter.setOptions(options);
     this.imageFromFrameCache = new WeakMap();
   }

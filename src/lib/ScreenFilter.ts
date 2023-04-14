@@ -3,26 +3,27 @@ import { TimelineFrame } from "./models";
 import { assert } from "./utils/assert";
 import { createCanvas } from "./utils/createCanvas";
 
-export interface OnionSkinFilterOptions {
-  enabled: boolean;
+export interface ScreenFilterOptions {
+  contrastEnabled: boolean;
   contrastLevel: number;
-  prevColor: string;
-  nextColor: string;
-  opacity: number;
-  steps: number;
+  onionSkinEnabled: boolean;
+  onionSkinPrevColor: string;
+  onionSkinNextColor: string;
+  onionSkinOpacity: number;
+  onionSkinSteps: number;
 }
 
-export default class OnionSkinFilter {
+export default class ScreenFilter {
   contrastCache = new WeakMap<ImageData, HTMLCanvasElement>();
-  options: OnionSkinFilterOptions;
+  options: ScreenFilterOptions;
   frames: TimelineFrame[];
 
-  constructor(options: OnionSkinFilterOptions, frames: TimelineFrame[]) {
+  constructor(options: ScreenFilterOptions, frames: TimelineFrame[]) {
     this.frames = frames;
     this.options = options;
   }
 
-  setOptions(options: OnionSkinFilterOptions) {
+  setOptions(options: ScreenFilterOptions) {
     this.options = options;
     this.contrastCache = new Map();
     this.cache = new Map();
@@ -34,29 +35,34 @@ export default class OnionSkinFilter {
     if (!canvas) {
       const destination = createCanvas(imageData.width, imageData.height);
       const contrastLevel = this.options.contrastLevel * 255;
-      const newData = new ImageData(imageData.width, imageData.height);
 
-      for (let i = 0; i < newData.data.length; i += 4) {
-        const r = imageData.data[i];
-        const g = imageData.data[i + 1];
-        const b = imageData.data[i + 2];
-        const average = (r + g + b) / 3;
+      if (this.options.contrastEnabled) {
+        const newData = new ImageData(imageData.width, imageData.height);
 
-        if (average < contrastLevel) {
-          const color = (average / 255) * contrastLevel;
-          newData.data[i] = color;
-          newData.data[i + 1] = color;
-          newData.data[i + 2] = color;
-          newData.data[i + 3] = 255;
-        } else {
-          newData.data[i] = 255;
-          newData.data[i + 1] = 255;
-          newData.data[i + 2] = 255;
-          newData.data[i + 3] = 255;
+        for (let i = 0; i < newData.data.length; i += 4) {
+          const r = imageData.data[i];
+          const g = imageData.data[i + 1];
+          const b = imageData.data[i + 2];
+          const average = (r + g + b) / 3;
+
+          if (average < contrastLevel) {
+            const color = (average / 255) * contrastLevel;
+            newData.data[i] = color;
+            newData.data[i + 1] = color;
+            newData.data[i + 2] = color;
+            newData.data[i + 3] = 255;
+          } else {
+            newData.data[i] = 255;
+            newData.data[i + 1] = 255;
+            newData.data[i + 2] = 255;
+            newData.data[i + 3] = 255;
+          }
         }
-      }
 
-      destination.context.putImageData(newData, 0, 0);
+        destination.context.putImageData(newData, 0, 0);
+      } else {
+        destination.context.putImageData(imageData, 0, 0);
+      }
 
       this.contrastCache.set(imageData, destination.canvas);
       canvas = destination.canvas;
@@ -68,19 +74,25 @@ export default class OnionSkinFilter {
   cache = new WeakMap<ImageData, ImageData>();
 
   apply(imageData: ImageData): ImageData {
-    if (!this.options.enabled) return imageData;
+    if (!this.options.onionSkinEnabled) return imageData;
 
     let newData = this.cache.get(imageData);
 
     if (!newData) {
       const { frames } = this;
-      const { opacity, steps, prevColor, nextColor, enabled } = this.options;
+      const {
+        onionSkinOpacity: opacity,
+        onionSkinSteps: steps,
+        onionSkinPrevColor: prevColor,
+        onionSkinNextColor: nextColor,
+        onionSkinEnabled: enabled,
+      } = this.options;
       const { width, height } = imageData;
 
       const offscreen = createCanvas(width, height);
       const destination = createCanvas(width, height);
       const currentIndex = frames.findIndex(
-        (frame) => frame.data === imageData
+        (frame) => frame.data === imageData,
       );
 
       assert(currentIndex !== -1);
@@ -91,7 +103,7 @@ export default class OnionSkinFilter {
         if (i === 0) i = 1;
 
         const frame = frames.at(
-          (frames.length + i + currentIndex) % frames.length
+          (frames.length + i + currentIndex) % frames.length,
         );
         if (!frame) break;
 

@@ -5,10 +5,10 @@
   background-color: var(--muted-paper);
   backdrop-filter: var(--backdrop-filter);
   border-radius: var(--border-radius);
+  box-shadow: var(--drop-shadow);
   overflow: hidden;
   touch-action: none;
   user-select: none;
-  box-shadow: var(--drop-shadow);
   padding: var(--spacing);
 }
 
