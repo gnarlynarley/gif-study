@@ -24,6 +24,13 @@
   height: 0.5em;
   overflow: hidden;
   border-radius: var(--border-radius);
+  will-change: height;
+  transition: height 100ms ease-in-out;
+
+  .container:hover &,
+  &.isActive {
+    height: 1.5em;
+  }
 }
 
 .timeIndicator {
