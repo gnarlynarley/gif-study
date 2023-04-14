@@ -89,14 +89,6 @@ export function TimelineControlBar({
         </>
       )}
 
-      {/* <span className={$.divider} />
-
-      <span className={$.info}>
-        <span>current frame: {0} | </span>
-        <span>repeating frame: {0} | </span>
-        <span>duration: {0} frames</span>
-      </span> */}
-
       <span className={$.push} />
 
       {timelinePlayback && (

@@ -1,8 +1,13 @@
 import React from "react";
-import type { Timeline as TimelineType, TimelineFrame } from "../models";
+import type { Timeline as TimelineType } from "../models";
 import type TimelinePlayback from "../TimelinePlayback";
+import useEvent from "$lib/hooks/useEvent";
+import setMoveEvent, { type MoveEvent } from "../utils/setMoveEvent";
 import $ from "./TimelineBar.module.scss";
-import setMoveEvent from "../utils/setMoveEvent";
+import { calcModulo } from "../utils/calcModulo";
+import { cx } from "../utils/joinClassNames";
+
+console.log($);
 
 type TimelineProps = {
   timeline: TimelineType;
@@ -14,6 +19,7 @@ function Progress({
 }: {
   timelinePlayback: TimelinePlayback;
 }) {
+  const [active, setActive] = React.useState(false);
   const [time, setTime] = React.useState(0);
   const { totalTime } = timelinePlayback.timeline;
   const progress = time / totalTime;
@@ -39,29 +45,29 @@ function Progress({
     return () => destroy();
   }, [timelinePlayback]);
 
+  const setCurrentTime = useEvent((event: MoveEvent) => {
+    const currentTime = calcModulo(
+      ((event.x - rect.l) / rect.w) * totalTime,
+      totalTime,
+    );
+    timelinePlayback.pause();
+    timelinePlayback.setCurrentTime(currentTime);
+    setActive(event.active);
+  });
+
+  console.log(active);
+
   React.useEffect(() => {
     const cleanup = setMoveEvent(
       containerRef.current as HTMLDivElement,
-      ({ x }) => {
-        const currentTime = ((x - rect.l) / rect.w) * totalTime;
-        timelinePlayback.pause();
-        timelinePlayback.setCurrentTime(currentTime);
-      }
+      setCurrentTime,
     );
 
     return () => cleanup();
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className={$.timeWrapper}
-      onClick={(ev) => {
-        const currentTime = ((ev.clientX - rect.l) / rect.w) * totalTime;
-        timelinePlayback.pause();
-        timelinePlayback.setCurrentTime(currentTime);
-      }}
-    >
+    <div ref={containerRef} className={cx($.timeWrapper, active && $.isActive)}>
       <div
         className={$.timeIndicator}
         style={{ translate: `${progress * 100 - 100}%` }}
