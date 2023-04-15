@@ -1,13 +1,14 @@
 import React from "react";
-import type { Timeline as TimelineType } from "../models";
-import type TimelinePlayback from "../TimelinePlayback";
+import type { Timeline as TimelineType, TimelineFrame } from "../models";
+import TimelinePlayback from "../TimelinePlayback";
 import useEvent from "$lib/hooks/useEvent";
 import setMoveEvent, { type MoveEvent } from "../utils/setMoveEvent";
 import $ from "./TimelineBar.module.scss";
 import { calcModulo } from "../utils/calcModulo";
 import { cx } from "../utils/joinClassNames";
+import { ImageDataCanvas } from "./ImageDataCanvas";
 
-console.log($);
+const FRAMES_PER_SECOND = 24;
 
 type TimelineProps = {
   timeline: TimelineType;
@@ -19,9 +20,15 @@ function Progress({
 }: {
   timelinePlayback: TimelinePlayback;
 }) {
-  const [active, setActive] = React.useState(false);
   const [time, setTime] = React.useState(0);
-  const { totalTime } = timelinePlayback.timeline;
+  const [active, setActive] = React.useState(false);
+  const [hoverTime, setHoverTime] = React.useState(0);
+  const shownTime = active ? time : hoverTime;
+  const hoverFrame = React.useMemo(
+    () => timelinePlayback.findFrameByTime(shownTime),
+    [shownTime, active],
+  );
+  const { totalTime, frames } = timelinePlayback.timeline;
   const progress = time / totalTime;
   const [rect, setRect] = React.useState({ w: 0, l: 0 });
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -45,17 +52,14 @@ function Progress({
     return () => destroy();
   }, [timelinePlayback]);
 
+  const calculateCurrentTime = (x: number) =>
+    calcModulo(((x - rect.l) / rect.w) * totalTime, totalTime);
   const setCurrentTime = useEvent((event: MoveEvent) => {
-    const currentTime = calcModulo(
-      ((event.x - rect.l) / rect.w) * totalTime,
-      totalTime,
-    );
+    const currentTime = calculateCurrentTime(event.x);
     timelinePlayback.pause();
     timelinePlayback.setCurrentTime(currentTime);
     setActive(event.active);
   });
-
-  console.log(active);
 
   React.useEffect(() => {
     const cleanup = setMoveEvent(
@@ -67,11 +71,45 @@ function Progress({
   }, []);
 
   return (
-    <div ref={containerRef} className={cx($.timeWrapper, active && $.isActive)}>
-      <div
-        className={$.timeIndicator}
-        style={{ translate: `${progress * 100 - 100}%` }}
-      ></div>
+    <div
+      ref={containerRef}
+      className={cx($.timeWrapper, active && $.isActive)}
+      onMouseMove={(ev) => {
+        setHoverTime(calculateCurrentTime(ev.screenX));
+      }}
+    >
+      {hoverFrame && (
+        <div
+          className={$.thumbnail}
+          style={{ left: `${(shownTime / totalTime) * 100}%` }}
+        >
+          <ImageDataCanvas
+            className={$.thumbnailImage}
+            data={hoverFrame.frame.data}
+          />
+        </div>
+      )}
+      <div className={$.timeIndicatorWrapper}>
+        <div
+          className={$.timeIndicator}
+          style={{ translate: `${progress * 100 - 100}%` }}
+        ></div>
+      </div>
+      <div className={$.frames}>
+        {frames.map((frame) => {
+          return (
+            <div
+              key={frame.id}
+              className={$.frame}
+              style={{ width: `${(frame.duration / totalTime) * 100}%` }}
+            >
+              <span className={$.frameText}>
+                {Math.floor(frame.duration / FRAMES_PER_SECOND)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

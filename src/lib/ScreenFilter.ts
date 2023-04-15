@@ -1,4 +1,3 @@
-import Color from "color";
 import { TimelineFrame } from "./models";
 import { assert } from "./utils/assert";
 import { createCanvas } from "./utils/createCanvas";
@@ -44,6 +43,8 @@ export default class ScreenFilter {
           const g = imageData.data[i + 1];
           const b = imageData.data[i + 2];
           const average = (r + g + b) / 3;
+          // const average = r * 0.3 + g * 0.59 + b * 0.11;
+          // const average = (Math.min(r, g, b) + Math.max(r, g, b)) / 2;
 
           if (average < contrastLevel) {
             const color = (average / 255) * contrastLevel;
