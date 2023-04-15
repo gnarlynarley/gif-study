@@ -4,18 +4,6 @@ import GameLoop from "./utils/game/GameLoop";
 import { calcModulo } from "./utils/calcModulo";
 
 export class TimelinePlayback {
-  static findFrameByTime(
-    reversedFrames: TimelineFrame[],
-    time: number
-  ): { frame: TimelineFrame; index: number } | null {
-    for (const [index, frame] of reversedFrames.entries()) {
-      if (time >= frame.time) {
-        return { frame, index };
-      }
-    }
-    return null;
-  }
-
   playing: boolean = false;
   loop: GameLoop;
   timeline: Timeline;
@@ -40,7 +28,7 @@ export class TimelinePlayback {
 
   #setCurrentTimeByDelta = (delta: number) => {
     this.setCurrentTime(
-      (this.currentTime + delta * this.speed) % this.timeline.totalTime
+      (this.currentTime + delta * this.speed) % this.timeline.totalTime,
     );
   };
 
@@ -51,10 +39,7 @@ export class TimelinePlayback {
   };
 
   #updateFrame = () => {
-    const found = TimelinePlayback.findFrameByTime(
-      this.#reversedFrames,
-      this.currentTime
-    );
+    const found = this.findFrameByTime(this.currentTime);
     this.#setFrame(found?.frame ?? null);
   };
 
@@ -65,6 +50,18 @@ export class TimelinePlayback {
 
   destroy = () => {
     this.loop.stop();
+  };
+
+  findFrameByTime = (
+    time: number,
+  ): { frame: TimelineFrame; index: number } | null => {
+    const reversedFrames = this.#reversedFrames;
+    for (const [index, frame] of reversedFrames.entries()) {
+      if (time >= frame.time) {
+        return { frame, index };
+      }
+    }
+    return null;
   };
 
   play = () => {
@@ -100,7 +97,7 @@ export class TimelinePlayback {
       const { frames } = this.timeline;
       const nextFrameIndex = calcModulo(
         currentIndex + offset,
-        frames.length - 1
+        frames.length - 1,
       );
       const nextFrame = frames[nextFrameIndex];
       this.setCurrentTime(nextFrame.time);

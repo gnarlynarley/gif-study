@@ -1,7 +1,7 @@
 import pixelmatch from "pixelmatch";
 
 const THRESHOLD = 0.1;
-const DIFFERENCE = 0.01;
+const DIFFERENCE = 0.001;
 
 export function isPixelDataMatch(a: ImageData, b: ImageData) {
   if (a.data.length !== b.data.length) return false;
