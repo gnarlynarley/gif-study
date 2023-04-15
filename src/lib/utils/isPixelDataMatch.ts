@@ -12,7 +12,7 @@ export function isPixelDataMatch(a: ImageData, b: ImageData) {
     output.data,
     output.width,
     output.height,
-    { threshold: THRESHOLD }
+    { threshold: THRESHOLD },
   );
   const diff = pixelDiff / (output.width * output.height);
 
