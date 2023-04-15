@@ -75,7 +75,8 @@ function Progress({
       ref={containerRef}
       className={cx($.timeWrapper, active && $.isActive)}
       onMouseMove={(ev) => {
-        setHoverTime(calculateCurrentTime(ev.screenX));
+        const x = ev.clientX - rect.l;
+        setHoverTime(calculateCurrentTime(x));
       }}
     >
       {hoverFrame && (
