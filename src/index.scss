@@ -22,6 +22,7 @@ $c-lightmode-paper: #ccc;
   --error: #9e0000;
   --spacing: 0.8em;
   --primary: #{$c-primary};
+  --primary-dark: #{mix($c-primary, $c-paper, 10)};
   --border-width: 2px;
   --border: var(--border-width) solid var(--primary);
   --border-radius: 0.3em;

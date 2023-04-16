@@ -100,7 +100,6 @@ export default class ScreenFilter {
 
       destination.context.drawImage(this.applyContrast(imageData), 0, 0);
 
-      console.group("filtering");
       for (let i = steps * -1; i < steps + 1; i += 1) {
         if (Math.abs(i) === 0) continue;
 
@@ -121,7 +120,6 @@ export default class ScreenFilter {
 
         offscreen.context.clearRect(0, 0, width, height);
       }
-      console.groupEnd();
 
       newData = destination.context.getImageData(0, 0, width, height);
 

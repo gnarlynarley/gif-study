@@ -15,12 +15,14 @@ export class TimelinePlayback {
     timeChanged: new EventEmitter<number>(),
     frameChanged: new EventEmitter<TimelineFrame | null>(),
     playingChanged: new EventEmitter<boolean>(),
+    clampedStartTimeChanged: new EventEmitter<number>(),
+    clampedEndTimeChanged: new EventEmitter<number>(),
   };
 
   constructor(timeline: Timeline) {
     this.timeline = timeline;
-    this.clampedEndTime = timeline.totalTime;
     this.clampedStartTime = 0;
+    this.clampedEndTime = timeline.totalTime;
     this.currentTime = this.calculateCurrentTime(0);
     this.#reversedFrames = [...this.timeline.frames].reverse();
     this.loop = new GameLoop({
@@ -34,10 +36,16 @@ export class TimelinePlayback {
     this.setCurrentTime(this.currentTime + delta * this.speed);
   };
 
-  setClamp(start: number, end: number) {
-    this.clampedStartTime = Math.min(start, end);
-    this.clampedEndTime = Math.max(end, start);
+  setStartClamp(start: number) {
+    this.clampedStartTime = Math.min(start, this.clampedEndTime);
     this.setCurrentTime(this.currentTime);
+    this.events.clampedStartTimeChanged.emit(this.clampedStartTime);
+  }
+
+  setEndclamp(end: number) {
+    this.clampedEndTime = Math.max(end, this.clampedStartTime);
+    this.setCurrentTime(this.currentTime);
+    this.events.clampedEndTimeChanged.emit(this.clampedEndTime);
   }
 
   calculateCurrentTime = (value: number) => {

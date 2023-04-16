@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { Timeline as TimelineType, TimelineFrame } from "../models";
 import TimelinePlayback from "../TimelinePlayback";
 import useEvent from "$lib/hooks/useEvent";
@@ -16,18 +16,18 @@ type TimelineProps = {
   timelinePlayback: TimelinePlayback;
 };
 
-enum Mode {
-  Navigation,
-  Clipping,
-}
-
 function Progress({
   timelinePlayback,
 }: {
   timelinePlayback: TimelinePlayback;
 }) {
-  const [mode, setMode] = React.useState(Mode.Navigation);
   const [time, setTime] = React.useState(0);
+  const [clampStart, setClampStart] = React.useState(
+    timelinePlayback.clampedStartTime,
+  );
+  const [clampEnd, setClampEnd] = React.useState(
+    timelinePlayback.clampedEndTime,
+  );
   const [active, setActive] = React.useState(false);
   const [hoverTime, setHoverTime] = React.useState(0);
   const shownTime = active ? time : hoverTime;
@@ -37,7 +37,7 @@ function Progress({
   );
   const { totalTime, frames } = timelinePlayback.timeline;
   const [rect, setRect] = React.useState({ w: 0, l: 0 });
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const timeIndicatorRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const observer = new ResizeObserver(([entry]) => {
@@ -45,7 +45,7 @@ function Progress({
       setRect({ w: rect.width, l: rect.left });
     });
 
-    observer.observe(containerRef.current as HTMLDivElement);
+    observer.observe(timeIndicatorRef.current as HTMLDivElement);
 
     return () => {
       observer.disconnect();
@@ -53,9 +53,13 @@ function Progress({
   }, []);
 
   React.useEffect(() => {
-    const destroy = timelinePlayback.events.timeChanged.on(setTime);
+    const destroys = [
+      timelinePlayback.events.timeChanged.on(setTime),
+      timelinePlayback.events.clampedStartTimeChanged.on(setClampStart),
+      timelinePlayback.events.clampedEndTimeChanged.on(setClampEnd),
+    ];
 
-    return () => destroy();
+    return () => destroys.forEach((d) => d());
   }, [timelinePlayback]);
 
   const calculateCurrentTime = (x: number) => {
@@ -63,7 +67,6 @@ function Progress({
     return currentTime;
   };
   const setCurrentTime = useEvent((event: MoveEvent) => {
-    if (mode !== Mode.Navigation) return;
     const currentTime = clamp(
       timelinePlayback.clampedStartTime,
       timelinePlayback.clampedEndTime,
@@ -74,46 +77,30 @@ function Progress({
     setActive(event.active);
   });
 
-  React.useEffect(() => {
-    const cleanup = setMoveEvent(
-      containerRef.current as HTMLDivElement,
-      setCurrentTime,
-    );
+  const startHandleRef = React.useRef<HTMLDivElement>(null);
+  const endHandleRef = React.useRef<HTMLDivElement>(null);
 
-    return () => cleanup();
-  }, []);
-
-  const [clampBeginFrame, setClampBeginFrame] =
-    React.useState<TimelineFrame | null>(null);
-
-  const onFrameClick = (frame: TimelineFrame) => {
-    if (mode !== Mode.Clipping) return;
-    if (clampBeginFrame === null) {
-      setClampBeginFrame(frame);
-    } else {
-      timelinePlayback.setClamp(
-        clampBeginFrame.time,
-        frame.time + frame.duration,
-      );
-      setMode(Mode.Navigation);
-    }
-  };
-
-  React.useEffect(() => {
-    if (mode === Mode.Clipping) {
-      setClampBeginFrame(null);
-    }
-  }, [mode]);
-
-  useKeyboard("c", () => {
-    switch (mode) {
-      case Mode.Navigation:
-        setMode(Mode.Clipping);
-        break;
-      default:
-        setMode(Mode.Navigation);
-    }
+  const onStartTimeChange = useEvent((event) => {
+    const currentTime = clamp(0, totalTime, calculateCurrentTime(event.x));
+    timelinePlayback.setStartClamp(currentTime);
+    setActive(event.active);
   });
+
+  const onEndTimeChange = useEvent((event) => {
+    const currentTime = clamp(0, totalTime, calculateCurrentTime(event.x));
+    timelinePlayback.setEndclamp(currentTime);
+    setActive(event.active);
+  });
+
+  React.useEffect(() => {
+    const cleanups = [
+      setMoveEvent(timeIndicatorRef.current as HTMLDivElement, setCurrentTime),
+      setMoveEvent(startHandleRef.current as HTMLDivElement, onStartTimeChange),
+      setMoveEvent(endHandleRef.current as HTMLDivElement, onEndTimeChange),
+    ];
+
+    return () => cleanups.forEach((c) => c());
+  }, []);
 
   const width =
     ((timelinePlayback.clampedEndTime - timelinePlayback.clampedStartTime) /
@@ -125,11 +112,9 @@ function Progress({
 
   return (
     <>
-      <h1>{mode}</h1>
       <div
-        ref={containerRef}
         className={cx($.timeWrapper, active && $.isActive)}
-        onMouseMove={(ev) => {
+        onPointerMove={(ev) => {
           const x = ev.clientX - rect.l;
           setHoverTime(calculateCurrentTime(x));
         }}
@@ -145,35 +130,47 @@ function Progress({
             />
           </div>
         )}
-        <div className={$.timeIndicatorWrapper}>
+        <div className={$.timeIndicator} ref={timeIndicatorRef}>
           <div
-            className={$.timeIndicator}
+            className={$.timeIndicatorFill}
             style={{
-              left: `${(timelinePlayback.clampedStartTime / totalTime) * 100}%`,
+              left: `${(clampStart / totalTime) * 100}%`,
               width: `${width}%`,
               scale: `${scale} 1`,
             }}
           ></div>
-        </div>
-        <div className={$.frames}>
-          {frames.map((frame) => {
-            const isClamped =
-              frame.time < timelinePlayback.clampedStartTime ||
-              frame.time + frame.duration > timelinePlayback.clampedEndTime;
-            return (
-              <button
-                key={frame.id}
-                className={cx($.frame, isClamped && $.isClamped)}
-                style={{ width: `${(frame.duration / totalTime) * 100}%` }}
-                onClick={() => onFrameClick(frame)}
-              >
-                <span className={$.frameText}>
-                  {Math.floor(frame.duration / FRAMES_PER_SECOND)}
+
+          <div className={$.frames}>
+            {frames.map((frame) => {
+              return (
+                <span
+                  key={frame.id}
+                  className={$.frame}
+                  style={{ width: `${(frame.duration / totalTime) * 100}%` }}
+                >
+                  <span className={$.frameText}>
+                    {Math.floor(frame.duration / FRAMES_PER_SECOND)}
+                  </span>
                 </span>
-              </button>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
+
+        <div
+          ref={startHandleRef}
+          className={cx($.timeClamp, $.isStart)}
+          style={{
+            ["--progress" as any]: `${clampStart / totalTime}`,
+          }}
+        />
+        <div
+          ref={endHandleRef}
+          className={cx($.timeClamp, $.isEnd)}
+          style={{
+            ["--progress" as any]: `${clampEnd / totalTime}`,
+          }}
+        />
       </div>
     </>
   );
