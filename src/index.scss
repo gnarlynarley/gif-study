@@ -11,6 +11,8 @@ $c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
 $c-ink: #fff;
 $c-primary: #22ff52;
 
+$c-lightmode-paper: #ccc;
+
 :root {
   --paper: #{$c-paper};
   --muted-paper: #{$c-muted-paper};
@@ -26,15 +28,15 @@ $c-primary: #22ff52;
   --drop-shadow: 0 1px 20em #{rgba(black, 0.8)};
   --backdrop-filter: blur(0.3em);
 
-  // @media (prefers-color-scheme: light) {
-  //   --paper: #c0c0c0;
-  //   --muted-paper: #{rgba(darken(#c0c0c0, 5%), 0.7)};
-  //   --ink: #222;
-  //   --muted-accent: #eee;
-  //   --accent: #a7a7a7;
-  //   --drop-shadow: 0 0.2em 1em #{rgba(black, 0.1)};
-  //   --primary: #{darken($c-primary, 15%)};
-  // }
+  @media (prefers-color-scheme: light) {
+    --paper: #{$c-lightmode-paper};
+    --muted-paper: #{rgba(darken($c-lightmode-paper, 5%), 0.7)};
+    --ink: #222;
+    --muted-accent: #eee;
+    --accent: #a7a7a7;
+    --drop-shadow: 0 0.2em 1em #{rgba(black, 0.1)};
+    --primary: #{darken($c-primary, 15%)};
+  }
 }
 
 html {
@@ -75,4 +77,12 @@ p {
 
 label {
   cursor: inherit;
+}
+
+button {
+  border: none;
+  color: currentColor;
+  background: transparent;
+  padding: 0;
+  margin: 0;
 }

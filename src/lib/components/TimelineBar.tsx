@@ -6,6 +6,7 @@ import setMoveEvent, { type MoveEvent } from "../utils/setMoveEvent";
 import { ImageDataCanvas } from "./ImageDataCanvas";
 import { cx } from "../utils/joinClassNames";
 import clamp from "../utils/clamp";
+import useKeyboard from "../hooks/useKeyboard";
 import $ from "./TimelineBar.module.scss";
 
 const FRAMES_PER_SECOND = 24;
@@ -15,11 +16,17 @@ type TimelineProps = {
   timelinePlayback: TimelinePlayback;
 };
 
+enum Mode {
+  Navigation,
+  Clipping,
+}
+
 function Progress({
   timelinePlayback,
 }: {
   timelinePlayback: TimelinePlayback;
 }) {
+  const [mode, setMode] = React.useState(Mode.Navigation);
   const [time, setTime] = React.useState(0);
   const [active, setActive] = React.useState(false);
   const [hoverTime, setHoverTime] = React.useState(0);
@@ -29,7 +36,6 @@ function Progress({
     [shownTime, active],
   );
   const { totalTime, frames } = timelinePlayback.timeline;
-  const progress = time / totalTime;
   const [rect, setRect] = React.useState({ w: 0, l: 0 });
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -52,10 +58,17 @@ function Progress({
     return () => destroy();
   }, [timelinePlayback]);
 
-  const calculateCurrentTime = (x: number) =>
-    ((x - rect.l) / rect.w) * totalTime;
+  const calculateCurrentTime = (x: number) => {
+    const currentTime = ((x - rect.l) / rect.w) * totalTime;
+    return currentTime;
+  };
   const setCurrentTime = useEvent((event: MoveEvent) => {
-    const currentTime = clamp(0, totalTime, calculateCurrentTime(event.x));
+    if (mode !== Mode.Navigation) return;
+    const currentTime = clamp(
+      timelinePlayback.clampedStartTime,
+      timelinePlayback.clampedEndTime,
+      calculateCurrentTime(event.x),
+    );
     timelinePlayback.pause();
     timelinePlayback.setCurrentTime(currentTime);
     setActive(event.active);
@@ -70,48 +83,99 @@ function Progress({
     return () => cleanup();
   }, []);
 
+  const [clampBeginFrame, setClampBeginFrame] =
+    React.useState<TimelineFrame | null>(null);
+
+  const onFrameClick = (frame: TimelineFrame) => {
+    if (mode !== Mode.Clipping) return;
+    if (clampBeginFrame === null) {
+      setClampBeginFrame(frame);
+    } else {
+      timelinePlayback.setClamp(
+        clampBeginFrame.time,
+        frame.time + frame.duration,
+      );
+      setMode(Mode.Navigation);
+    }
+  };
+
+  React.useEffect(() => {
+    if (mode === Mode.Clipping) {
+      setClampBeginFrame(null);
+    }
+  }, [mode]);
+
+  useKeyboard("c", () => {
+    switch (mode) {
+      case Mode.Navigation:
+        setMode(Mode.Clipping);
+        break;
+      default:
+        setMode(Mode.Navigation);
+    }
+  });
+
+  const width =
+    ((timelinePlayback.clampedEndTime - timelinePlayback.clampedStartTime) /
+      totalTime) *
+    100;
+  const scale =
+    (time - timelinePlayback.clampedStartTime) /
+    (timelinePlayback.clampedEndTime - timelinePlayback.clampedStartTime);
+
   return (
-    <div
-      ref={containerRef}
-      className={cx($.timeWrapper, active && $.isActive)}
-      onMouseMove={(ev) => {
-        const x = ev.clientX - rect.l;
-        setHoverTime(calculateCurrentTime(x));
-      }}
-    >
-      {hoverFrame && (
-        <div
-          className={$.thumbnail}
-          style={{ left: `${(shownTime / totalTime) * 100}%` }}
-        >
-          <ImageDataCanvas
-            className={$.thumbnailImage}
-            data={hoverFrame.frame.data}
-          />
+    <>
+      <h1>{mode}</h1>
+      <div
+        ref={containerRef}
+        className={cx($.timeWrapper, active && $.isActive)}
+        onMouseMove={(ev) => {
+          const x = ev.clientX - rect.l;
+          setHoverTime(calculateCurrentTime(x));
+        }}
+      >
+        {hoverFrame && (
+          <div
+            className={$.thumbnail}
+            style={{ left: `${(shownTime / totalTime) * 100}%` }}
+          >
+            <ImageDataCanvas
+              className={$.thumbnailImage}
+              data={hoverFrame.frame.data}
+            />
+          </div>
+        )}
+        <div className={$.timeIndicatorWrapper}>
+          <div
+            className={$.timeIndicator}
+            style={{
+              left: `${(timelinePlayback.clampedStartTime / totalTime) * 100}%`,
+              width: `${width}%`,
+              scale: `${scale} 1`,
+            }}
+          ></div>
         </div>
-      )}
-      <div className={$.timeIndicatorWrapper}>
-        <div
-          className={$.timeIndicator}
-          style={{ translate: `${progress * 100 - 100}%` }}
-        ></div>
+        <div className={$.frames}>
+          {frames.map((frame) => {
+            const isClamped =
+              frame.time < timelinePlayback.clampedStartTime ||
+              frame.time + frame.duration > timelinePlayback.clampedEndTime;
+            return (
+              <button
+                key={frame.id}
+                className={cx($.frame, isClamped && $.isClamped)}
+                style={{ width: `${(frame.duration / totalTime) * 100}%` }}
+                onClick={() => onFrameClick(frame)}
+              >
+                <span className={$.frameText}>
+                  {Math.floor(frame.duration / FRAMES_PER_SECOND)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div className={$.frames}>
-        {frames.map((frame) => {
-          return (
-            <div
-              key={frame.id}
-              className={$.frame}
-              style={{ width: `${(frame.duration / totalTime) * 100}%` }}
-            >
-              <span className={$.frameText}>
-                {Math.floor(frame.duration / FRAMES_PER_SECOND)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    </>
   );
 }
 

@@ -47,7 +47,7 @@
 
   .container:hover &,
   &.isActive {
-    height: 1.5em;
+    height: 3em;
   }
 }
 
@@ -57,6 +57,7 @@
   height: 100%;
   background: var(--primary);
   pointer-events: none;
+  transform-origin: top left;
 
   &Wrapper {
     position: relative;
@@ -74,28 +75,37 @@
   height: 100%;
   overflow: hidden;
   display: flex;
+}
 
-  .frame {
-    height: 100%;
-    font-size: 0.6em;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    overflow: hidden;
+.frame {
+  height: 100%;
+  font-size: 0.6em;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  overflow: hidden;
 
-    &:nth-child(odd) {
-      background: rgba(black, 0.2);
-    }
+  &:nth-child(odd) {
+    background: rgba(black, 0.2);
+  }
 
-    &Text {
-      display: none;
-      padding-right: 0.4em;
-      padding-bottom: 0.3em;
+  &.isClamped {
+    background: rgba(white, 0.1);
+    opacity: 0.5;
+  }
 
-      .container:hover &,
-      .isActive & {
-        display: block;
-      }
+  .isClippingMode &:hover {
+    background: rgba(white, 0.5);
+  }
+
+  &Text {
+    display: none;
+    padding-right: 0.4em;
+    padding-bottom: 0.3em;
+
+    .container:hover &,
+    .isActive & {
+      display: block;
     }
   }
 }

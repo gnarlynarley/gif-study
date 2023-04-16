@@ -100,18 +100,20 @@ export default class ScreenFilter {
 
       destination.context.drawImage(this.applyContrast(imageData), 0, 0);
 
-      for (let i = steps * -1; i < steps; i += 1) {
-        if (i === 0) i = 1;
+      console.group("filtering");
+      for (let i = steps * -1; i < steps + 1; i += 1) {
+        if (Math.abs(i) === 0) continue;
 
         const frame = frames.at(
           (frames.length + i + currentIndex) % frames.length,
         );
         if (!frame) break;
 
+        const color = i > 0 ? nextColor : prevColor;
         destination.context.globalAlpha = opacity / Math.abs(i);
         offscreen.context.drawImage(this.applyContrast(frame.data), 0, 0);
         offscreen.context.globalCompositeOperation = "screen";
-        offscreen.context.fillStyle = i > 0 ? nextColor : prevColor;
+        offscreen.context.fillStyle = color;
         offscreen.context.fillRect(0, 0, width, height);
 
         destination.context.globalCompositeOperation = "multiply";
@@ -119,6 +121,7 @@ export default class ScreenFilter {
 
         offscreen.context.clearRect(0, 0, width, height);
       }
+      console.groupEnd();
 
       newData = destination.context.getImageData(0, 0, width, height);
 
