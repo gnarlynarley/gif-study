@@ -3,11 +3,10 @@ import type { Timeline as TimelineType, TimelineFrame } from "../models";
 import TimelinePlayback from "../TimelinePlayback";
 import useEvent from "$lib/hooks/useEvent";
 import setMoveEvent, { type MoveEvent } from "../utils/setMoveEvent";
-import $ from "./TimelineBar.module.scss";
-import { calcModulo } from "../utils/calcModulo";
-import { cx } from "../utils/joinClassNames";
 import { ImageDataCanvas } from "./ImageDataCanvas";
+import { cx } from "../utils/joinClassNames";
 import clamp from "../utils/clamp";
+import $ from "./TimelineBar.module.scss";
 
 const FRAMES_PER_SECOND = 24;
 

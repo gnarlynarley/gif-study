@@ -1,7 +1,6 @@
 import { EventEmitter } from "./utils/EventEmitter";
 import { Timeline, TimelineFrame } from "./models";
 import GameLoop from "./utils/game/GameLoop";
-import { calcModulo } from "./utils/calcModulo";
 
 export class TimelinePlayback {
   playing: boolean = false;
@@ -95,11 +94,15 @@ export class TimelinePlayback {
     const currentIndex = this.currentFrame?.index ?? null;
     if (currentIndex !== null) {
       const { frames } = this.timeline;
-      const nextFrameIndex = calcModulo(
-        currentIndex + offset,
-        frames.length - 1,
-      );
+      const max = frames.length - 1;
+      let nextFrameIndex = currentIndex + offset;
+      if (nextFrameIndex >= max) {
+        nextFrameIndex = 0;
+      } else if (nextFrameIndex <= -1) {
+        nextFrameIndex = max;
+      }
       const nextFrame = frames[nextFrameIndex];
+
       this.setCurrentTime(nextFrame.time);
     }
   };
