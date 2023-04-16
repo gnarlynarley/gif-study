@@ -7,6 +7,7 @@ import $ from "./TimelineBar.module.scss";
 import { calcModulo } from "../utils/calcModulo";
 import { cx } from "../utils/joinClassNames";
 import { ImageDataCanvas } from "./ImageDataCanvas";
+import clamp from "../utils/clamp";
 
 const FRAMES_PER_SECOND = 24;
 
@@ -53,9 +54,9 @@ function Progress({
   }, [timelinePlayback]);
 
   const calculateCurrentTime = (x: number) =>
-    calcModulo(((x - rect.l) / rect.w) * totalTime, totalTime);
+    ((x - rect.l) / rect.w) * totalTime;
   const setCurrentTime = useEvent((event: MoveEvent) => {
-    const currentTime = calculateCurrentTime(event.x);
+    const currentTime = clamp(0, totalTime, calculateCurrentTime(event.x));
     timelinePlayback.pause();
     timelinePlayback.setCurrentTime(currentTime);
     setActive(event.active);
