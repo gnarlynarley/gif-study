@@ -2,14 +2,22 @@ import * as React from "react";
 import useKeyboard from "../hooks/useKeyboard";
 import type TimelinePlayback from "../TimelinePlayback";
 import { FileInput } from "./FileInput";
-import { IconButton } from "./IconButton";
-import { PauseIcon, PlayIcon, SkipNextIcon, SkipPreviousIcon } from "./Icons";
+import { IconButton, IconLink } from "./IconButton";
+import {
+  GithubIcon,
+  PauseIcon,
+  PlayIcon,
+  SkipNextIcon,
+  SkipPreviousIcon,
+  TwitterIcon,
+} from "./Icons";
 import { DropDown } from "./DropDown";
 import { CheckboxInput } from "./CheckboxInput";
 import { RangeInput } from "./RangeInput";
 import { ScreenFilterOptions } from "../ScreenFilter";
 import { downloadTimelineAsZip } from "../utils/downloadTimelineAsZip";
 import { Button } from "./Button";
+import { GITHUB_URL, TWITTER_URL } from "~src/constants";
 import $ from "./TimelineControlBar.module.scss";
 
 type Props = {
@@ -55,6 +63,8 @@ export function TimelineControlBar({
   useKeyboard("space", togglePlay);
   useKeyboard("j", () => timelinePlayback?.previousFrame());
   useKeyboard("l", () => timelinePlayback?.nextFrame());
+  useKeyboard("arrowleft", () => timelinePlayback?.previousFrame());
+  useKeyboard("arrowright", () => timelinePlayback?.nextFrame());
 
   return (
     <div className={$.container}>
@@ -194,6 +204,23 @@ export function TimelineControlBar({
             <li>L = Next frame</li>
             <li>K = Toggle playback</li>
           </ul>
+
+          <p>
+            <IconLink
+              href={TWITTER_URL}
+              target="_blank"
+              rel="noopener noreferer"
+            >
+              <TwitterIcon />
+            </IconLink>
+            <IconLink
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferer"
+            >
+              <GithubIcon />
+            </IconLink>
+          </p>
         </DropDown>
       )}
     </div>
