@@ -29,7 +29,6 @@ export interface TimelineFrame {
   duration: number;
   width: number;
   height: number;
-  number: number;
   index: number;
 }
 
