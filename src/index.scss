@@ -11,6 +11,8 @@ $c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
 $c-ink: #fff;
 $c-primary: #22ff52;
 
+$c-lightmode-paper: #e7e7e7;
+
 :root {
   --paper: #{$c-paper};
   --muted-paper: #{$c-muted-paper};
@@ -20,21 +22,22 @@ $c-primary: #22ff52;
   --error: #9e0000;
   --spacing: 0.8em;
   --primary: #{$c-primary};
+  --primary-muted: #{mix($c-paper, $c-primary, 90%)};
   --border-width: 2px;
   --border: var(--border-width) solid var(--primary);
   --border-radius: 0.3em;
   --drop-shadow: 0 1px 20em #{rgba(black, 0.8)};
   --backdrop-filter: blur(0.3em);
 
-  // @media (prefers-color-scheme: light) {
-  //   --paper: #c0c0c0;
-  //   --muted-paper: #{rgba(darken(#c0c0c0, 5%), 0.7)};
-  //   --ink: #222;
-  //   --muted-accent: #eee;
-  //   --accent: #a7a7a7;
-  //   --drop-shadow: 0 0.2em 1em #{rgba(black, 0.1)};
-  //   --primary: #{darken($c-primary, 15%)};
-  // }
+  @media (prefers-color-scheme: light) {
+    --paper: #{$c-lightmode-paper};
+    --muted-paper: #{rgba(darken($c-lightmode-paper, 5%), 0.7)};
+    --ink: #222;
+    --accent: #{darken($c-lightmode-paper, 0.5)};
+    --muted-accent: #eee;
+    --drop-shadow: 0 0.2em 1em #{rgba(black, 0.1)};
+    --primary: #{darken($c-primary, 15%)};
+  }
 }
 
 html {

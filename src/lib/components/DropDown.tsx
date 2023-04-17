@@ -2,8 +2,9 @@ import React from "react";
 import { IconButton } from "./IconButton";
 import { MoreIcon } from "./Icons";
 import $ from "./DropDown.module.scss";
+import Portal from "./Portal";
 
-type Props = React.PropsWithChildren<{}>;
+type Props = React.PropsWithChildren;
 
 export function DropDown({ children }: Props) {
   const [active, setActive] = React.useState(false);
@@ -27,11 +28,17 @@ export function DropDown({ children }: Props) {
   }, [active]);
 
   return (
-    <div ref={containerRef} className={$.container}>
+    <div className={$.container}>
       <IconButton label="Open for more options" onClick={toggleActive}>
         <MoreIcon />
       </IconButton>
-      {active && <div className={$.dropdown}>{children}</div>}
+      <Portal>
+        {active && (
+          <div ref={containerRef} className={$.dropdown}>
+            {children}
+          </div>
+        )}
+      </Portal>
     </div>
   );
 }
