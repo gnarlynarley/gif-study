@@ -17,27 +17,6 @@ export function TimelineCanvas({
   timelinePlayback,
   onionSkinFilterOptions,
 }: Props) {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const [containerSize, setContainerSize] = React.useState({
-    width: 0,
-    height: 0,
-  });
-
-  React.useEffect(() => {
-    const container = containerRef.current as HTMLDivElement;
-    const observer = new ResizeObserver(([entry]) => {
-      setContainerSize({
-        width: entry.contentRect.width,
-        height: entry.contentRect.height,
-      });
-    });
-    observer.observe(container);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const movableCanvasRenderRef = React.useRef<MovableCanvasRender | null>(null);
 
@@ -64,7 +43,7 @@ export function TimelineCanvas({
   };
 
   return (
-    <div className={$.container} ref={containerRef}>
+    <div className={$.container}>
       <div className={$.tools}>
         <IconButton onClick={() => setZoom(ZOOM_AMOUNT)} label="Zoom in">
           <ZoomInIcon />
@@ -74,12 +53,7 @@ export function TimelineCanvas({
         </IconButton>
         <span className={$.toolsLine} />
       </div>
-      <canvas
-        ref={canvasRef}
-        className={$.canvas}
-        width={containerSize.width}
-        height={containerSize.height}
-      />
+      <canvas ref={canvasRef} className={$.canvas} />
     </div>
   );
 }
