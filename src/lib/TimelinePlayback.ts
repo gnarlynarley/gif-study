@@ -36,15 +36,17 @@ export class TimelinePlayback {
     this.setCurrentTime(this.currentTime + delta * this.speed);
   };
 
-  setStartClamp(start: number) {
-    this.clampedStartTime = Math.min(start, this.clampedEndTime);
-    this.setCurrentTime(this.currentTime);
+  setStartClamp(time: number) {
+    this.pause();
+    this.clampedStartTime = Math.min(time, this.clampedEndTime);
+    this.setCurrentTime(time);
     this.events.clampedStartTimeChanged.emit(this.clampedStartTime);
   }
 
-  setEndclamp(end: number) {
-    this.clampedEndTime = Math.max(end, this.clampedStartTime);
-    this.setCurrentTime(this.currentTime);
+  setEndclamp(time: number) {
+    this.pause();
+    this.clampedEndTime = Math.max(time, this.clampedStartTime);
+    this.setCurrentTime(time);
     this.events.clampedEndTimeChanged.emit(this.clampedEndTime);
   }
 

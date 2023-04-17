@@ -51,6 +51,9 @@
   overflow: hidden;
   background: var(--primary-dark);
   height: 0.5em;
+  will-change: height;
+  transition: height 150ms ease-in-out;
+  cursor: pointer;
 
   .container:hover &,
   .isActive & {
@@ -67,22 +70,23 @@
 }
 
 .timeClamp {
+  $width: 0.5em;
+  $height: $width * 1.4;
+  box-sizing: content-box;
   --progress: 0;
   position: absolute;
-  bottom: 0;
+  bottom: 100%;
   left: calc(var(--progress) * 100%);
-  width: 20px;
-  height: 20px;
-  background: red;
-  display: none;
+  translate: $width * -1 $height;
+  border-style: solid;
+  border-color: transparent;
+  border-width: $width * 2 $height;
+  border-top-color: var(--primary);
+  // display: none;
 
   .container:hover &,
   .isActive & {
     display: block;
-  }
-
-  &.isEnd {
-    background: blue;
   }
 }
 

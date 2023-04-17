@@ -11,7 +11,7 @@ $c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
 $c-ink: #fff;
 $c-primary: #22ff52;
 
-$c-lightmode-paper: #ccc;
+$c-lightmode-paper: #eeeeee;
 
 :root {
   --paper: #{$c-paper};
@@ -20,6 +20,7 @@ $c-lightmode-paper: #ccc;
   --muted-accent: #{darken($c-ink, 65%)};
   --accent: #{darken($c-ink, 30%)};
   --error: #9e0000;
+
   --spacing: 0.8em;
   --primary: #{$c-primary};
   --primary-dark: #{mix($c-primary, $c-paper, 10)};

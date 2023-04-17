@@ -58,6 +58,9 @@ function Progress({
       timelinePlayback.events.clampedStartTimeChanged.on(setClampStart),
       timelinePlayback.events.clampedEndTimeChanged.on(setClampEnd),
     ];
+    setTime(timelinePlayback.currentTime);
+    setClampStart(timelinePlayback.clampedStartTime);
+    setClampEnd(timelinePlayback.clampedEndTime);
 
     return () => destroys.forEach((d) => d());
   }, [timelinePlayback]);
@@ -101,14 +104,8 @@ function Progress({
 
     return () => cleanups.forEach((c) => c());
   }, []);
-
-  const width =
-    ((timelinePlayback.clampedEndTime - timelinePlayback.clampedStartTime) /
-      totalTime) *
-    100;
-  const scale =
-    (time - timelinePlayback.clampedStartTime) /
-    (timelinePlayback.clampedEndTime - timelinePlayback.clampedStartTime);
+  100;
+  const scale = time / totalTime;
 
   return (
     <>
@@ -134,8 +131,6 @@ function Progress({
           <div
             className={$.timeIndicatorFill}
             style={{
-              left: `${(clampStart / totalTime) * 100}%`,
-              width: `${width}%`,
               scale: `${scale} 1`,
             }}
           ></div>

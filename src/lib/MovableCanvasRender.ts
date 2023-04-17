@@ -1,4 +1,4 @@
-import { TimelineFrame } from "./models";
+import { Timeline, TimelineFrame } from "./models";
 import ScreenFilter, { ScreenFilterOptions } from "./ScreenFilter";
 import type { TimelinePlayback } from "./TimelinePlayback";
 import clamp from "./utils/clamp";
@@ -20,6 +20,7 @@ export default class MovableCanvasRender {
   #context: CanvasRenderingContext2D | null = null;
   #timelinePlayback: TimelinePlayback;
   onionSkinFilter: ScreenFilter;
+  cleanupTimelinePlaybackEvents: () => void;
 
   constructor({ timelinePlayback, onionSkinFilterOptions }: Options) {
     this.#timelinePlayback = timelinePlayback;
@@ -29,8 +30,24 @@ export default class MovableCanvasRender {
     this.#loop.play();
     this.onionSkinFilter = new ScreenFilter(
       onionSkinFilterOptions,
-      timelinePlayback.timeline.frames,
+      timelinePlayback,
     );
+    const cleanups = [
+      timelinePlayback.events.clampedEndTimeChanged,
+      timelinePlayback.events.clampedStartTimeChanged,
+    ].map((event) => {
+      return event.on(() => {
+        this.onionSkinFilter.clearCache();
+        this.imageFromFrameCache = new WeakMap();
+        this.onionSkinFilter = new ScreenFilter(
+          onionSkinFilterOptions,
+          timelinePlayback,
+        );
+      });
+    });
+    this.cleanupTimelinePlaybackEvents = () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
   }
 
   imageFromFrameCache = new WeakMap<ImageData, HTMLCanvasElement>();
