@@ -62,6 +62,7 @@ export default function App() {
   React.useEffect(() => {
     if (timeline) {
       const instance = new TimelinePlayback(timeline);
+      instance.play();
       setTimelinePlayback(instance);
 
       return () => {
