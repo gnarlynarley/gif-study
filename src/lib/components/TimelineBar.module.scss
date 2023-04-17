@@ -57,7 +57,7 @@
   cursor: pointer;
 
   .container:hover &,
-  &.isActive {
+  .isActive & {
     height: 1.5em;
   }
 
