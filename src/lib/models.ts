@@ -17,7 +17,7 @@ export interface GifFrame {
 
 export interface GifData {
   id: string;
-  file: File;
+  blob: Blob;
   frames: GifFrame[];
   width: number;
   height: number;
