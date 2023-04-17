@@ -948,7 +948,7 @@ export async function convertGif(file: Blob) {
         });
         resolve({
           id: `${Math.random()}`,
-          file,
+          blob: file,
           frames,
           width: data.width,
           height: data.height,

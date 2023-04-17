@@ -47,7 +47,7 @@ export default function App() {
   const [pending, setPending] = React.useState<boolean>(false);
   const [gifData, setGifData] = usePersistedState<GifData | null>(
     "gif-data",
-    2,
+    3,
     null,
   );
   const screenFilter = useScreenFilter();
