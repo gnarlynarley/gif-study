@@ -1,6 +1,6 @@
 export interface Timeline {
   id: string;
-  gifFile: File;
+  gifBlob: Blob;
   frames: TimelineFrame[];
   totalTime: number;
   averageFrameDelay: number;
