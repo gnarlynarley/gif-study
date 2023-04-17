@@ -5,7 +5,6 @@ export default function createTimelineFromGifData(gifData: GifData): Timeline {
   const frames = gifData.frames.map((frame, index): TimelineFrame => {
     time += frame.delay;
     return {
-      number: frame.frameIndex,
       id: frame.id,
       data: frame.data,
       duration: frame.delay,
