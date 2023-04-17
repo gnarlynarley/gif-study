@@ -40,29 +40,32 @@
 .timeWrapper {
   width: 100%;
   position: relative;
-  height: 0.5em;
   border-radius: var(--border-radius);
   will-change: height;
   transition: height 100ms ease-in-out;
+}
+
+.timeIndicator {
+  background: var(--primary-muted);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  height: 0.5em;
+  will-change: height;
+  transition: height 100ms ease-in-out;
+  cursor: pointer;
 
   .container:hover &,
   &.isActive {
     height: 1.5em;
   }
-}
 
-.timeIndicator {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: var(--primary);
-  pointer-events: none;
-
-  &Wrapper {
-    position: relative;
+  &Fill {
+    position: absolute;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    background: var(--primary);
   }
 }
 

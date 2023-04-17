@@ -90,9 +90,9 @@ function Progress({
           />
         </div>
       )}
-      <div className={$.timeIndicatorWrapper}>
+      <div className={$.timeIndicator}>
         <div
-          className={$.timeIndicator}
+          className={$.timeIndicatorFill}
           style={{ translate: `${progress * 100 - 100}%` }}
         ></div>
       </div>
