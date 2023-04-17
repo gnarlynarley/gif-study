@@ -1,13 +1,3 @@
-export interface Timeline {
-  id: string;
-  gifBlob: Blob;
-  frames: TimelineFrame[];
-  totalTime: number;
-  averageFrameDelay: number;
-  width: number;
-  height: number;
-}
-
 export interface GifFrame {
   id: string;
   data: ImageData;
@@ -18,6 +8,16 @@ export interface GifData {
   id: string;
   blob: Blob;
   frames: GifFrame[];
+  width: number;
+  height: number;
+}
+
+export interface Timeline {
+  id: string;
+  gifBlob: Blob;
+  frames: TimelineFrame[];
+  totalTime: number;
+  averageFrameDelay: number;
   width: number;
   height: number;
 }
