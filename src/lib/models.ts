@@ -12,7 +12,6 @@ export interface GifFrame {
   id: string;
   data: ImageData;
   delay: number;
-  frameIndex: number;
 }
 
 export interface GifData {
