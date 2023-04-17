@@ -2,7 +2,6 @@ import { TimelineFrame } from "./models";
 import ScreenFilter, { ScreenFilterOptions } from "./ScreenFilter";
 import type { TimelinePlayback } from "./TimelinePlayback";
 import clamp from "./utils/clamp";
-import GameLoop from "./utils/game/GameLoop";
 
 const MIN_ZOOM = 0.02;
 const MAX_ZOOM = 5;
@@ -15,22 +14,26 @@ interface Options {
 export default class MovableCanvasRender {
   position = { x: 0, y: 0 };
   #zoom = 1;
-  #loop: GameLoop;
   #canvas: HTMLCanvasElement | null = null;
   #context: CanvasRenderingContext2D | null = null;
   #timelinePlayback: TimelinePlayback;
   onionSkinFilter: ScreenFilter;
+  #resizeObserver = new ResizeObserver(() => {
+    if (this.#canvas) {
+      const rect = this.#canvas.getBoundingClientRect();
+      this.#canvas.width = rect.width;
+      this.#canvas.height = rect.height;
+    }
+    this.#render();
+  });
 
   constructor({ timelinePlayback, onionSkinFilterOptions }: Options) {
     this.#timelinePlayback = timelinePlayback;
-    this.#loop = new GameLoop({
-      render: this.#render,
-    });
-    this.#loop.play();
     this.onionSkinFilter = new ScreenFilter(
       onionSkinFilterOptions,
       timelinePlayback.timeline.frames,
     );
+    this.#timelinePlayback.events.frameChanged.on(this.#render);
   }
 
   imageFromFrameCache = new WeakMap<ImageData, HTMLCanvasElement>();
@@ -41,6 +44,7 @@ export default class MovableCanvasRender {
 
   setZoom(zoom: number) {
     this.#zoom = clamp(MIN_ZOOM, MAX_ZOOM, zoom);
+    this.#render();
   }
 
   getImageFromFrame = (frame: TimelineFrame): HTMLCanvasElement => {
@@ -57,38 +61,46 @@ export default class MovableCanvasRender {
     return canvas;
   };
 
+  #rafId: number = 0;
   #render = () => {
-    const canvas = this.#canvas;
-    const context = this.#context;
-    if (!canvas || !context) return;
-    const frame = this.#timelinePlayback.currentFrame;
-    if (frame) {
-      const { x, y } = this.position;
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.save();
-      const image = this.getImageFromFrame(frame);
-      context.translate(canvas.width * 0.5, canvas.height * 0.5);
-      context.scale(this.#zoom, this.#zoom);
-      context.translate(
-        frame.width * -0.5 + x / this.#zoom,
-        frame.height * -0.5 + y / this.#zoom,
-      );
-      context.drawImage(image, 0, 0);
-      context.restore();
-    }
+    cancelAnimationFrame(this.#rafId);
+    this.#rafId = requestAnimationFrame(() => {
+      const canvas = this.#canvas;
+      const context = this.#context;
+      if (!canvas || !context) return;
+      const frame = this.#timelinePlayback.currentFrame;
+      if (frame) {
+        const { x, y } = this.position;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.save();
+        const image = this.getImageFromFrame(frame);
+        context.translate(canvas.width * 0.5, canvas.height * 0.5);
+        context.scale(this.#zoom, this.#zoom);
+        context.translate(
+          frame.width * -0.5 + x / this.#zoom,
+          frame.height * -0.5 + y / this.#zoom,
+        );
+        context.drawImage(image, 0, 0);
+        context.restore();
+      }
+    });
   };
 
   setCanvas(canvas: HTMLCanvasElement | null) {
     if (this.#canvas) {
       this.#canvas.removeEventListener("pointerdown", this.#handlePointerMove);
       this.#canvas.removeEventListener("wheel", this.#handleZoom);
+      this.#resizeObserver.unobserve(this.#canvas);
     }
     this.#canvas = canvas;
     if (this.#canvas) {
       this.#context = this.#canvas.getContext("2d");
       this.#canvas.addEventListener("pointerdown", this.#handlePointerMove);
       this.#canvas.addEventListener("wheel", this.#handleZoom);
+      this.#resizeObserver.observe(this.#canvas);
+      this.#render();
     }
+    this.#render();
   }
 
   #handlePointerMove = (ev: PointerEvent) => {
@@ -101,6 +113,7 @@ export default class MovableCanvasRender {
       const y = moveEv.clientY - relativeY;
       this.position.x = currentX + x;
       this.position.y = currentY + y;
+      this.#render();
     };
     const onPointerUp = () => {
       window.removeEventListener("pointermove", onPointerMove);
@@ -118,11 +131,14 @@ export default class MovableCanvasRender {
   };
 
   destroy() {
-    this.#loop.stop();
+    this.#resizeObserver.disconnect();
+    this.#timelinePlayback.events.frameChanged.off(this.#render);
+    cancelAnimationFrame(this.#rafId);
   }
 
   setOnionSkinOptions(options: ScreenFilterOptions) {
     this.onionSkinFilter.setOptions(options);
     this.imageFromFrameCache = new WeakMap();
+    this.#render();
   }
 }
