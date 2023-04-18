@@ -1,28 +1,34 @@
-import { atom, useRecoilState } from "recoil";
+import { create } from "zustand";
 import { ToastMessage } from "../models";
 import { createId } from "../utils/createId";
 
-const toastsAtom = atom<ToastMessage[]>({
-  key: "toasts",
-  default: [],
-});
+// const toastsAtom = atom<ToastMessage[]>({
+//   key: "toasts",
+//   default: [],
+// });
 
-export default function useToast() {
-  const [toasts, setToasts] = useRecoilState(toastsAtom);
-
-  const removeToast = (id: ToastMessage["id"]) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  const addToast = (
+interface UseToastValue {
+  toasts: ToastMessage[];
+  removeToast(id: ToastMessage["id"]): void;
+  addToast(
     message: ToastMessage["message"],
-    type: ToastMessage["type"] = "message",
-    duration: ToastMessage["duration"] = 5000
-  ) => {
-    setToasts((prev) =>
-      prev.concat({ id: createId(), message, type, duration })
-    );
-  };
-
-  return { toasts, addToast, removeToast };
+    type?: ToastMessage["type"],
+    duration?: ToastMessage["duration"],
+  ): void;
 }
+
+const useToast = create<UseToastValue>((set, get) => ({
+  toasts: [],
+  removeToast(id: ToastMessage["id"]) {
+    set({
+      toasts: get().toasts.filter((toast) => toast.id !== id),
+    });
+  },
+  addToast(message, type = "message", duration = 5000) {
+    set({
+      toasts: get().toasts.concat({ id: createId(), message, type, duration }),
+    });
+  },
+}));
+
+export default useToast;

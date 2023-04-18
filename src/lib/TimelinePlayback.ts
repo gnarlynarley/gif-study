@@ -43,8 +43,10 @@ export class TimelinePlayback {
   };
 
   #setFrame = (frame: TimelineFrame | null) => {
+    if (this.currentFrame !== frame) {
+      this.events.frameChanged.emit(this.currentFrame);
+    }
     this.currentFrame = frame;
-    this.events.frameChanged.emit(this.currentFrame);
   };
 
   destroy = () => {

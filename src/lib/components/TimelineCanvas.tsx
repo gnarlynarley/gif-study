@@ -5,6 +5,7 @@ import { IconButton } from "./IconButton";
 import { ZoomInIcon, ZoomOutIcon } from "./Icons";
 import type { ScreenFilterOptions } from "../ScreenFilter";
 import $ from "./TimelineCanvas.module.scss";
+import useToast from "../hooks/useToast";
 
 type Props = {
   timelinePlayback: TimelinePlayback;

@@ -15,6 +15,29 @@ type TimelineProps = {
   timelinePlayback: TimelinePlayback;
 };
 
+const Frames: React.FC<{
+  frames: TimelineFrame[];
+  totalTime: number;
+}> = React.memo(({ frames, totalTime }) => {
+  return (
+    <div className={$.frames}>
+      {frames.map((frame) => {
+        return (
+          <div
+            key={frame.id}
+            className={$.frame}
+            style={{ width: `${(frame.duration / totalTime) * 100}%` }}
+          >
+            <span className={$.frameText}>
+              {Math.floor(frame.duration / FRAMES_PER_SECOND)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
 function Progress({
   timelinePlayback,
 }: {
@@ -96,21 +119,7 @@ function Progress({
           style={{ translate: `${progress * 100 - 100}%` }}
         ></div>
       </div>
-      <div className={$.frames}>
-        {frames.map((frame) => {
-          return (
-            <div
-              key={frame.id}
-              className={$.frame}
-              style={{ width: `${(frame.duration / totalTime) * 100}%` }}
-            >
-              <span className={$.frameText}>
-                {Math.floor(frame.duration / FRAMES_PER_SECOND)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      <Frames frames={frames} totalTime={totalTime} />
     </div>
   );
 }

@@ -1,15 +1,16 @@
 import * as React from "react";
-import { TimelineBar, TimelineCanvas, DropZone } from "$lib/components";
+import { TimelineBar, TimelineCanvas, DropZone, Toast } from "$lib/components";
+import TimelinePlayback from "~src/lib/TimelinePlayback";
 import { cx } from "$lib/utils/joinClassNames";
 import type { GifData } from "$lib/models";
 import usePersistedState from "$lib/hooks/usePersistedState";
 import usePwaUpdate from "$lib/hooks/usePwaUpdate";
 import $ from "./App.module.scss";
-import TimelinePlayback from "~src/lib/TimelinePlayback";
 import createTimelineFromGifData from "$lib/timeline/createTimelineFromGifData";
 import createGifDatafromBlob from "$lib/timeline/createGifDatafromBlob";
 import { TimelineControlBar } from "./lib/components/TimelineControlBar";
 import type { ScreenFilterOptions } from "./lib/ScreenFilter";
+import useToast from "./lib/hooks/useToast";
 
 function useScreenFilter() {
   const optionsDefault: ScreenFilterOptions = {
@@ -41,6 +42,17 @@ function useScreenFilter() {
     setOption,
   };
 }
+
+const Toasts: React.FC = React.memo(() => {
+  const { toasts } = useToast();
+  return (
+    <div className={$.toasts}>
+      {toasts.map((toast) => (
+        <Toast key={toast.id} toast={toast} />
+      ))}
+    </div>
+  );
+});
 
 export default function App() {
   usePwaUpdate();
@@ -115,11 +127,7 @@ export default function App() {
           </div>
         )}
 
-        {/* <div className={$.toasts}>
-          {toasts.map((toast) => (
-            <Toast key={toast.id} toast={toast} />
-          ))}
-        </div> */}
+        <Toasts />
       </div>
     </DropZone>
   );
