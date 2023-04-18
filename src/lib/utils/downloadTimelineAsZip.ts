@@ -11,36 +11,39 @@ function createFileName(index: number) {
 export async function downloadTimelineFrame(frame: TimelineFrame) {
   const { canvas, context, cleanup } = createCanvas(
     frame.data.width,
-    frame.data.height
+    frame.data.height,
   );
   context.putImageData(frame.data, 0, 0);
   const blob = await new Promise<Blob | null>((r) =>
-    canvas.toBlob(r, "image/png")
+    canvas.toBlob(r, "image/png"),
   );
   cleanup();
   if (blob) {
-    saveAs(blob, `${createFileName(frame.number)}.png`);
+    saveAs(blob, `${createFileName(frame.index)}.png`);
   }
 }
 
-export async function downloadTimelineAsZip(timeline: Timeline) {
+export async function downloadTimelineAsZip({ frames }: Timeline) {
+  const minimalIndexCharacters = frames.length.toString().length;
   const { canvas, context, cleanup } = createCanvas();
   const entries = await Promise.all(
-    timeline.frames.map(async (frame) => {
+    frames.map(async (frame) => {
       canvas.width = frame.data.width;
       canvas.height = frame.data.height;
       context.putImageData(frame.data, 0, 0);
       const blob = await new Promise<Blob | null>((r) =>
-        canvas.toBlob(r, "image/png")
+        canvas.toBlob(r, "image/png"),
       );
 
       if (!blob) return null;
 
+      let name = frame.index.toString().padStart(minimalIndexCharacters, "0");
+
       return {
-        name: `${createFileName(frame.number)}.png`,
+        name: `${name}.png`,
         blob,
       };
-    })
+    }),
   );
 
   cleanup();
