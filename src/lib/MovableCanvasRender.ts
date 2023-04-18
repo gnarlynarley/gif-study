@@ -1,6 +1,7 @@
 import { TimelineFrame } from "./models";
 import ScreenFilter, { ScreenFilterOptions } from "./ScreenFilter";
 import type { TimelinePlayback } from "./TimelinePlayback";
+import { assert } from "./utils/assert";
 import clamp from "./utils/clamp";
 
 const MIN_ZOOM = 0.02;
@@ -9,13 +10,14 @@ const MAX_ZOOM = 5;
 interface Options {
   timelinePlayback: TimelinePlayback;
   onionSkinFilterOptions: ScreenFilterOptions;
+  canvas: HTMLCanvasElement;
 }
 
 export default class MovableCanvasRender {
   position = { x: 0, y: 0 };
   #zoom = 1;
-  #canvas: HTMLCanvasElement | null = null;
-  #context: CanvasRenderingContext2D | null = null;
+  #canvas: HTMLCanvasElement;
+  #context: CanvasRenderingContext2D;
   #timelinePlayback: TimelinePlayback;
   onionSkinFilter: ScreenFilter;
   #resizeObserver = new ResizeObserver(() => {
@@ -27,13 +29,21 @@ export default class MovableCanvasRender {
     this.#render();
   });
 
-  constructor({ timelinePlayback, onionSkinFilterOptions }: Options) {
+  constructor({ timelinePlayback, onionSkinFilterOptions, canvas }: Options) {
+    const context = canvas.getContext("2d");
+    assert(canvas, "Unable to get context.");
+    this.#canvas = canvas;
+    this.#context = context as CanvasRenderingContext2D;
     this.#timelinePlayback = timelinePlayback;
     this.onionSkinFilter = new ScreenFilter(
       onionSkinFilterOptions,
       timelinePlayback.timeline.frames,
     );
     this.#timelinePlayback.events.frameChanged.on(this.#render);
+    this.#canvas.addEventListener("pointerdown", this.#handlePointerMove);
+    this.#canvas.addEventListener("wheel", this.#handleZoom);
+    this.#resizeObserver.observe(this.#canvas);
+    this.#render();
   }
 
   imageFromFrameCache = new WeakMap<ImageData, HTMLCanvasElement>();
@@ -63,11 +73,9 @@ export default class MovableCanvasRender {
 
   #rafId: number = 0;
   #render = () => {
-    cancelAnimationFrame(this.#rafId);
     this.#rafId = requestAnimationFrame(() => {
       const canvas = this.#canvas;
       const context = this.#context;
-      if (!canvas || !context) return;
       const frame = this.#timelinePlayback.currentFrame;
       if (frame) {
         const { x, y } = this.position;
@@ -85,23 +93,6 @@ export default class MovableCanvasRender {
       }
     });
   };
-
-  setCanvas(canvas: HTMLCanvasElement | null) {
-    if (this.#canvas) {
-      this.#canvas.removeEventListener("pointerdown", this.#handlePointerMove);
-      this.#canvas.removeEventListener("wheel", this.#handleZoom);
-      this.#resizeObserver.unobserve(this.#canvas);
-    }
-    this.#canvas = canvas;
-    if (this.#canvas) {
-      this.#context = this.#canvas.getContext("2d");
-      this.#canvas.addEventListener("pointerdown", this.#handlePointerMove);
-      this.#canvas.addEventListener("wheel", this.#handleZoom);
-      this.#resizeObserver.observe(this.#canvas);
-      this.#render();
-    }
-    this.#render();
-  }
 
   #handlePointerMove = (ev: PointerEvent) => {
     const relativeX = ev.clientX;
@@ -134,6 +125,9 @@ export default class MovableCanvasRender {
     this.#resizeObserver.disconnect();
     this.#timelinePlayback.events.frameChanged.off(this.#render);
     cancelAnimationFrame(this.#rafId);
+    this.#canvas.removeEventListener("pointerdown", this.#handlePointerMove);
+    this.#canvas.removeEventListener("wheel", this.#handleZoom);
+    this.#resizeObserver.unobserve(this.#canvas);
   }
 
   setOnionSkinOptions(options: ScreenFilterOptions) {

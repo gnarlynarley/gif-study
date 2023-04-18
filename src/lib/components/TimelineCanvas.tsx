@@ -21,15 +21,15 @@ export function TimelineCanvas({
   const movableCanvasRenderRef = React.useRef<MovableCanvasRender | null>(null);
 
   React.useEffect(() => {
-    const canvas = canvasRef.current as HTMLCanvasElement;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     const instance = new MovableCanvasRender({
       timelinePlayback,
       onionSkinFilterOptions,
+      canvas,
     });
 
     movableCanvasRenderRef.current = instance;
-
-    instance.setCanvas(canvas);
 
     return () => instance.destroy();
   }, [timelinePlayback]);
