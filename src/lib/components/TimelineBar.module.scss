@@ -25,6 +25,7 @@
   translate: -50%;
   padding: var(--spacing);
   background-color: var(--muted-paper);
+  pointer-events: none;
 
   .container:hover &,
   .isActive & {

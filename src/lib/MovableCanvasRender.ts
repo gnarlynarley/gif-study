@@ -9,7 +9,7 @@ const MAX_ZOOM = 5;
 
 interface Options {
   timelinePlayback: TimelinePlayback;
-  onionSkinFilterOptions: ScreenFilterOptions;
+  screenFilterOptions: ScreenFilterOptions;
   canvas: HTMLCanvasElement;
 }
 
@@ -29,14 +29,14 @@ export default class MovableCanvasRender {
     this.#render();
   });
 
-  constructor({ timelinePlayback, onionSkinFilterOptions, canvas }: Options) {
+  constructor({ timelinePlayback, screenFilterOptions, canvas }: Options) {
     const context = canvas.getContext("2d");
     assert(canvas, "Unable to get context.");
     this.#canvas = canvas;
     this.#context = context as CanvasRenderingContext2D;
     this.#timelinePlayback = timelinePlayback;
     this.onionSkinFilter = new ScreenFilter(
-      onionSkinFilterOptions,
+      screenFilterOptions,
       timelinePlayback.timeline.frames,
     );
     this.#timelinePlayback.events.frameChanged.on(this.#render);

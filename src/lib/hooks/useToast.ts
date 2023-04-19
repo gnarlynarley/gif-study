@@ -2,11 +2,6 @@ import { create } from "zustand";
 import { ToastMessage } from "../models";
 import { createId } from "../utils/createId";
 
-// const toastsAtom = atom<ToastMessage[]>({
-//   key: "toasts",
-//   default: [],
-// });
-
 interface UseToastValue {
   toasts: ToastMessage[];
   removeToast(id: ToastMessage["id"]): void;

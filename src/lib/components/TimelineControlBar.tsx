@@ -14,30 +14,24 @@ import {
 import { DropDown } from "./DropDown";
 import { CheckboxInput } from "./CheckboxInput";
 import { RangeInput } from "./RangeInput";
-import { ScreenFilterOptions } from "../ScreenFilter";
 import { downloadTimelineAsZip } from "../utils/downloadTimelineAsZip";
 import { Button } from "./Button";
 import { GITHUB_URL, TWITTER_URL } from "~src/constants";
 import $ from "./TimelineControlBar.module.scss";
+import useScreenFilterOptions from "../hooks/useScreenFilterOptions";
 
 type Props = {
   disableGifFileInput: boolean;
   timelinePlayback: TimelinePlayback | null;
   setGifFile: (file: File | null) => void;
-  screenFilterOptions: ScreenFilterOptions;
-  setScreenFilterOptions: <T extends keyof ScreenFilterOptions>(
-    key: T,
-    value: ScreenFilterOptions[T],
-  ) => void;
 };
 
 export function TimelineControlBar({
   disableGifFileInput,
   setGifFile,
   timelinePlayback,
-  screenFilterOptions,
-  setScreenFilterOptions,
 }: Props) {
+  const screenFilterOptions = useScreenFilterOptions();
   const [playing, setPlaying] = React.useState(false);
   const [speed, setSpeed] = React.useState(timelinePlayback?.speed ?? 1);
 
@@ -133,8 +127,8 @@ export function TimelineControlBar({
             label="Enabled"
             checked={screenFilterOptions.onionSkinEnabled}
             onChange={(value) => {
-              setScreenFilterOptions("onionSkinEnabled", value);
-              setScreenFilterOptions("contrastEnabled", value);
+              screenFilterOptions.setValue("onionSkinEnabled", value);
+              screenFilterOptions.setValue("contrastEnabled", value);
             }}
           />
           {screenFilterOptions.onionSkinEnabled && (
@@ -148,7 +142,7 @@ export function TimelineControlBar({
                 step={0.01}
                 value={screenFilterOptions.onionSkinOpacity ?? 0}
                 onChange={(value) =>
-                  setScreenFilterOptions("onionSkinOpacity", value)
+                  screenFilterOptions.setValue("onionSkinOpacity", value)
                 }
               />
               <RangeInput
@@ -160,7 +154,7 @@ export function TimelineControlBar({
                 step={0.01}
                 value={screenFilterOptions.contrastLevel}
                 onChange={(value) =>
-                  setScreenFilterOptions("contrastLevel", value)
+                  screenFilterOptions.setValue("contrastLevel", value)
                 }
               />
               <RangeInput
@@ -170,7 +164,7 @@ export function TimelineControlBar({
                 step={1}
                 value={screenFilterOptions.onionSkinSteps ?? 0}
                 onChange={(value) =>
-                  setScreenFilterOptions("onionSkinSteps", value)
+                  screenFilterOptions.setValue("onionSkinSteps", value)
                 }
               />
               <div>
@@ -178,7 +172,7 @@ export function TimelineControlBar({
                   type="color"
                   value={screenFilterOptions.onionSkinPrevColor}
                   onChange={(ev) =>
-                    setScreenFilterOptions(
+                    screenFilterOptions.setValue(
                       "onionSkinPrevColor",
                       ev.target.value,
                     )
@@ -188,7 +182,7 @@ export function TimelineControlBar({
                   type="color"
                   value={screenFilterOptions.onionSkinNextColor}
                   onChange={(ev) =>
-                    setScreenFilterOptions(
+                    screenFilterOptions.setValue(
                       "onionSkinNextColor",
                       ev.target.value,
                     )

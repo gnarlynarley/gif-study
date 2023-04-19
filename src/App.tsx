@@ -1,4 +1,5 @@
 import * as React from "react";
+import { create } from "zustand";
 import { TimelineBar, TimelineCanvas, DropZone, Toast } from "$lib/components";
 import TimelinePlayback from "~src/lib/TimelinePlayback";
 import { cx } from "$lib/utils/joinClassNames";
@@ -11,37 +12,7 @@ import createGifDatafromBlob from "$lib/timeline/createGifDatafromBlob";
 import { TimelineControlBar } from "./lib/components/TimelineControlBar";
 import type { ScreenFilterOptions } from "./lib/ScreenFilter";
 import useToast from "./lib/hooks/useToast";
-
-function useScreenFilter() {
-  const optionsDefault: ScreenFilterOptions = {
-    contrastEnabled: false,
-    contrastLevel: 0.3,
-    onionSkinEnabled: false,
-    onionSkinPrevColor: "#0000ff",
-    onionSkinNextColor: "#ff6a00",
-    onionSkinOpacity: 0.3,
-    onionSkinSteps: 1,
-  };
-  const [options, setOptions] = usePersistedState(
-    "screenFilterOptions",
-    3,
-    optionsDefault,
-  );
-  const setOption = <
-    K extends keyof typeof optionsDefault,
-    T extends typeof optionsDefault[K],
-  >(
-    option: K,
-    value: T,
-  ) => {
-    setOptions((prev) => ({ ...prev, [option]: value }));
-  };
-
-  return {
-    options,
-    setOption,
-  };
-}
+import useTimeline from "./lib/hooks/useTimeline";
 
 const Toasts: React.FC = React.memo(() => {
   const { toasts } = useToast();
@@ -56,18 +27,10 @@ const Toasts: React.FC = React.memo(() => {
 
 export default function App() {
   usePwaUpdate();
-  const [pending, setPending] = React.useState<boolean>(false);
-  const [gifData, setGifData] = usePersistedState<GifData | null>(
-    "gif-data",
-    3,
-    null,
-  );
-  const screenFilter = useScreenFilter();
+  const timelinePending = useTimeline((s) => s.pending);
+  const setTimelineFile = useTimeline((s) => s.setFile);
+  const timeline = useTimeline((s) => s.timeline);
 
-  const timeline = React.useMemo(
-    () => (gifData ? createTimelineFromGifData(gifData) : null),
-    [gifData],
-  );
   const [timelinePlayback, setTimelinePlayback] =
     React.useState<TimelinePlayback | null>(null);
 
@@ -85,45 +48,30 @@ export default function App() {
     }
   }, [timeline]);
 
-  const setGifFile = async (gifFile: File | null) => {
-    if (gifFile) {
-      setPending(true);
-      const nextGifData = await createGifDatafromBlob(gifFile);
-      setGifData(nextGifData);
-      setPending(false);
-    } else {
-      setGifData(null);
-    }
-  };
-
   return (
-    <DropZone accept="image/gif" disabled={pending} onFileDrop={setGifFile}>
-      {pending && <span className={$.loading}>Loading gif..</span>}
+    <DropZone
+      accept="image/gif"
+      disabled={timelinePending}
+      onFileDrop={setTimelineFile}
+    >
+      {timelinePending && <span className={$.loading}>Loading gif..</span>}
       <div className={cx($.container)}>
         <div className={$.controlBar}>
           <TimelineControlBar
             timelinePlayback={timelinePlayback}
-            disableGifFileInput={pending}
-            setGifFile={setGifFile}
-            screenFilterOptions={screenFilter.options}
-            setScreenFilterOptions={screenFilter.setOption}
+            disableGifFileInput={timelinePending}
+            setGifFile={(file) => file && setTimelineFile(file)}
           />
         </div>
         {timelinePlayback && (
           <div className={cx($.canvas)}>
-            <TimelineCanvas
-              timelinePlayback={timelinePlayback}
-              onionSkinFilterOptions={screenFilter.options}
-            />
+            <TimelineCanvas timelinePlayback={timelinePlayback} />
           </div>
         )}
 
-        {timeline && timelinePlayback && (
+        {timelinePlayback && (
           <div className={$.timeline}>
-            <TimelineBar
-              timeline={timeline}
-              timelinePlayback={timelinePlayback}
-            />
+            <TimelineBar timelinePlayback={timelinePlayback} />
           </div>
         )}
 

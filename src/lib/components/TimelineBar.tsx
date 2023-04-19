@@ -11,7 +11,6 @@ import $ from "./TimelineBar.module.scss";
 const FRAMES_PER_SECOND = 24;
 
 type TimelineProps = {
-  timeline: TimelineType;
   timelinePlayback: TimelinePlayback;
 };
 

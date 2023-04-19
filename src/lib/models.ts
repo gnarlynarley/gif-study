@@ -3,7 +3,6 @@ export interface Timeline {
   gifBlob: Blob;
   frames: TimelineFrame[];
   totalTime: number;
-  averageFrameDelay: number;
   width: number;
   height: number;
 }

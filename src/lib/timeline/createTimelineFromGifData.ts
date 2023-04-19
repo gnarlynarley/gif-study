@@ -16,14 +16,12 @@ export default function createTimelineFromGifData(gifData: GifData): Timeline {
   });
   const lastFrame = frames[frames.length - 1];
   const totalTime = lastFrame.time + lastFrame.duration;
-  const averageFrameDelay = totalTime / frames.length;
 
   return {
     id: gifData.id,
     gifBlob: gifData.blob,
     frames,
     totalTime,
-    averageFrameDelay,
     width: gifData.width,
     height: gifData.height,
   };

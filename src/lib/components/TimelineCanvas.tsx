@@ -6,18 +6,16 @@ import { ZoomInIcon, ZoomOutIcon } from "./Icons";
 import type { ScreenFilterOptions } from "../ScreenFilter";
 import $ from "./TimelineCanvas.module.scss";
 import useToast from "../hooks/useToast";
+import useScreenFilterOptions from "../hooks/useScreenFilterOptions";
 
 type Props = {
   timelinePlayback: TimelinePlayback;
-  onionSkinFilterOptions: ScreenFilterOptions;
 };
 
 const ZOOM_AMOUNT = 0.2;
 
-export function TimelineCanvas({
-  timelinePlayback,
-  onionSkinFilterOptions,
-}: Props) {
+export function TimelineCanvas({ timelinePlayback }: Props) {
+  const screenFilterOptions = useScreenFilterOptions();
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const movableCanvasRenderRef = React.useRef<MovableCanvasRender | null>(null);
 
@@ -26,7 +24,7 @@ export function TimelineCanvas({
     if (!canvas) return;
     const instance = new MovableCanvasRender({
       timelinePlayback,
-      onionSkinFilterOptions,
+      screenFilterOptions,
       canvas,
     });
 
@@ -36,8 +34,8 @@ export function TimelineCanvas({
   }, [timelinePlayback]);
 
   React.useEffect(() => {
-    movableCanvasRenderRef.current?.setOnionSkinOptions(onionSkinFilterOptions);
-  }, [onionSkinFilterOptions]);
+    movableCanvasRenderRef.current?.setOnionSkinOptions(screenFilterOptions);
+  }, [screenFilterOptions]);
 
   const setZoom = (add: number) => {
     movableCanvasRenderRef.current?.addZoom(add);
