@@ -25,6 +25,10 @@
   border-bottom-right-radius: var(--border-radius);
   font-weight: bold;
   box-shadow: var(--drop-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing);
 }
 
 .canvas {

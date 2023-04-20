@@ -1,18 +1,13 @@
 import * as React from "react";
-import { create } from "zustand";
 import { TimelineBar, TimelineCanvas, DropZone, Toast } from "$lib/components";
 import TimelinePlayback from "~src/lib/TimelinePlayback";
 import { cx } from "$lib/utils/joinClassNames";
-import type { GifData } from "$lib/models";
-import usePersistedState from "$lib/hooks/usePersistedState";
 import usePwaUpdate from "$lib/hooks/usePwaUpdate";
 import $ from "./App.module.scss";
-import createTimelineFromGifData from "$lib/timeline/createTimelineFromGifData";
-import createGifDatafromBlob from "$lib/timeline/createGifDatafromBlob";
 import { TimelineControlBar } from "./lib/components/TimelineControlBar";
-import type { ScreenFilterOptions } from "./lib/ScreenFilter";
 import useToast from "./lib/hooks/useToast";
 import useTimeline from "./lib/hooks/useTimeline";
+import LoadingIndicator from "./lib/components/LoadingIndicator";
 
 const Toasts: React.FC = React.memo(() => {
   const { toasts } = useToast();
@@ -54,7 +49,12 @@ export default function App() {
       disabled={timelinePending}
       onFileDrop={setTimelineFile}
     >
-      {timelinePending && <span className={$.loading}>Loading gif..</span>}
+      {timelinePending && (
+        <span className={$.loading}>
+          <span>Loading gif</span>
+          <LoadingIndicator />
+        </span>
+      )}
       <div className={cx($.container)}>
         <div className={$.controlBar}>
           <TimelineControlBar
