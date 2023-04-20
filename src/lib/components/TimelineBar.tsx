@@ -95,7 +95,7 @@ function Progress({
   return (
     <div
       ref={containerRef}
-      className={cx($.timeWrapper, active && $.isActive)}
+      className={cx($.progress, active && $.isActive)}
       onMouseMove={(ev) => {
         const x = ev.clientX - rect.l;
         setHoverTime(calculateCurrentTime(x));

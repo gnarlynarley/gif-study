@@ -9,9 +9,10 @@
 $c-paper: #222;
 $c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
 $c-ink: #fff;
-$c-primary: #22ff52;
+$c-primary: #00c562;
 
-$c-lightmode-paper: #e7e7e7;
+$c-paper--lightmode: #e7e7e7;
+$c-primary--lightmode: lighten($c-primary, 5%);
 
 :root {
   --paper: #{$c-paper};
@@ -30,13 +31,14 @@ $c-lightmode-paper: #e7e7e7;
   --backdrop-filter: blur(0.3em);
 
   @media (prefers-color-scheme: light) {
-    --paper: #{$c-lightmode-paper};
-    --muted-paper: #{rgba(darken($c-lightmode-paper, 5%), 0.7)};
+    --paper: #{$c-paper--lightmode};
+    --muted-paper: #{rgba(darken($c-paper--lightmode, 5%), 0.7)};
     --ink: #222;
-    --accent: #{darken($c-lightmode-paper, 0.5)};
+    --accent: #{darken($c-paper--lightmode, 0.5)};
     --muted-accent: #eee;
     --drop-shadow: 0 0.2em 1em #{rgba(black, 0.1)};
-    --primary: #{darken($c-primary, 15%)};
+    --primary: #{$c-primary--lightmode};
+    --primary-muted: #{mix($c-paper, $c-primary--lightmode, 90%)};
   }
 }
 

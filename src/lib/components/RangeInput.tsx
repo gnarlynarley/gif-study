@@ -21,8 +21,9 @@ export function RangeInput({
 }: Props) {
   return (
     <div className={$.container}>
-      {label && <label>{label}</label>}
+      {label && <label className={$.label}>{label}</label>}
       <input
+        className={$.input}
         type="range"
         min={min}
         max={max}

@@ -9,6 +9,18 @@
   touch-action: none;
   user-select: none;
   padding: var(--spacing);
+
+  &::after {
+    $offset: 1.5em;
+    content: "";
+    display: block;
+    position: absolute;
+    top: $offset * -1;
+    left: $offset * -1;
+    width: calc(100% + #{$offset * 2});
+    height: calc(100% + #{$offset * 2});
+    z-index: -1;
+  }
 }
 
 .progressWrapper {
@@ -38,7 +50,7 @@
   }
 }
 
-.timeWrapper {
+.progress {
   width: 100%;
   position: relative;
   border-radius: var(--border-radius);
