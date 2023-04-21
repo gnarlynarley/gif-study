@@ -52,8 +52,8 @@ export default async function createGifDatafromBlob(
 
   return {
     id: createId(),
-    width: 0,
-    height: 0,
+    width,
+    height,
     frames: filteredframes,
     blob,
   };
