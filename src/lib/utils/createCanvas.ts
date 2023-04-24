@@ -1,6 +1,13 @@
 import { assert } from "./assert";
 
-export function createCanvas(width: number = 0, height: number = 0) {
+export interface Canvas {
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
+  clear: () => void;
+  cleanup: () => void;
+}
+
+export function createCanvas(width: number = 0, height: number = 0): Canvas {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d", { willReadFrequently: true });
   assert(context);
@@ -20,3 +27,5 @@ export function createCanvas(width: number = 0, height: number = 0) {
     },
   };
 }
+
+export default createCanvas;

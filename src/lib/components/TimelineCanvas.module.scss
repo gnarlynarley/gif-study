@@ -11,7 +11,16 @@
   left: 0;
   width: 100%;
   height: 100%;
-  cursor: grab;
+
+  .isPanTool & {
+    cursor: grab;
+  }
+  .isBrushTool & {
+    cursor: crosshair;
+  }
+  .isEraserTool & {
+    cursor: crosshair;
+  }
 }
 
 .tools {

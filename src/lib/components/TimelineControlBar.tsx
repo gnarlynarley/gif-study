@@ -55,7 +55,6 @@ export function TimelineControlBar({
   };
 
   useKeyboard("k", togglePlay);
-  useKeyboard("space", togglePlay);
   useKeyboard("j", () => timelinePlayback?.previousFrame());
   useKeyboard("l", () => timelinePlayback?.nextFrame());
   useKeyboard("arrowleft", () => timelinePlayback?.previousFrame());

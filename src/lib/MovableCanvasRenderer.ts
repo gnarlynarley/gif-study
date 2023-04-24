@@ -1,8 +1,12 @@
 import { TimelineFrame } from "./models";
 import ScreenFilter, { ScreenFilterOptions } from "./ScreenFilter";
+import { SketchCanvasRenderer } from "./SketchCanvasRenderer";
 import type { TimelinePlayback } from "./TimelinePlayback";
 import { assert } from "./utils/assert";
 import clamp from "./utils/clamp";
+import EventEmitter from "./utils/EventEmitter";
+import Vector from "./utils/game/Vector";
+import setMoveEvent from "./utils/setMoveEvent";
 
 const MIN_ZOOM = 0.02;
 const MAX_ZOOM = 5;
@@ -15,14 +19,88 @@ interface Options {
 
 const OFFSET = 40;
 
+export enum Tools {
+  Pan,
+  Zoom,
+  Brush,
+  Eraser,
+}
+
 export default class MovableCanvasRenderer {
+  tool = Tools.Brush;
   #sizeInitialized = false;
-  position = { x: 0, y: 0 };
+  position = new Vector(0, 0);
   #zoom = 1;
   #canvas: HTMLCanvasElement;
   #context: CanvasRenderingContext2D;
   #timelinePlayback: TimelinePlayback;
   onionSkinFilter: ScreenFilter;
+  sketchCanvasRenderer: SketchCanvasRenderer;
+  abortController = new AbortController();
+
+  events = {
+    toolChanged: new EventEmitter<Tools>(),
+  };
+
+  constructor({ timelinePlayback, screenFilterOptions, canvas }: Options) {
+    const context = canvas.getContext("2d") as CanvasRenderingContext2D;
+    assert(canvas, "Unable to get context.");
+    this.#canvas = canvas;
+    this.#context = context;
+    this.#timelinePlayback = timelinePlayback;
+    this.onionSkinFilter = new ScreenFilter(
+      screenFilterOptions,
+      timelinePlayback.timeline.frames,
+    );
+    let startingX = 0;
+    let startingY = 0;
+    setMoveEvent(
+      this.#canvas,
+      ({ start, x, y, relativeX, relativeY, previousX, previousY, active }) => {
+        if (start) {
+          startingX = this.position.x;
+          startingY = this.position.y;
+        }
+        if (active) {
+          switch (this.tool) {
+            case Tools.Pan: {
+              this.position.x = startingX + relativeX;
+              this.position.y = startingY + relativeY;
+              break;
+            }
+            case Tools.Brush:
+            case Tools.Eraser: {
+              this.sketchCanvasRenderer.drawDocument(
+                x,
+                y,
+                previousX,
+                previousY,
+                this.tool === Tools.Brush ? "brush" : "eraser",
+                this.position,
+                this.#zoom,
+              );
+              break;
+            }
+          }
+        }
+        this.#render();
+      },
+      { signal: this.abortController.signal },
+    );
+    this.#canvas.addEventListener("wheel", this.#handleZoom);
+    this.#resizeObserver.observe(this.#canvas);
+    this.sketchCanvasRenderer = new SketchCanvasRenderer({
+      canvas,
+      context,
+      width: timelinePlayback.width,
+      height: timelinePlayback.height,
+      position: this.position,
+    });
+    this.sketchCanvasRenderer.events.documentChanged.on(this.#render);
+    this.#timelinePlayback.events.frameChanged.on(this.#render);
+    this.#render();
+  }
+
   #resizeObserver = new ResizeObserver(() => {
     if (this.#canvas) {
       const rect = this.#canvas.getBoundingClientRect();
@@ -33,7 +111,7 @@ export default class MovableCanvasRenderer {
       this.#sizeInitialized = true;
       this.setZoom(
         Math.min(
-          1,
+          1.5,
           Math.max(
             (this.#canvas.width - OFFSET * 2) /
               this.#timelinePlayback.timeline.width,
@@ -46,27 +124,15 @@ export default class MovableCanvasRenderer {
     this.#render();
   });
 
-  constructor({ timelinePlayback, screenFilterOptions, canvas }: Options) {
-    const context = canvas.getContext("2d");
-    assert(canvas, "Unable to get context.");
-    this.#canvas = canvas;
-    this.#context = context as CanvasRenderingContext2D;
-    this.#timelinePlayback = timelinePlayback;
-    this.onionSkinFilter = new ScreenFilter(
-      screenFilterOptions,
-      timelinePlayback.timeline.frames,
-    );
-    this.#timelinePlayback.events.frameChanged.on(this.#render);
-    this.#canvas.addEventListener("pointerdown", this.#handlePointerMove);
-    this.#canvas.addEventListener("wheel", this.#handleZoom);
-    this.#resizeObserver.observe(this.#canvas);
-    this.#render();
-  }
-
   imageFromFrameCache = new WeakMap<ImageData, HTMLCanvasElement>();
 
   addZoom(addition: number) {
     this.setZoom(this.#zoom + addition);
+  }
+
+  setTool(tool: Tools) {
+    this.tool = tool;
+    this.events.toolChanged.emit(this.tool);
   }
 
   setZoom(zoom: number) {
@@ -91,45 +157,28 @@ export default class MovableCanvasRenderer {
   #rafId: number = 0;
   #render = () => {
     this.#rafId = requestAnimationFrame(() => {
-      const canvas = this.#canvas;
+      const { width, height } = this.#canvas;
       const context = this.#context;
       const frame = this.#timelinePlayback.currentFrame;
+      const { x, y } = this.position;
       if (frame) {
-        const { x, y } = this.position;
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.clearRect(0, 0, width, height);
+
         context.save();
-        const image = this.getImageFromFrame(frame);
-        context.translate(canvas.width * 0.5, canvas.height * 0.5);
+        context.translate(width * 0.5, height * 0.5);
         context.scale(this.#zoom, this.#zoom);
         context.translate(
           frame.width * -0.5 + x / this.#zoom,
           frame.height * -0.5 + y / this.#zoom,
         );
+
+        const image = this.getImageFromFrame(frame);
         context.drawImage(image, 0, 0);
+        this.sketchCanvasRenderer.render();
+
         context.restore();
       }
     });
-  };
-
-  #handlePointerMove = (ev: PointerEvent) => {
-    const relativeX = ev.clientX;
-    const relativeY = ev.clientY;
-    const currentX = this.position.x;
-    const currentY = this.position.y;
-    const onPointerMove = (moveEv: PointerEvent) => {
-      const x = moveEv.clientX - relativeX;
-      const y = moveEv.clientY - relativeY;
-      this.position.x = currentX + x;
-      this.position.y = currentY + y;
-      this.#render();
-    };
-    const onPointerUp = () => {
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-    };
-
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
   };
 
   #handleZoom = (ev: WheelEvent) => {
@@ -142,9 +191,10 @@ export default class MovableCanvasRenderer {
     this.#resizeObserver.disconnect();
     this.#timelinePlayback.events.frameChanged.off(this.#render);
     cancelAnimationFrame(this.#rafId);
-    this.#canvas.removeEventListener("pointerdown", this.#handlePointerMove);
     this.#canvas.removeEventListener("wheel", this.#handleZoom);
     this.#resizeObserver.unobserve(this.#canvas);
+    this.sketchCanvasRenderer.destroy();
+    this.abortController.abort();
   }
 
   setOnionSkinOptions(options: ScreenFilterOptions) {

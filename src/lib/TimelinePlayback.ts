@@ -9,6 +9,8 @@ export class TimelinePlayback {
   #reversedFrames: TimelineFrame[];
   currentTime = 0;
   currentFrame: TimelineFrame | null = null;
+  width: number;
+  height: number;
   events = {
     timeChanged: new EventEmitter<number>(),
     frameChanged: new EventEmitter<TimelineFrame | null>(),
@@ -22,6 +24,8 @@ export class TimelinePlayback {
       fps: 60,
       update: this.#setCurrentTimeByDelta,
     });
+    this.width = timeline.width;
+    this.height = timeline.height;
     this.#updateFrame();
   }
 
