@@ -3,6 +3,7 @@ import { IconButton } from "./IconButton";
 import { MoreIcon } from "./Icons";
 import $ from "./DropDown.module.scss";
 import Portal from "./Portal";
+import Panel from "./Panel";
 
 type Props = React.PropsWithChildren;
 
@@ -35,7 +36,7 @@ export function DropDown({ children }: Props) {
       <Portal>
         {active && (
           <div ref={containerRef} className={$.dropdown}>
-            {children}
+            <Panel>{children}</Panel>
           </div>
         )}
       </Portal>

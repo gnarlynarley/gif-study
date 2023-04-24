@@ -4,10 +4,11 @@ import react from "@vitejs/plugin-react";
 import commonjs from "@rollup/plugin-commonjs";
 import { VitePWA } from "vite-plugin-pwa";
 
-const publicPath = "/gif-study/";
+const PWA_DEVELOPMENT_ENABLED = false;
+const PUBLIC_PATH = "/gif-study/";
 
 export default defineConfig({
-  base: publicPath,
+  base: PUBLIC_PATH,
   plugins: [
     tsconfigPaths(),
     react(),
@@ -16,6 +17,9 @@ export default defineConfig({
       injectRegister: "auto",
       registerType: "prompt",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
+      devOptions: {
+        enabled: PWA_DEVELOPMENT_ENABLED,
+      },
       manifest: {
         name: "Gif Study",
         short_name: "Gif Study",
@@ -31,6 +35,12 @@ export default defineConfig({
             src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
+          },
+          {
+            src: "pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
           },
         ],
       },

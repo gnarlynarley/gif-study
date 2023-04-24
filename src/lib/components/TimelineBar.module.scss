@@ -1,14 +1,9 @@
 .container {
-  --spacing: 0.2em;
+  --spacing: var(--spacing--small);
   position: relative;
   z-index: 0;
-  background-color: var(--muted-paper);
-  backdrop-filter: var(--backdrop-filter);
-  border-radius: var(--border-radius);
-  box-shadow: var(--drop-shadow);
   touch-action: none;
   user-select: none;
-  padding: var(--spacing);
 
   &::after {
     $offset: 1.5em;

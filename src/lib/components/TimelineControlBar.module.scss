@@ -1,11 +1,6 @@
 .container {
-  background-color: var(--muted-paper);
-  box-shadow: var(--drop-shadow);
-  backdrop-filter: var(--backdrop-filter);
-  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
-  padding: var(--spacing);
 }
 
 .divider {

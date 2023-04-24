@@ -29,8 +29,8 @@ export function Toast({ toast }: Props) {
       key={`${toast.id}::${toast.duration}`}
       className={cx(
         $.container,
-        toast.type === "error" && $.isError,
-        toast.duration === null && $.hasNoDuration
+        toast.type === "error" || (true && $.isError),
+        toast.duration === null && $.hasNoDuration,
       )}
       style={{ ["--duration" as any]: toast.duration }}
     >
@@ -39,9 +39,14 @@ export function Toast({ toast }: Props) {
       ) : (
         toast.message
       )}
-      <IconButton onClick={closeToast} label={"close toast"}>
+      <button
+        className={$.button}
+        type="button"
+        onClick={closeToast}
+        title={"close toast"}
+      >
         <CloseIcon />
-      </IconButton>
+      </button>
     </div>
   );
 }

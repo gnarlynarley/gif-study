@@ -5,6 +5,7 @@ import { IconButton } from "./IconButton";
 import { ZoomInIcon, ZoomOutIcon } from "./Icons";
 import $ from "./TimelineCanvas.module.scss";
 import useScreenFilterOptions from "../hooks/useScreenFilterOptions";
+import Panel from "./Panel";
 
 type Props = {
   timelinePlayback: TimelinePlayback;
@@ -42,13 +43,19 @@ export function TimelineCanvas({ timelinePlayback }: Props) {
   return (
     <div className={$.container}>
       <div className={$.tools}>
-        <IconButton onClick={() => setZoom(ZOOM_AMOUNT)} label="Zoom in">
-          <ZoomInIcon />
-        </IconButton>
-        <IconButton onClick={() => setZoom(ZOOM_AMOUNT * -1)} label="Zoom out">
-          <ZoomOutIcon />
-        </IconButton>
-        <span className={$.toolsLine} />
+        <Panel>
+          <div className={$.toolsInner}>
+            <IconButton onClick={() => setZoom(ZOOM_AMOUNT)} label="Zoom in">
+              <ZoomInIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => setZoom(ZOOM_AMOUNT * -1)}
+              label="Zoom out"
+            >
+              <ZoomOutIcon />
+            </IconButton>
+          </div>
+        </Panel>
       </div>
       <canvas ref={canvasRef} className={$.canvas} />
     </div>

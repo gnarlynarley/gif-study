@@ -1,21 +1,25 @@
 .container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   position: relative;
   background: var(--paper);
   color: var(--ink);
   padding: var(--spacing);
   box-shadow: var(--drop-shadow);
   border-radius: var(--border-radius);
+  border: 1px solid currentColor;
   animation: appear 300ms ease-in forwards;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 
-  > * + * {
-    margin-left: 0.5em;
+  gap: var(--spacing);
+
+  & + & {
+    margin-top: var(--spacing);
   }
 
   &.isError {
     background-color: var(--error);
+    color: var(--error-ink);
   }
 
   &:not(.hasNoDuration)::after {
@@ -29,6 +33,26 @@
     background: currentColor;
     transform-origin: top left;
     animation: bar-fill linear calc(var(--duration) * 1ms) forwards;
+  }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing);
+}
+
+.button {
+  display: block;
+
+  svg {
+    display: block;
+    font-size: 1em;
+  }
+
+  &:hover {
+    opacity: 0.8;
   }
 }
 

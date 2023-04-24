@@ -6,12 +6,16 @@
   box-sizing: border-box;
 }
 
+$spacing: 0.8em;
+$spacing--small: $spacing * 0.5;
+
 $c-paper: #222;
-$c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
+$c-muted-paper: rgba(lighten($c-paper, 8%), 0.98);
 $c-ink: #fff;
 $c-primary: #00c562;
 
 $c-paper--lightmode: #e7e7e7;
+$c-muted-paper--lightmode: rgba(darken($c-paper--lightmode, 2%), 0.97);
 $c-primary--lightmode: lighten($c-primary, 5%);
 
 :root {
@@ -20,19 +24,20 @@ $c-primary--lightmode: lighten($c-primary, 5%);
   --ink: #{$c-ink};
   --muted-accent: #{darken($c-ink, 65%)};
   --accent: #{darken($c-ink, 30%)};
-  --error: #9e0000;
-  --spacing: 0.8em;
+  --error: #e74646;
+  --error-ink: #fff;
+  --spacing: #{$spacing};
+  --spacing--small: #{$spacing--small};
   --primary: #{$c-primary};
   --primary-muted: #{mix($c-paper, $c-primary, 90%)};
   --border-width: 2px;
   --border: var(--border-width) solid var(--primary);
   --border-radius: 0.3em;
   --drop-shadow: 0 1px 20em #{rgba(black, 0.8)};
-  --backdrop-filter: blur(0.3em);
 
   @media (prefers-color-scheme: light) {
     --paper: #{$c-paper--lightmode};
-    --muted-paper: #{rgba(darken($c-paper--lightmode, 5%), 0.7)};
+    --muted-paper: #{$c-muted-paper--lightmode};
     --ink: #222;
     --accent: #{darken($c-paper--lightmode, 0.5)};
     --muted-accent: #eee;
@@ -80,4 +85,12 @@ p {
 
 label {
   cursor: inherit;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: currentColor;
 }

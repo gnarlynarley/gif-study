@@ -15,14 +15,16 @@
 }
 
 .tools {
+  --spacing: var(--spacing--small);
   z-index: 1;
   position: absolute;
   top: 50%;
   translate: 0 -50%;
   left: var(--spacing);
-  display: flex;
-  flex-direction: column;
-  background-color: var(--muted-paper);
-  border-radius: var(--border-radius);
-  padding: 0.2em;
+
+  &Inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+  }
 }

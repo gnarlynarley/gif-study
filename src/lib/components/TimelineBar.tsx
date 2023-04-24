@@ -7,6 +7,7 @@ import { ImageDataCanvas } from "./ImageDataCanvas";
 import { cx } from "../utils/joinClassNames";
 import clamp from "../utils/clamp";
 import $ from "./TimelineBar.module.scss";
+import Panel from "./Panel";
 
 const FRAMES_PER_SECOND = 24;
 
@@ -128,12 +129,14 @@ export function TimelineBar({ timelinePlayback }: TimelineProps) {
 
   return (
     <div className={$.container}>
-      {frames.map((frame) => (
-        <div key={frame.id} className={$.frame}></div>
-      ))}
-      <div className={$.progressWrapper}>
-        <Progress timelinePlayback={timelinePlayback} />
-      </div>
+      <Panel>
+        {frames.map((frame) => (
+          <div key={frame.id} className={$.frame}></div>
+        ))}
+        <div className={$.progressWrapper}>
+          <Progress timelinePlayback={timelinePlayback} />
+        </div>
+      </Panel>
     </div>
   );
 }

@@ -5,14 +5,11 @@
 }
 
 .dropdown {
+  position: relative;
   position: fixed;
   top: var(--spacing);
   right: var(--spacing);
-  background: var(--muted-paper);
   z-index: 1;
-  box-shadow: var(--drop-shadow);
-  padding: var(--spacing);
-  border-radius: var(--border-radius);
   animation: appear forwards 200ms;
   overflow: auto;
   max-height: calc(100% - (var(--spacing) * 2));
