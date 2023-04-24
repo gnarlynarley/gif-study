@@ -194,12 +194,14 @@ export function TimelineControlBar({
               </>
             )}
 
-            <h3>Keybinds:</h3>
-            <ul style={{ whiteSpace: "nowrap" }}>
-              <li>J = Previous frame</li>
-              <li>L = Next frame</li>
-              <li>K = Toggle playback</li>
-            </ul>
+            <div>
+              <h3>Keybinds:</h3>
+              <ul style={{ whiteSpace: "nowrap" }}>
+                <li>J = Previous frame</li>
+                <li>L = Next frame</li>
+                <li>K = Toggle playback</li>
+              </ul>
+            </div>
 
             <p>
               <IconLink

@@ -29,16 +29,18 @@ export function Toast({ toast }: Props) {
       key={`${toast.id}::${toast.duration}`}
       className={cx(
         $.container,
-        toast.type === "error" || (true && $.isError),
+        toast.type === "error" && $.isError,
         toast.duration === null && $.hasNoDuration,
       )}
       style={{ ["--duration" as any]: toast.duration }}
     >
-      {typeof toast.message === "string" ? (
-        <p>{toast.message}</p>
-      ) : (
-        toast.message
-      )}
+      <div className={$.content}>
+        {typeof toast.message === "string" ? (
+          <p>{toast.message}</p>
+        ) : (
+          toast.message
+        )}
+      </div>
       <button
         className={$.button}
         type="button"

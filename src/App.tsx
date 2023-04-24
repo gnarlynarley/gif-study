@@ -3,14 +3,15 @@ import { TimelineBar, TimelineCanvas, DropZone, Toast } from "$lib/components";
 import TimelinePlayback from "~src/lib/TimelinePlayback";
 import { cx } from "$lib/utils/joinClassNames";
 import usePwaUpdate from "$lib/hooks/usePwaUpdate";
-import $ from "./App.module.scss";
 import { TimelineControlBar } from "./lib/components/TimelineControlBar";
 import useToast from "./lib/hooks/useToast";
 import useTimeline from "./lib/hooks/useTimeline";
 import LoadingIndicator from "./lib/components/LoadingIndicator";
+import $ from "./App.module.scss";
 
 const Toasts: React.FC = React.memo(() => {
-  const { toasts } = useToast();
+  const toasts = useToast((s) => s.toasts);
+
   return (
     <div className={$.toasts}>
       {toasts.map((toast) => (

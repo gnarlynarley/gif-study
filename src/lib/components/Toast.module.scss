@@ -9,9 +9,8 @@
   box-shadow: var(--drop-shadow);
   border-radius: var(--border-radius);
   border: 1px solid currentColor;
-  animation: appear 300ms ease-in forwards;
-
   gap: var(--spacing);
+  animation: appear 300ms ease-in forwards;
 
   & + & {
     margin-top: var(--spacing);
@@ -45,6 +44,8 @@
 
 .button {
   display: block;
+  margin-top: calc(var(--spacing) * -1);
+  margin-right: calc(var(--spacing) * -1);
 
   svg {
     display: block;
