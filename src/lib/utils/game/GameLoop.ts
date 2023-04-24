@@ -21,6 +21,7 @@ export default class GameLoop {
   }
 
   play = () => {
+    this.stop();
     const { update, render, fps } = this;
     const delta = 1000 / fps;
     let lastTime = performance.now();
