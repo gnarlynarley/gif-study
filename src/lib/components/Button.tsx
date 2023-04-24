@@ -30,8 +30,8 @@ export function Button({ icon, children, onClick }: ButtonProps) {
         <button className={$.button} type="button" onClick={onClick}></button>
       }
     >
-      <span className={$.icon}>{icon}</span>
-      <span>{children}</span>
+      {icon && <span className={$.icon}>{icon}</span>}
+      <span className={$.content}>{children}</span>
     </BaseButton>
   );
 }

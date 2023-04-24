@@ -13,7 +13,10 @@ interface Options {
   canvas: HTMLCanvasElement;
 }
 
+const OFFSET = 40;
+
 export default class MovableCanvasRender {
+  #sizeInitialized = false;
   position = { x: 0, y: 0 };
   #zoom = 1;
   #canvas: HTMLCanvasElement;
@@ -25,6 +28,20 @@ export default class MovableCanvasRender {
       const rect = this.#canvas.getBoundingClientRect();
       this.#canvas.width = rect.width;
       this.#canvas.height = rect.height;
+    }
+    if (this.#sizeInitialized === false) {
+      this.#sizeInitialized = true;
+      this.setZoom(
+        Math.min(
+          1,
+          Math.max(
+            (this.#canvas.width - OFFSET * 2) /
+              this.#timelinePlayback.timeline.width,
+            (this.#canvas.height - OFFSET * 2) /
+              this.#timelinePlayback.timeline.height,
+          ),
+        ),
+      );
     }
     this.#render();
   });
