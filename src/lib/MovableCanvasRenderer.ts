@@ -15,7 +15,7 @@ interface Options {
 
 const OFFSET = 40;
 
-export default class MovableCanvasRender {
+export default class MovableCanvasRenderer {
   #sizeInitialized = false;
   position = { x: 0, y: 0 };
   #zoom = 1;

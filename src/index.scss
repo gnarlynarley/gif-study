@@ -10,12 +10,12 @@ $spacing: 0.8em;
 $spacing--small: $spacing * 0.2;
 
 $c-paper: #222;
-$c-muted-paper: rgba(lighten($c-paper, 8%), 0.98);
+$c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
 $c-ink: #fff;
 $c-primary: #00c562;
 
 $c-paper--lightmode: #e7e7e7;
-$c-muted-paper--lightmode: rgba(darken($c-paper--lightmode, 2%), 0.97);
+$c-muted-paper--lightmode: rgba(darken($c-paper--lightmode, 2%), 0.9);
 $c-primary--lightmode: lighten($c-primary, 5%);
 
 :root {

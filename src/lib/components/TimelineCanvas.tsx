@@ -1,5 +1,5 @@
 import React from "react";
-import MovableCanvasRender from "../MovableCanvasRender";
+import MovableCanvasRenderer from "../MovableCanvasRenderer";
 import TimelinePlayback from "../TimelinePlayback";
 import { IconButton } from "./IconButton";
 import { ZoomInIcon, ZoomOutIcon } from "./Icons";
@@ -16,28 +16,28 @@ const ZOOM_AMOUNT = 0.2;
 export function TimelineCanvas({ timelinePlayback }: Props) {
   const screenFilterOptions = useScreenFilterOptions();
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const movableCanvasRenderRef = React.useRef<MovableCanvasRender | null>(null);
+  const MovableCanvasRendererRef = React.useRef<MovableCanvasRenderer | null>(null);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const instance = new MovableCanvasRender({
+    const instance = new MovableCanvasRenderer({
       timelinePlayback,
       screenFilterOptions,
       canvas,
     });
 
-    movableCanvasRenderRef.current = instance;
+    MovableCanvasRendererRef.current = instance;
 
     return () => instance.destroy();
   }, [timelinePlayback]);
 
   React.useEffect(() => {
-    movableCanvasRenderRef.current?.setOnionSkinOptions(screenFilterOptions);
+    MovableCanvasRendererRef.current?.setOnionSkinOptions(screenFilterOptions);
   }, [screenFilterOptions]);
 
   const setZoom = (add: number) => {
-    movableCanvasRenderRef.current?.addZoom(add);
+    MovableCanvasRendererRef.current?.addZoom(add);
   };
 
   return (
