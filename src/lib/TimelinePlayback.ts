@@ -98,7 +98,7 @@ export class TimelinePlayback {
       const { frames } = this.timeline;
       const max = frames.length - 1;
       let nextFrameIndex = currentIndex + offset;
-      if (nextFrameIndex >= max) {
+      if (nextFrameIndex > max) {
         nextFrameIndex = 0;
       } else if (nextFrameIndex <= -1) {
         nextFrameIndex = max;
