@@ -3,4 +3,11 @@
   box-shadow: var(--drop-shadow);
   border-radius: var(--border-radius);
   padding: var(--spacing);
+  backdrop-filter: blur(10px);
+
+  &.isSolid {
+    background-color: var(--paper);
+    backdrop-filter: none;
+    border: 1px solid var(--muted-paper);
+  }
 }

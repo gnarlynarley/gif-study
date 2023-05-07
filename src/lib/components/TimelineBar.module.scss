@@ -1,5 +1,7 @@
 .container {
+  --trimming-handle-width: 0.8em;
   --spacing: var(--spacing--small);
+
   position: relative;
   z-index: 0;
   touch-action: none;
@@ -43,6 +45,14 @@
     width: 100%;
     display: block;
   }
+
+  &Wrapper {
+    position: absolute;
+    left: var(--trimming-handle-width);
+    width: calc(100% - var(--trimming-handle-width) * 2);
+    height: 100%;
+    position: relative;
+  }
 }
 
 .progress {
@@ -57,11 +67,10 @@
   $height: 0.5em;
   $height-active: 3em;
 
-  background: var(--primary-muted);
+  background: var(--progress-color-muted);
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
   height: $height;
   will-change: height;
   transition: height 100ms ease-in-out;
@@ -76,7 +85,60 @@
     position: absolute;
     width: 100%;
     height: 100%;
+    background: var(--progress-color);
+  }
+
+  &Wrapper {
+    overflow: hidden;
+    padding-left: var(--trimming-handle-width);
+    padding-right: var(--trimming-handle-width);
+  }
+}
+
+.trimHandle {
+  $size: 0;
+  position: absolute;
+  top: 0;
+  translate: calc(#{$size} * -0.5);
+  z-index: 1;
+  height: 100%;
+  width: $size;
+  background: var(--primary);
+
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100vw;
+    height: 100%;
+    display: block;
     background: var(--primary);
+  }
+
+  &.isEnd {
+    &:after {
+      right: auto;
+      left: 0;
+    }
+  }
+
+  span {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    width: var(--trimming-handle-width);
+    height: 100%;
+    background-color: var(--primary);
+    border: 3px solid var(--primary);
+    background-color: currentColor;
+    border-radius: 1em;
+
+    @at-root .trimHandle.isEnd span {
+      right: auto;
+      left: 0;
+    }
   }
 }
 
@@ -88,6 +150,7 @@
   height: 100%;
   overflow: hidden;
   display: flex;
+  pointer-events: none;
 
   .frame {
     height: 100%;

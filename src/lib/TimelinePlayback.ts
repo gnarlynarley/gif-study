@@ -1,6 +1,7 @@
 import { EventEmitter } from "./utils/EventEmitter";
 import { Timeline, TimelineFrame } from "./models";
 import GameLoop from "./utils/game/GameLoop";
+import clamp from "./utils/clamp";
 
 export class TimelinePlayback {
   playing: boolean = false;
@@ -8,11 +9,14 @@ export class TimelinePlayback {
   timeline: Timeline;
   #reversedFrames: TimelineFrame[];
   currentTime = 0;
+  totalTime: number;
   currentFrame: TimelineFrame | null = null;
   events = {
     timeChanged: new EventEmitter<number>(),
     frameChanged: new EventEmitter<TimelineFrame | null>(),
     playingChanged: new EventEmitter<boolean>(),
+    trimStartChanged: new EventEmitter<number>(),
+    trimEndChanged: new EventEmitter<number>(),
   };
 
   constructor(timeline: Timeline) {
@@ -23,17 +27,46 @@ export class TimelinePlayback {
       update: this.#setCurrentTimeByDelta,
     });
     this.#updateFrame();
+    this.totalTime = timeline.totalTime;
+  }
+
+  setTrimStart(value: number) {
+    this.timeline.trimStart = clamp(0, this.timeline.trimEnd, value);
+    this.timeline.trimStart = this.timeline.trimStart;
+    this.events.trimStartChanged.emit(this.timeline.trimStart);
+    this.setCurrentTime(this.timeline.trimStart);
+  }
+
+  setTrimEnd(value: number) {
+    this.timeline.trimEnd = clamp(
+      this.timeline.trimStart,
+      this.totalTime,
+      value,
+    );
+    this.timeline.trimEnd = this.timeline.trimEnd;
+    this.events.trimEndChanged.emit(this.timeline.trimEnd);
+    this.setCurrentTime(this.timeline.trimEnd);
   }
 
   #setCurrentTimeByDelta = (delta: number) => {
+    const {
+      timeline: { trimStart, trimEnd },
+      currentTime,
+    } = this;
+    const trimmedTotalTime = trimEnd - trimStart;
     this.setCurrentTime(
-      (this.currentTime + delta * this.speed) % this.timeline.totalTime,
+      trimStart +
+        ((currentTime - trimStart + delta * this.speed) % trimmedTotalTime),
     );
   };
 
   setCurrentTime = (currentTime: number) => {
-    this.currentTime = currentTime;
-    this.events.timeChanged.emit(currentTime);
+    this.currentTime = clamp(
+      this.timeline.trimStart,
+      this.timeline.trimEnd,
+      currentTime,
+    );
+    this.events.timeChanged.emit(this.currentTime);
     this.#updateFrame();
   };
 
@@ -51,6 +84,9 @@ export class TimelinePlayback {
 
   destroy = () => {
     this.loop.stop();
+    Object.values(this.events).forEach((emitter) => {
+      emitter.destroy();
+    });
   };
 
   findFrameByTime = (
@@ -103,7 +139,15 @@ export class TimelinePlayback {
       } else if (nextFrameIndex <= -1) {
         nextFrameIndex = max;
       }
-      const nextFrame = frames[nextFrameIndex];
+      let nextFrame = frames[nextFrameIndex];
+      if (!this.isWithinTrimStart(nextFrame)) {
+        nextFrame = frames[0];
+      } else if (
+        nextFrame.index !== frames.length - 1 &&
+        !this.isWithinTrimEnd(nextFrame)
+      ) {
+        nextFrame = frames[frames.length - 1];
+      }
 
       this.setCurrentTime(nextFrame.time);
     }
@@ -115,6 +159,14 @@ export class TimelinePlayback {
 
   nextFrame = () => {
     this.navigateFrame(1);
+  };
+
+  isWithinTrimStart = (frame: TimelineFrame): boolean => {
+    return frame.time >= this.timeline.trimStart;
+  };
+
+  isWithinTrimEnd = (frame: TimelineFrame): boolean => {
+    return frame.time + frame.duration < this.timeline.trimEnd;
   };
 }
 

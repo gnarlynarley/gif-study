@@ -18,6 +18,10 @@ export class EventEmitter<T> {
   emit = (value: T) => {
     this.handlers.forEach((handler) => handler(value));
   };
+
+  destroy = () => {
+    this.handlers.clear();
+  };
 }
 
 export default EventEmitter;

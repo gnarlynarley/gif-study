@@ -20,18 +20,16 @@ import { GITHUB_URL, TWITTER_URL } from "~src/constants";
 import $ from "./TimelineControlBar.module.scss";
 import useScreenFilterOptions from "../hooks/useScreenFilterOptions";
 import Panel from "./Panel";
+import useTimeline from "../hooks/useTimeline";
 
 type Props = {
-  disableGifFileInput: boolean;
   timelinePlayback: TimelinePlayback | null;
-  setGifFile: (file: File | null) => void;
 };
 
-export function TimelineControlBar({
-  disableGifFileInput,
-  setGifFile,
-  timelinePlayback,
-}: Props) {
+export function TimelineControlBar({ timelinePlayback }: Props) {
+  const timeline = useTimeline((s) => s.timeline);
+  const timelinePending = useTimeline((s) => s.pending);
+  const setTimelineFile = useTimeline((s) => s.setFile);
   const screenFilterOptions = useScreenFilterOptions();
   const [playing, setPlaying] = React.useState(false);
   const [speed, setSpeed] = React.useState(timelinePlayback?.speed ?? 1);
@@ -53,22 +51,32 @@ export function TimelineControlBar({
   const togglePlay = () => {
     timelinePlayback?.toggle();
   };
+  const previousFrame = () => {
+    timelinePlayback?.previousFrame();
+  };
+  const nextFrame = () => {
+    timelinePlayback?.nextFrame();
+  };
+
+  const regenerateFrames = () => {
+    setTimelineFile(timeline?.gifBlob ?? null);
+  };
 
   useKeyboard("k", togglePlay);
   useKeyboard("space", togglePlay);
-  useKeyboard("j", () => timelinePlayback?.previousFrame());
-  useKeyboard("l", () => timelinePlayback?.nextFrame());
-  useKeyboard("arrowleft", () => timelinePlayback?.previousFrame());
-  useKeyboard("arrowright", () => timelinePlayback?.nextFrame());
+  useKeyboard("j", previousFrame);
+  useKeyboard("arrowleft", previousFrame);
+  useKeyboard("l", nextFrame);
+  useKeyboard("arrowright", nextFrame);
 
   return (
     <Panel>
       <div className={$.container}>
         <FileInput
-          disabled={disableGifFileInput}
+          disabled={timelinePending}
           accept="image/gif"
           label="Open gif"
-          onFile={setGifFile}
+          onFile={setTimelineFile}
         />
 
         {timelinePlayback && (
@@ -119,7 +127,10 @@ export function TimelineControlBar({
               >
                 download frames
               </Button>
-              <Button onClick={() => setGifFile(null)}>clear frames</Button>
+              <Button onClick={() => setTimelineFile(null)}>
+                clear frames
+              </Button>
+              <Button onClick={regenerateFrames}>regenerate frames</Button>
             </>
 
             <h3>Onion skin options:</h3>

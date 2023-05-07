@@ -1,5 +1,5 @@
 import React from "react";
-import type { Timeline as TimelineType, TimelineFrame } from "../models";
+import type { TimelineFrame } from "../models";
 import TimelinePlayback from "../TimelinePlayback";
 import useEvent from "$lib/hooks/useEvent";
 import setMoveEvent, { type MoveEvent } from "../utils/setMoveEvent";
@@ -44,6 +44,12 @@ function Progress({
   timelinePlayback: TimelinePlayback;
 }) {
   const [time, setTime] = React.useState(0);
+  const [trimStart, setTrimStart] = React.useState(
+    timelinePlayback.timeline.trimStart,
+  );
+  const [trimEnd, setTrimEnd] = React.useState(
+    timelinePlayback.timeline.trimEnd,
+  );
   const [active, setActive] = React.useState(false);
   const [hoverTime, setHoverTime] = React.useState(0);
   const shownTime = active ? time : hoverTime;
@@ -70,14 +76,51 @@ function Progress({
   }, []);
 
   React.useEffect(() => {
-    const destroy = timelinePlayback.events.timeChanged.on(setTime);
+    const cleanupMethods = [
+      timelinePlayback.events.timeChanged.on(setTime),
+      timelinePlayback.events.trimStartChanged.on(setTrimStart),
+      timelinePlayback.events.trimEndChanged.on(setTrimEnd),
+    ];
+    setTrimStart(timelinePlayback.timeline.trimStart);
+    setTrimEnd(timelinePlayback.timeline.trimEnd);
 
-    return () => destroy();
+    return () => cleanupMethods.forEach((m) => m());
   }, [timelinePlayback]);
 
-  const calculateCurrentTime = (x: number) =>
-    ((x - rect.l) / rect.w) * totalTime;
+  const trimStartHandleRef = React.useRef<HTMLDivElement>(null);
+  const trimEndHandleRef = React.useRef<HTMLDivElement>(null);
+
+  const startingTimeRef = React.useRef(0);
+  const setTrimTime = useEvent((isStart: boolean, event: MoveEvent) => {
+    setActive(event.active);
+    timelinePlayback.pause();
+
+    if (event.start) {
+      startingTimeRef.current = isStart ? trimStart : trimEnd;
+    } else {
+      const nextTime =
+        startingTimeRef.current +
+        calculateCurrentTime(event.relativeX + rect.l);
+      if (isStart) {
+        timelinePlayback.setTrimStart(nextTime);
+      } else {
+        timelinePlayback.setTrimEnd(nextTime);
+      }
+    }
+  });
+
+  const calculateCurrentTime = useEvent((x: number) => {
+    return ((x - rect.l) / rect.w) * totalTime;
+  });
   const setCurrentTime = useEvent((event: MoveEvent) => {
+    if (trimStartHandleRef.current?.contains(event.currentTarget)) {
+      setTrimTime(true, event);
+      return;
+    }
+    if (trimEndHandleRef.current?.contains(event.currentTarget)) {
+      setTrimTime(false, event);
+      return;
+    }
     const currentTime = clamp(0, totalTime, calculateCurrentTime(event.x));
     timelinePlayback.pause();
     timelinePlayback.setCurrentTime(currentTime);
@@ -85,41 +128,60 @@ function Progress({
   });
 
   React.useEffect(() => {
-    const cleanup = setMoveEvent(
-      containerRef.current as HTMLDivElement,
-      setCurrentTime,
-    );
+    const cleanupMethods = [
+      setMoveEvent(containerRef.current as HTMLDivElement, setCurrentTime),
+    ];
 
-    return () => cleanup();
+    return () => cleanupMethods.forEach((m) => m());
   }, []);
 
   return (
     <div
-      ref={containerRef}
       className={cx($.progress, active && $.isActive)}
       onMouseMove={(ev) => {
-        const x = ev.clientX - rect.l;
-        setHoverTime(calculateCurrentTime(x));
+        const x = ev.clientX;
+        setHoverTime(clamp(0, totalTime, calculateCurrentTime(x)));
       }}
     >
       {hoverFrame && (
-        <div
-          className={$.thumbnail}
-          style={{ left: `${(shownTime / totalTime) * 100}%` }}
-        >
-          <ImageDataCanvas
-            className={$.thumbnailImage}
-            data={hoverFrame.frame.data}
-          />
+        <div className={$.thumbnailWrapper}>
+          <div
+            className={$.thumbnail}
+            style={{ left: `${(shownTime / totalTime) * 100}%` }}
+          >
+            <ImageDataCanvas
+              className={$.thumbnailImage}
+              data={hoverFrame.frame.data}
+            />
+          </div>
         </div>
       )}
-      <div className={$.timeIndicator}>
-        <div
-          className={$.timeIndicatorFill}
-          style={{ translate: `${progress * 100 - 100}%` }}
-        ></div>
+      <div className={$.timeIndicatorWrapper}>
+        <div ref={containerRef} className={$.timeIndicator}>
+          <div
+            ref={trimStartHandleRef}
+            className={$.trimHandle}
+            style={{
+              left: `${(trimStart / totalTime) * 100}%`,
+              background: "red",
+            }}
+          >
+            <span />
+          </div>
+          <div
+            ref={trimEndHandleRef}
+            className={cx($.trimHandle, $.isEnd)}
+            style={{ left: `${(trimEnd / totalTime) * 100}%` }}
+          >
+            <span />
+          </div>
+          <div
+            className={$.timeIndicatorFill}
+            style={{ translate: `${progress * 100 - 100}%` }}
+          />
+          <Frames frames={frames} totalTime={totalTime} />
+        </div>
       </div>
-      <Frames frames={frames} totalTime={totalTime} />
     </div>
   );
 }

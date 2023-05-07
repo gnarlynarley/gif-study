@@ -12,11 +12,12 @@ $spacing--small: $spacing * 0.2;
 $c-paper: #222;
 $c-muted-paper: rgba(lighten($c-paper, 8%), 0.9);
 $c-ink: #fff;
-$c-primary: #00c562;
+$c-primary: rgb(255, 187, 0);
+$c-progress: #00c562;
 
 $c-paper--lightmode: #e7e7e7;
 $c-muted-paper--lightmode: rgba(darken($c-paper--lightmode, 2%), 0.9);
-$c-primary--lightmode: lighten($c-primary, 5%);
+$c-progress--lightmode: lighten($c-progress, 5%);
 
 :root {
   --paper: #{$c-paper};
@@ -29,9 +30,10 @@ $c-primary--lightmode: lighten($c-primary, 5%);
   --spacing: #{$spacing};
   --spacing--small: #{$spacing--small};
   --primary: #{$c-primary};
-  --primary-muted: #{mix($c-paper, $c-primary, 90%)};
+  --progress-color: #{$c-progress};
+  --progress-color-muted: #{mix($c-paper, $c-progress, 90%)};
   --border-width: 2px;
-  --border: var(--border-width) solid var(--primary);
+  --border: var(--border-width) solid var(--progress-color);
   --border-radius: 0.3em;
   --drop-shadow: 0 1px 20em #{rgba(black, 0.8)};
 
@@ -42,8 +44,8 @@ $c-primary--lightmode: lighten($c-primary, 5%);
     --accent: #{darken($c-paper--lightmode, 0.5)};
     --muted-accent: #eee;
     --drop-shadow: 0 0.2em 1em #{rgba(black, 0.1)};
-    --primary: #{$c-primary--lightmode};
-    --primary-muted: #{mix($c-paper, $c-primary--lightmode, 90%)};
+    --progress-color: #{$c-progress--lightmode};
+    --progress-color-muted: #{mix($c-paper, $c-progress--lightmode, 90%)};
   }
 }
 

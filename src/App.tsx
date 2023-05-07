@@ -5,7 +5,7 @@ import { cx } from "$lib/utils/joinClassNames";
 import usePwaUpdate from "$lib/hooks/usePwaUpdate";
 import { TimelineControlBar } from "./lib/components/TimelineControlBar";
 import useToast from "./lib/hooks/useToast";
-import useTimeline from "./lib/hooks/useTimeline";
+import useTimeline, { useTimelinePlayback } from "./lib/hooks/useTimeline";
 import LoadingIndicator from "./lib/components/LoadingIndicator";
 import $ from "./App.module.scss";
 
@@ -24,25 +24,8 @@ const Toasts: React.FC = React.memo(() => {
 export default function App() {
   usePwaUpdate();
   const timelinePending = useTimeline((s) => s.pending);
+  const timelinePlayback = useTimelinePlayback();
   const setTimelineFile = useTimeline((s) => s.setFile);
-  const timeline = useTimeline((s) => s.timeline);
-
-  const [timelinePlayback, setTimelinePlayback] =
-    React.useState<TimelinePlayback | null>(null);
-
-  React.useEffect(() => {
-    if (timeline) {
-      const instance = new TimelinePlayback(timeline);
-      instance.play();
-      setTimelinePlayback(instance);
-
-      return () => {
-        instance.destroy();
-      };
-    } else {
-      setTimelinePlayback(null);
-    }
-  }, [timeline]);
 
   return (
     <DropZone
@@ -58,11 +41,7 @@ export default function App() {
       )}
       <div className={cx($.container)}>
         <div className={$.controlBar}>
-          <TimelineControlBar
-            timelinePlayback={timelinePlayback}
-            disableGifFileInput={timelinePending}
-            setGifFile={(file) => file && setTimelineFile(file)}
-          />
+          <TimelineControlBar timelinePlayback={timelinePlayback} />
         </div>
         {timelinePlayback && (
           <div className={cx($.canvas)}>

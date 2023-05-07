@@ -8,7 +8,7 @@ export default function useEvent<T, A extends any[]>(cb: (...args: A) => T) {
   });
 
   const handler = React.useCallback((...args: A) => {
-    cbRef.current(...args);
+    return cbRef.current(...args);
   }, []);
 
   return handler;

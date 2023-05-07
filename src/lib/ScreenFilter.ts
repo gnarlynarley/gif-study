@@ -1,4 +1,4 @@
-import { TimelineFrame } from "./models";
+import { Timeline, TimelineFrame } from "./models";
 import { assert } from "./utils/assert";
 import { createCanvas } from "./utils/createCanvas";
 
@@ -12,20 +12,33 @@ export interface ScreenFilterOptions {
   onionSkinSteps: number;
 }
 
+function getFrames({ frames, trimStart, trimEnd }: Timeline): TimelineFrame[] {
+  return frames.filter((frame) => {
+    if (frame.time < trimStart) return false;
+    if (frame.time + frame.duration > trimEnd) return false;
+    return true;
+  });
+}
+
 export default class ScreenFilter {
   contrastCache = new WeakMap<ImageData, HTMLCanvasElement>();
   options: ScreenFilterOptions;
-  frames: TimelineFrame[];
+  frames: TimelineFrame[] = [];
 
-  constructor(options: ScreenFilterOptions, frames: TimelineFrame[]) {
-    this.frames = frames;
+  constructor(options: ScreenFilterOptions, timeline: Timeline) {
     this.options = options;
+    this.updateTimeline(timeline);
+  }
+
+  updateTimeline(timeline: Timeline) {
+    this.frames = getFrames(timeline);
+    this.cache = new WeakMap();
   }
 
   setOptions(options: ScreenFilterOptions) {
     this.options = options;
-    this.contrastCache = new Map();
-    this.cache = new Map();
+    this.contrastCache = new WeakMap();
+    this.cache = new WeakMap();
   }
 
   applyContrast(imageData: ImageData): HTMLCanvasElement {

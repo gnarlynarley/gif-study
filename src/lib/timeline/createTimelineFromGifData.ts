@@ -18,11 +18,14 @@ export default function createTimelineFromGifData(gifData: GifData): Timeline {
   const totalTime = lastFrame.time + lastFrame.duration;
 
   return {
+    version: "1",
     id: gifData.id,
     gifBlob: gifData.blob,
     frames,
     totalTime,
     width: gifData.width,
     height: gifData.height,
+    trimStart: 0,
+    trimEnd: totalTime,
   };
 }

@@ -1,10 +1,13 @@
 export interface Timeline {
+  version: '1',
   id: string;
   gifBlob: Blob;
   frames: TimelineFrame[];
   totalTime: number;
   width: number;
   height: number;
+  trimStart: number;
+  trimEnd: number;
 }
 
 export interface GifFrame {

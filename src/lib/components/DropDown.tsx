@@ -36,7 +36,7 @@ export function DropDown({ children }: Props) {
       <Portal>
         {active && (
           <div ref={containerRef} className={$.dropdown}>
-            <Panel>
+            <Panel solid>
               <div className={$.inner}>{children}</div>
             </Panel>
           </div>
