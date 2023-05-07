@@ -79,7 +79,7 @@ export default class MovableCanvasRenderer {
     this.cleanupCollector.add(cleanupTrimEndChanged);
 
     this.#canvas.addEventListener("pointerdown", this.#handlePointerMove);
-    this.#canvas.addEventListener("wheel", this.#handleZoom, true);
+    this.#canvas.addEventListener("wheel", this.#handleZoom, { passive: true });
     this.#resizeObserver.observe(this.#canvas);
     this.#render();
   }
