@@ -1,7 +1,8 @@
 .button {
-  --background: var(--muted-accent);
+  --button-background: var(--muted-accent);
+
   border: none;
-  background: var(--background);
+  background: var(--button-background);
   color: currentColor;
   padding: 0.5em;
   border-radius: var(--border-radius);
@@ -10,14 +11,15 @@
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
+  position: relative;
 
   &:not(.isDisabled),
   &:not([disabled]) {
     &:hover {
-      --background: var(--accent);
+      --button-background: var(--accent);
     }
     &:active {
-      --background: var(--muted-accent);
+      --button-background: var(--muted-accent);
       translate: 0 1px;
     }
   }

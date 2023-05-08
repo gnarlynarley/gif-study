@@ -27,15 +27,18 @@ $c-progress--lightmode: lighten($c-progress, 5%);
   --accent: #{darken($c-ink, 30%)};
   --error: #e74646;
   --error-ink: #fff;
-  --spacing: #{$spacing};
   --spacing--small: #{$spacing--small};
   --primary: #{$c-primary};
+  --primary-text: #{$c-paper};
   --progress-color: #{$c-progress};
   --progress-color-muted: #{mix($c-paper, $c-progress, 90%)};
+
+  --spacing: #{$spacing};
   --border-width: 2px;
   --border: var(--border-width) solid var(--progress-color);
   --border-radius: 0.3em;
   --drop-shadow: 0 1px 20em #{rgba(black, 0.8)};
+  --animation-speed: 150ms ease-in-out;
 
   @media (prefers-color-scheme: light) {
     --paper: #{$c-paper--lightmode};
