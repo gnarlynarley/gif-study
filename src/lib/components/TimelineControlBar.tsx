@@ -4,6 +4,8 @@ import type TimelinePlayback from "../TimelinePlayback";
 import { FileInput } from "./FileInput";
 import { IconButton, IconLink } from "./IconButton";
 import {
+  FullscreenCloseIcon,
+  FullscreenOpenIcon,
   GithubIcon,
   PauseIcon,
   PlayIcon,
@@ -17,10 +19,11 @@ import { RangeInput } from "./RangeInput";
 import { downloadTimelineAsZip } from "../utils/downloadTimelineAsZip";
 import { Button } from "./Button";
 import { GITHUB_URL, TWITTER_URL } from "~src/constants";
-import $ from "./TimelineControlBar.module.scss";
 import useScreenFilterOptions from "../hooks/useScreenFilterOptions";
 import Panel from "./Panel";
 import useTimeline from "../hooks/useTimeline";
+import useFullscreen from "../hooks/useFullscreen";
+import $ from "./TimelineControlBar.module.scss";
 
 type Props = {
   timelinePlayback: TimelinePlayback | null;
@@ -33,6 +36,7 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
   const screenFilterOptions = useScreenFilterOptions();
   const [playing, setPlaying] = React.useState(false);
   const [speed, setSpeed] = React.useState(timelinePlayback?.speed ?? 1);
+  const fullscreen = useFullscreen();
 
   React.useEffect(() => {
     if (!timelinePlayback) {
@@ -68,6 +72,7 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
   useKeyboard("arrowleft", previousFrame);
   useKeyboard("l", nextFrame);
   useKeyboard("arrowright", nextFrame);
+  useKeyboard("f", fullscreen.toggle);
 
   return (
     <Panel>
@@ -102,6 +107,21 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
             </IconButton>
           </>
         )}
+
+        <span className={$.divider} />
+
+        <IconButton
+          label={
+            fullscreen.enabled ? "Close fullscreen (f)" : "Open fullscreen (f)"
+          }
+          onClick={fullscreen.toggle}
+        >
+          {fullscreen.enabled ? (
+            <FullscreenCloseIcon />
+          ) : (
+            <FullscreenOpenIcon />
+          )}
+        </IconButton>
 
         <span className={$.push} />
 

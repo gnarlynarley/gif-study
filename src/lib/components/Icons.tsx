@@ -136,3 +136,30 @@ export function GithubIcon() {
     </svg>
   );
 }
+
+export function FullscreenOpenIcon() {
+  return (
+    <svg
+      className={$.icon}
+      xmlns="http://www.w3.org/2000/svg"
+      height="24"
+      viewBox="0 96 960 960"
+      width="24"
+    >
+      <path d="M200 856V656h80v120h120v80H200Zm0-360V296h200v80H280v120h-80Zm360 360v-80h120V656h80v200H560Zm120-360V376H560v-80h200v200h-80Z" />
+    </svg>
+  );
+}
+export function FullscreenCloseIcon() {
+  return (
+    <svg
+      className={$.icon}
+      xmlns="http://www.w3.org/2000/svg"
+      height="24"
+      viewBox="0 96 960 960"
+      width="24"
+    >
+      <path d="M320 856V736H200v-80h200v200h-80Zm240 0V656h200v80H640v120h-80ZM200 496v-80h120V296h80v200H200Zm360 0V296h80v120h120v80H560Z" />
+    </svg>
+  );
+}
