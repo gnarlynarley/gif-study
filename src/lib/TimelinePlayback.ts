@@ -17,6 +17,7 @@ export class TimelinePlayback {
     playingChanged: new EventEmitter<boolean>(),
     trimStartChanged: new EventEmitter<number>(),
     trimEndChanged: new EventEmitter<number>(),
+    timelineChanged: new EventEmitter<Timeline>(),
   };
 
   constructor(timeline: Timeline) {
@@ -33,8 +34,9 @@ export class TimelinePlayback {
   setTrimStart(value: number) {
     this.timeline.trimStart = clamp(0, this.timeline.trimEnd, value);
     this.timeline.trimStart = this.timeline.trimStart;
-    this.events.trimStartChanged.emit(this.timeline.trimStart);
     this.setCurrentTime(this.timeline.trimStart);
+    this.events.trimStartChanged.emit(this.timeline.trimStart);
+    this.events.timelineChanged.emit(this.timeline);
   }
 
   setTrimEnd(value: number) {
@@ -44,8 +46,9 @@ export class TimelinePlayback {
       value,
     );
     this.timeline.trimEnd = this.timeline.trimEnd;
-    this.events.trimEndChanged.emit(this.timeline.trimEnd);
     this.setCurrentTime(this.timeline.trimEnd);
+    this.events.trimEndChanged.emit(this.timeline.trimEnd);
+    this.events.timelineChanged.emit(this.timeline);
   }
 
   #setCurrentTimeByDelta = (delta: number) => {

@@ -16,10 +16,7 @@ interface UseTimelineValue {
   timeline: Timeline | null;
   pending: boolean;
   setFile(file: Blob | null): Promise<void>;
-  setTimelineValue: <T extends keyof Timeline>(
-    key: T,
-    value: Timeline[T],
-  ) => void;
+  setTimeline: (timeline: Timeline | null) => void;
 }
 type PersistedTimelineValue = Pick<UseTimelineValue, "timeline">;
 type MiddleWareType = [["zustand/persist", PersistedTimelineValue]];
@@ -42,7 +39,7 @@ function createLocalforageStorage<T = any>(): PersistStorage<T> {
 
 export const useTimelinePlayback = () => {
   const timeline = useTimeline((s) => s.timeline);
-  const setTimelineValue = useTimeline((s) => s.setTimelineValue);
+  const setTimeline = useTimeline((s) => s.setTimeline);
   const [timelinePlayback, setTimelinePlayback] =
     React.useState<TimelinePlayback | null>(null);
 
@@ -51,12 +48,7 @@ export const useTimelinePlayback = () => {
       const instance = new TimelinePlayback(timeline);
       instance.play();
       setTimelinePlayback(instance);
-      instance.events.trimStartChanged.on((trimStart) => {
-        setTimelineValue("trimStart", trimStart);
-      });
-      instance.events.trimEndChanged.on((trimEnd) => {
-        setTimelineValue("trimEnd", trimEnd);
-      });
+      instance.events.timelineChanged.on(setTimeline);
 
       return () => {
         instance.destroy();
@@ -75,16 +67,8 @@ const useTimeline = create<UseTimelineValue, MiddleWareType>(
       return {
         timeline: null,
         pending: false,
-        setTimelineValue(key, value) {
-          const timeline = get().timeline;
-          if (timeline) {
-            set({
-              timeline: {
-                ...timeline,
-                [key]: value,
-              },
-            });
-          }
+        setTimeline(timeline) {
+          set({ timeline });
         },
         async setFile(file: Blob | null) {
           try {
