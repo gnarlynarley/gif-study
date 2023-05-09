@@ -1,67 +1,73 @@
 import { GifData, GifFrame } from "../models";
 import { createCanvas } from "../utils/createCanvas";
 import { createId } from "../utils/createId";
-import filterArray from "../utils/filterArray";
 import isPixelDataMatch from "../utils/isPixelDataMatch";
+import noop from "../utils/noop";
 
 interface RawFrame {
   data: ImageData;
   time: number;
 }
 
+const TRIM_START = 0;
+const TRIM_END = 10;
+
 export default async function createGifDataFromVideoBlob(
   blob: Blob,
+  onProgress: (progress: number) => void = noop,
 ): Promise<GifData> {
   return new Promise((resolve) => {
     const path = URL.createObjectURL(blob);
-    const frames: RawFrame[] = [];
+    const rawFrames: RawFrame[] = [];
     const video = document.createElement("video");
-    document.body.appendChild(video);
     const renderer = createCanvas();
 
-    video.autoplay = true;
+    let w = 0;
+    let h = 0;
+    let trimEnd = TRIM_END;
+
     video.muted = true;
     video.src = path;
-    video.playsInline = true;
-    video.style.position = "fixed";
-    video.style.top = "0px";
-    video.style.left = "0px";
-    video.style.pointerEvents = "none";
-    video.style.opacity = "0";
-    video.playbackRate = 4;
 
-    const frame: VideoFrameRequestCallback = (now, metadata) => {
-      console.log("frame");
-      const w = metadata.width;
-      const h = metadata.width;
-      const time = metadata.mediaTime * 1000;
-      renderer.canvas.width = w;
-      renderer.canvas.height = h;
+    const delta = 1000 / 24;
+
+    const progressFrame = () => {
+      video.currentTime += delta / 1000;
+    };
+
+    const getFrame = () => {
       renderer.context.drawImage(video, 0, 0);
       const data = renderer.context.getImageData(0, 0, w, h);
-      frames.push({ data, time });
-      video.requestVideoFrameCallback(frame);
+      rawFrames.push({ data, time: video.currentTime * 1000 });
+      onProgress(video.currentTime / trimEnd);
     };
-    video.requestVideoFrameCallback(frame);
 
-    video.addEventListener("play", () => {
-      console.log("playing");
+    video.addEventListener("loadedmetadata", () => {
+      w = video.videoWidth;
+      h = video.videoHeight;
+      trimEnd = Math.min(video.duration, TRIM_END);
+      video.width = w;
+      video.height = h;
+      renderer.canvas.width = w;
+      renderer.canvas.height = h;
+      video.currentTime = TRIM_START;
+      getFrame();
+      progressFrame();
     });
 
-    video.addEventListener("ended", async () => {
-      const filtered = frames.filter((frame, i) => {
-        const nextFrame = frames[i + 1];
-        if (nextFrame && isPixelDataMatch(frame.data, nextFrame.data)) {
-          return false;
-        }
-        return true;
-      });
-      const data: GifData = {
-        id: createId(),
-        blob: await fetch(path).then((r) => r.blob()),
-        width: video.videoHeight,
-        height: video.videoHeight,
-        frames: filtered.map<GifFrame>((item, i, items) => {
+    video.addEventListener("seeked", async () => {
+      if (video.currentTime < trimEnd) {
+        progressFrame();
+        getFrame();
+      } else {
+        const filtered = rawFrames.filter((item, i, items) => {
+          const nextItem = items[i + 1];
+          if (nextItem && isPixelDataMatch(item.data, nextItem.data)) {
+            return false;
+          }
+          return true;
+        });
+        const frames = filtered.map<GifFrame>((item, i, items) => {
           const prevFrame = items[i - 1];
           const delay = prevFrame ? item.time - prevFrame.time : 0;
           return {
@@ -69,13 +75,20 @@ export default async function createGifDataFromVideoBlob(
             data: item.data,
             delay: Math.round(delay * 10000) / 10000,
           };
-        }),
-      };
+        });
+        const data: GifData = {
+          id: createId(),
+          blob: await fetch(path).then((r) => r.blob()),
+          width: video.videoHeight,
+          height: video.videoHeight,
+          frames,
+        };
 
-      video.remove();
-      URL.revokeObjectURL(path);
+        video.remove();
+        URL.revokeObjectURL(path);
 
-      resolve(data);
+        resolve(data);
+      }
     });
   });
 }

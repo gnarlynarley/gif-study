@@ -14,6 +14,7 @@ import TimelinePlayback from "../TimelinePlayback";
 
 interface UseTimelineValue {
   timeline: Timeline | null;
+  progress: number;
   pending: boolean;
   setFile(file: Blob | null): Promise<void>;
   setTimeline: (timeline: Timeline | null) => void;
@@ -24,7 +25,9 @@ type MiddleWareType = [["zustand/persist", PersistedTimelineValue]];
 function createLocalforageStorage<T = any>(): PersistStorage<T> {
   return {
     getItem: async (name) => {
+      console.log("get name:", name);
       const state = await localforage.getItem<StorageValue<T>>(name);
+      console.log("retrieved state:", { name, state });
       if (!state) return null;
       return state;
     },
@@ -67,6 +70,7 @@ const useTimeline = create<UseTimelineValue, MiddleWareType>(
       return {
         timeline: null,
         pending: false,
+        progress: 0,
         setTimeline(timeline) {
           set({ timeline });
         },
@@ -74,9 +78,11 @@ const useTimeline = create<UseTimelineValue, MiddleWareType>(
           try {
             if (file) {
               set({ pending: true });
-              const gifData = await createGifDatafromBlob(file);
+              const gifData = await createGifDatafromBlob(file, (progress) =>
+                set({ progress }),
+              );
               const timeline = createTimelineFromGifData(gifData);
-              set({ timeline });
+              set({ timeline, progress: 0 });
             } else {
               set({ timeline: null });
             }

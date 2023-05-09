@@ -55,8 +55,8 @@ export default class ScreenFilter {
           const r = imageData.data[i];
           const g = imageData.data[i + 1];
           const b = imageData.data[i + 2];
-          const average = (r + g + b) / 3;
-          // const average = r * 0.3 + g * 0.59 + b * 0.11;
+          // const average = (r + g + b) / 3;
+          const average = r * 0.3 + g * 0.59 + b * 0.11;
           // const average = (Math.min(r, g, b) + Math.max(r, g, b)) / 2;
 
           if (average < contrastLevel) {

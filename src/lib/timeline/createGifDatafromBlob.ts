@@ -7,9 +7,10 @@ import createGifDataFromVideoBlob from "./createGifDataFromVideoBlob";
 
 export default async function createGifDatafromBlob(
   blob: Blob,
+  onProgress: (progress: number) => void,
 ): Promise<GifData> {
   if (/^video/.test(blob.type)) {
-    return createGifDataFromVideoBlob(blob);
+    return createGifDataFromVideoBlob(blob, onProgress);
   }
   if (blob.type !== "image/gif") throw new Error("Unsupported blob.");
   const arrayBuffer = await blob.arrayBuffer();

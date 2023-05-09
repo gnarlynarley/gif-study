@@ -22,15 +22,16 @@ const Toasts: React.FC = React.memo(() => {
 
 export default function App() {
   usePwaUpdate();
-  const timelinePending = useTimeline((s) => s.pending);
+  const pending = useTimeline((s) => s.pending);
+  const progress = useTimeline((s) => s.progress);
   const timelinePlayback = useTimelinePlayback();
   const setTimelineFile = useTimeline((s) => s.setFile);
 
   return (
-    <DropZone disabled={timelinePending} onFileDrop={setTimelineFile}>
-      {timelinePending && (
+    <DropZone disabled={pending} onFileDrop={setTimelineFile}>
+      {pending && (
         <span className={$.loading}>
-          <span>Loading gif</span>
+          <span>Loading gif {Math.floor(progress * 100)}%</span>
           <LoadingIndicator />
         </span>
       )}
