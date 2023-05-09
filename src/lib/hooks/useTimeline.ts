@@ -63,7 +63,7 @@ export const useTimelinePlayback = () => {
 
 const useTimeline = create<UseTimelineValue, MiddleWareType>(
   persist(
-    (set, get) => {
+    (set) => {
       return {
         timeline: null,
         pending: false,

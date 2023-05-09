@@ -1,6 +1,5 @@
 import * as React from "react";
 import { TimelineBar, TimelineCanvas, DropZone, Toast } from "$lib/components";
-import TimelinePlayback from "~src/lib/TimelinePlayback";
 import { cx } from "$lib/utils/joinClassNames";
 import usePwaUpdate from "$lib/hooks/usePwaUpdate";
 import { TimelineControlBar } from "./lib/components/TimelineControlBar";

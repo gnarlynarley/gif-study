@@ -79,7 +79,7 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
       <div className={$.container}>
         <FileInput
           disabled={timelinePending}
-          accept="image/gif"
+          accept="image/gif,video/*"
           label="Open gif"
           onFile={setTimelineFile}
         />

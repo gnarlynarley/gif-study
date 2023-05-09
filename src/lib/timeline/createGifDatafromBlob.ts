@@ -3,10 +3,15 @@ import { GifReader } from "omggif";
 import { createId } from "../utils/createId";
 import { createCanvas } from "../utils/createCanvas";
 import isPixelDataMatch from "../utils/isPixelDataMatch";
+import createGifDataFromVideoBlob from "./createGifDataFromVideoBlob";
 
 export default async function createGifDatafromBlob(
   blob: Blob,
 ): Promise<GifData> {
+  if (/^video/.test(blob.type)) {
+    return createGifDataFromVideoBlob(blob);
+  }
+  if (blob.type !== "image/gif") throw new Error("Unsupported blob.");
   const arrayBuffer = await blob.arrayBuffer();
   const buffer = new Uint8Array(arrayBuffer);
   const reader = new GifReader(buffer);
