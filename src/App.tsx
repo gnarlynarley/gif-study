@@ -27,11 +27,7 @@ export default function App() {
   const setTimelineFile = useTimeline((s) => s.setFile);
 
   return (
-    <DropZone
-      accept="image/gif"
-      disabled={timelinePending}
-      onFileDrop={setTimelineFile}
-    >
+    <DropZone disabled={timelinePending} onFileDrop={setTimelineFile}>
       {timelinePending && (
         <span className={$.loading}>
           <span>Loading gif</span>

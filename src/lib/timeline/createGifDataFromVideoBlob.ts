@@ -28,8 +28,7 @@ export default async function createGifDataFromVideoBlob(
     video.style.left = "0px";
     video.style.pointerEvents = "none";
     video.style.opacity = "0";
-    console.log(path);
-    // video.playbackRate = 2;
+    video.playbackRate = 4;
 
     const frame: VideoFrameRequestCallback = (now, metadata) => {
       console.log("frame");

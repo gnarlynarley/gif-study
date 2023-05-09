@@ -3,14 +3,12 @@ import { cx } from "../utils/joinClassNames";
 import $ from "./DropZone.module.scss";
 
 type Props = React.PropsWithChildren<{
-  accept: string;
   disabled?: boolean;
   onFileDrop: (file: File) => void;
   onInvalid?: () => void;
 }>;
 
 export function DropZone({
-  accept,
   onFileDrop,
   onInvalid,
   disabled,
@@ -21,16 +19,16 @@ export function DropZone({
   return (
     <div
       className={cx($.container, active && $.isActive)}
-      onDrop={(ev) => {
+      onDrop={async (ev) => {
         ev.preventDefault();
         if (disabled) return;
         setActive(false);
 
         const file = ev.dataTransfer.items[0]?.getAsFile() ?? null;
         if (file) {
-          if (file.type === accept) {
-            onFileDrop(file);
-          } else {
+          try {
+            await onFileDrop(file);
+          } catch {
             onInvalid?.();
           }
         }
