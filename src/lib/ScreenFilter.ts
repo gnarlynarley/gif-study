@@ -85,62 +85,62 @@ export default class ScreenFilter {
     return canvas;
   }
 
-  cache = new WeakMap<ImageData, ImageData>();
+  cache = new WeakMap<ImageData, HTMLCanvasElement>();
 
-  apply(imageData: ImageData): ImageData {
-    if (!this.options.onionSkinEnabled) return imageData;
+  apply(imageData: ImageData): HTMLCanvasElement {
+    let result = this.cache.get(imageData);
 
-    let newData = this.cache.get(imageData);
+    if (result) return result;
 
-    if (!newData) {
-      const { frames } = this;
-      const {
-        onionSkinOpacity: opacity,
-        onionSkinSteps: steps,
-        onionSkinPrevColor: prevColor,
-        onionSkinNextColor: nextColor,
-        onionSkinEnabled: enabled,
-      } = this.options;
-      const { width, height } = imageData;
+    const { width, height } = imageData;
+    const destination = createCanvas(width, height);
 
-      const offscreen = createCanvas(width, height);
-      const destination = createCanvas(width, height);
-      const currentIndex = frames.findIndex(
-        (frame) => frame.data === imageData,
-      );
-
-      assert(currentIndex !== -1);
-
-      destination.context.drawImage(this.applyContrast(imageData), 0, 0);
-
-      for (let i = steps * -1; i < steps; i += 1) {
-        if (i === 0) i = 1;
-
-        const frame = frames.at(
-          (frames.length + i + currentIndex) % frames.length,
-        );
-        if (!frame) break;
-
-        destination.context.globalAlpha = opacity / Math.abs(i);
-        offscreen.context.drawImage(this.applyContrast(frame.data), 0, 0);
-        offscreen.context.globalCompositeOperation = "screen";
-        offscreen.context.fillStyle = i > 0 ? nextColor : prevColor;
-        offscreen.context.fillRect(0, 0, width, height);
-
-        destination.context.globalCompositeOperation = "multiply";
-        destination.context.drawImage(offscreen.canvas, 0, 0);
-
-        offscreen.context.clearRect(0, 0, width, height);
-      }
-
-      newData = destination.context.getImageData(0, 0, width, height);
-
-      offscreen.cleanup();
-      destination.cleanup();
-
-      this.cache.set(imageData, newData);
+    if (!this.options.onionSkinEnabled) {
+      destination.context.putImageData(imageData, 0, 0);
+      return destination.canvas;
     }
 
-    return newData;
+    const { frames } = this;
+    const {
+      onionSkinOpacity: opacity,
+      onionSkinSteps: steps,
+      onionSkinPrevColor: prevColor,
+      onionSkinNextColor: nextColor,
+      onionSkinEnabled: enabled,
+    } = this.options;
+
+    const offscreen = createCanvas(width, height);
+    const currentIndex = frames.findIndex((frame) => frame.data === imageData);
+
+    assert(currentIndex !== -1);
+
+    destination.context.drawImage(this.applyContrast(imageData), 0, 0);
+
+    for (let i = steps * -1; i < steps; i += 1) {
+      if (i === 0) i = 1;
+
+      const frame = frames.at(
+        (frames.length + i + currentIndex) % frames.length,
+      );
+      if (!frame) break;
+
+      destination.context.globalAlpha = opacity / Math.abs(i);
+      offscreen.context.drawImage(this.applyContrast(frame.data), 0, 0);
+      offscreen.context.globalCompositeOperation = "screen";
+      offscreen.context.fillStyle = i > 0 ? nextColor : prevColor;
+      offscreen.context.fillRect(0, 0, width, height);
+
+      destination.context.globalCompositeOperation = "multiply";
+      destination.context.drawImage(offscreen.canvas, 0, 0);
+
+      offscreen.context.clearRect(0, 0, width, height);
+    }
+
+    offscreen.cleanup();
+
+    result = destination.canvas;
+    this.cache.set(imageData, result);
+
+    return result;
   }
 }

@@ -10,7 +10,7 @@ export class TimelinePlayback {
   #reversedFrames: TimelineFrame[];
   currentTime = 0;
   totalTime: number;
-  currentFrame: TimelineFrame | null = null;
+  currentFrame: TimelineFrame | null;
   events = {
     timeChanged: new EventEmitter<number>(),
     frameChanged: new EventEmitter<TimelineFrame | null>(),
@@ -21,6 +21,8 @@ export class TimelinePlayback {
   };
 
   constructor(timeline: Timeline) {
+    if (timeline.frames.length === 0)
+      throw new Error("Timeline did not have any frames.");
     this.timeline = timeline;
     this.#reversedFrames = [...this.timeline.frames].reverse();
     this.loop = new GameLoop({
@@ -29,6 +31,7 @@ export class TimelinePlayback {
     });
     this.#updateFrame();
     this.totalTime = timeline.totalTime;
+    this.currentFrame = timeline.frames[0];
   }
 
   setTrimStart(value: number) {

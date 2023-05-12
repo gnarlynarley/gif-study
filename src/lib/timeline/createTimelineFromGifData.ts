@@ -19,6 +19,7 @@ export default function createTimelineFromGifData(gifData: GifData): Timeline {
 
   return {
     version: "1",
+    fileType: "gif",
     id: gifData.id,
     gifBlob: gifData.blob,
     frames,

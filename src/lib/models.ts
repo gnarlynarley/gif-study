@@ -1,5 +1,6 @@
 export interface Timeline {
-  version: '1',
+  version: "1";
+  fileType: "gif";
   id: string;
   gifBlob: Blob;
   frames: TimelineFrame[];
