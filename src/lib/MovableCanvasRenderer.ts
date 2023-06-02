@@ -40,7 +40,6 @@ export default class MovableCanvasRenderer {
       }
       if (this.#sizeInitialized === false) {
         this.#sizeInitialized = true;
-        console.log(this.frame);
         if (!this.frame) return;
         this.setZoom(
           clamp(

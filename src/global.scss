@@ -1,0 +1,87 @@
+@import "normalize.css";
+
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+}
+
+$spacing: 0.8em;
+$spacing--small: $spacing * 0.2;
+
+:root {
+  --color-background: lch(12% 0 0);
+  --color-muted-background: color-mix(
+    in lch,
+    var(--color-background),
+    white 10%
+  );
+  --color-text: #fff;
+  --color-accent: color-mix(in lch, var(--color-background), white 25%);
+  --color-muted-accent: color-mix(in lch, var(--color-accent), white 5%);
+  --color-error: #e74646;
+  --color-error-text: #fff;
+  --color-primary: #ffbb00;
+  --color-primary-text: #111;
+  --color-progress: #00c562;
+  --color-muted-progress: color-mix(in oklab, var(--color-progress), black 50%);
+
+  --spacing: #{$spacing};
+  --spacing--small: #{$spacing--small};
+  --border-width: 2px;
+  --border: var(--border-width) solid var(--color-progress);
+  --border-radius: 0.3em;
+  --drop-shadow: 0 1px 20em #{rgba(black, 0.8)};
+  --animation-speed: 150ms ease-in-out;
+}
+
+html {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  height: 100%;
+  background-image: linear-gradient(
+      var(--color-muted-background) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, var(--color-muted-background) 1px, transparent 1px);
+  background-size: 1.5em 1.5em;
+  background-position: center center;
+  font-size: 120%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+hr {
+  margin: var(--spacing) 0;
+  display: block;
+  border: none;
+  border-top: var(--border);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+label {
+  cursor: inherit;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: currentColor;
+}

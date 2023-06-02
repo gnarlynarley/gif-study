@@ -3,8 +3,8 @@
   align-items: flex-start;
   justify-content: space-between;
   position: relative;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--color-background);
+  color: var(--color-text);
   padding: var(--spacing);
   box-shadow: var(--drop-shadow);
   border-radius: var(--border-radius);
@@ -17,8 +17,8 @@
   }
 
   &.isError {
-    background-color: var(--error);
-    color: var(--error-ink);
+    background-color: var(--color-error);
+    color: var(--color-error-text);
   }
 
   &:not(.hasNoDuration)::after {
