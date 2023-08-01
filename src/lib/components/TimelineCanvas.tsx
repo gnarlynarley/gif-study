@@ -28,7 +28,9 @@ export function TimelineCanvas({ timelinePlayback }: Props) {
       screenFilterOptions,
       timelinePlayback.timeline,
     );
-  }, [screenFilterOptions, timelinePlayback]);
+  }, [screenFilterOptions, timelinePlayback.timeline]);
+
+  const playbackRef = React.useRef<MovableCanvasRenderer | null>(null);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,6 +43,7 @@ export function TimelineCanvas({ timelinePlayback }: Props) {
       canvas,
       frame,
     });
+    playbackRef.current = instance;
 
     timelinePlayback.events.frameChanged.on((frame) => {
       if (frame && filterRef.current) {
@@ -52,6 +55,15 @@ export function TimelineCanvas({ timelinePlayback }: Props) {
 
     return () => instance.destroy();
   }, [timelinePlayback]);
+
+  React.useEffect(() => {
+    const playback = playbackRef.current;
+    const fitler = filterRef.current;
+    if (!playback) return;
+    if (!fitler) return;
+    if (!timelinePlayback.currentFrame) return;
+    playback.setFrame(fitler.apply(timelinePlayback.currentFrame.data));
+  }, [screenFilterOptions]);
 
   const setZoom = (add: number) => {
     MovableCanvasRendererRef.current?.addZoom(add);
