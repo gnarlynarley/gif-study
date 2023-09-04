@@ -18,6 +18,20 @@
     height: calc(100% + #{$offset * 2});
     z-index: -1;
   }
+
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    border-radius: var(--border-radius);
+    width: 100%;
+    height: 100%;
+    border: var(--spacing) solid var(--color-muted-background);
+    pointer-events: none;
+  }
 }
 
 .progressWrapper {
