@@ -116,7 +116,6 @@ export default class MovableCanvasRenderer {
   };
 
   #handleZoom = (ev: WheelEvent) => {
-    ev.preventDefault();
     const delta = (ev.deltaY * -1) / 1000;
     this.addZoom(delta);
   };
