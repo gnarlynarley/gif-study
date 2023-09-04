@@ -1529,6 +1529,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ffmpeg/ffmpeg@npm:^0.12.6":
+  version: 0.12.6
+  resolution: "@ffmpeg/ffmpeg@npm:0.12.6"
+  dependencies:
+    "@ffmpeg/types": ^0.12.0
+  checksum: 81c01634f10d8c62690cf4680175d3e5d2b85abd0b390e6b909de18270f1a764a314121704263a84de82bd410ba6f560414a380820356bd3bbc55e1f5df3b04a
+  languageName: node
+  linkType: hard
+
+"@ffmpeg/types@npm:^0.12.0":
+  version: 0.12.1
+  resolution: "@ffmpeg/types@npm:0.12.1"
+  checksum: e83739687213f0ee96eb57d7279cf284abb3cb1c0868d53889d6b52e701ed6ddc6d62a7e24f47f19df4e7b9b6eeb981e7e87596c85e6c53cd7938cc036e1101d
+  languageName: node
+  linkType: hard
+
+"@ffmpeg/util@npm:^0.12.1":
+  version: 0.12.1
+  resolution: "@ffmpeg/util@npm:0.12.1"
+  checksum: 6de17789a3cbe912fec2ae1e5c0b710fb68a0a668789311bce8967f8468b0dd64335b96144eea71800fa8729d27468e0d54e4c8ef9c7fc35a99590116d3074f9
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -1803,13 +1826,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ndarray@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "@types/ndarray@npm:1.0.11"
-  checksum: b2f379d18da9f53ba776476be3f566ef55f06578db65e110b6b4590cd9915c5992129afca0a334571666079f881c92ad475f05b8e012afda31071a1d7a1ccd00
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:*":
   version: 20.4.5
   resolution: "@types/node@npm:20.4.5"
@@ -1840,7 +1856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.6":
+"@types/react-dom@npm:^18":
   version: 18.2.7
   resolution: "@types/react-dom@npm:18.2.7"
   dependencies:
@@ -1849,14 +1865,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.0.21":
-  version: 18.2.18
-  resolution: "@types/react@npm:18.2.18"
+"@types/react@npm:*, @types/react@npm:^18":
+  version: 18.2.21
+  resolution: "@types/react@npm:18.2.21"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 2e0d75de2b618e76780019e52478b1bec2b015a9187aea30f84518c0c3ddc639055bdfea50864aece937bad0cb0544d0100b80d30f5461e72fbc1c3c0be8b140
+  checksum: ffed203bfe7aad772b8286f7953305c9181ac3a8f27d3f5400fbbc2a8e27ca8e5bbff818ee014f39ca0d19d2b3bb154e5bdbec7e232c6f80b59069375aa78349
   languageName: node
   linkType: hard
 
@@ -3000,14 +3016,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "gif-study@workspace:."
   dependencies:
+    "@ffmpeg/ffmpeg": ^0.12.6
+    "@ffmpeg/util": ^0.12.1
     "@rollup/plugin-commonjs": ^25.0.3
     "@types/color": ^3.0.3
     "@types/file-saver": ^2.0.5
-    "@types/ndarray": ^1.0.11
     "@types/omggif": ^1.0.3
     "@types/pixelmatch": ^5.2.4
-    "@types/react": ^18.0.21
-    "@types/react-dom": ^18.0.6
+    "@types/react": ^18
+    "@types/react-dom": ^18
     "@vitejs/plugin-react": ^4.0.4
     color: ^4.2.3
     file-saver: ^2.0.5

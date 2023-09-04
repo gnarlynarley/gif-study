@@ -28,13 +28,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
+            ["@ffmpeg/ffmpeg", "npm:0.12.6"],\
+            ["@ffmpeg/util", "npm:0.12.1"],\
             ["@rollup/plugin-commonjs", "virtual:5634bdeca2e45255fbbe7ea60338904b946e9ae4a163b6830850c5654c549ca4273068e00ef5ea019614ede76292aaf0e9d6e3f5f5c866446789ae57114fb193#npm:25.0.3"],\
             ["@types/color", "npm:3.0.3"],\
             ["@types/file-saver", "npm:2.0.5"],\
-            ["@types/ndarray", "npm:1.0.11"],\
             ["@types/omggif", "npm:1.0.3"],\
             ["@types/pixelmatch", "npm:5.2.4"],\
-            ["@types/react", "npm:18.2.18"],\
+            ["@types/react", "npm:18.2.21"],\
             ["@types/react-dom", "npm:18.2.7"],\
             ["@vitejs/plugin-react", "virtual:5634bdeca2e45255fbbe7ea60338904b946e9ae4a163b6830850c5654c549ca4273068e00ef5ea019614ede76292aaf0e9d6e3f5f5c866446789ae57114fb193#npm:4.0.4"],\
             ["color", "npm:4.2.3"],\
@@ -2646,6 +2647,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@ffmpeg/ffmpeg", [\
+        ["npm:0.12.6", {\
+          "packageLocation": "./.yarn/cache/@ffmpeg-ffmpeg-npm-0.12.6-17be683ced-81c01634f1.zip/node_modules/@ffmpeg/ffmpeg/",\
+          "packageDependencies": [\
+            ["@ffmpeg/ffmpeg", "npm:0.12.6"],\
+            ["@ffmpeg/types", "npm:0.12.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@ffmpeg/types", [\
+        ["npm:0.12.1", {\
+          "packageLocation": "./.yarn/cache/@ffmpeg-types-npm-0.12.1-138c65938e-e837396872.zip/node_modules/@ffmpeg/types/",\
+          "packageDependencies": [\
+            ["@ffmpeg/types", "npm:0.12.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@ffmpeg/util", [\
+        ["npm:0.12.1", {\
+          "packageLocation": "./.yarn/cache/@ffmpeg-util-npm-0.12.1-f6f14a29c4-6de17789a3.zip/node_modules/@ffmpeg/util/",\
+          "packageDependencies": [\
+            ["@ffmpeg/util", "npm:0.12.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@isaacs/cliui", [\
         ["npm:8.0.2", {\
           "packageLocation": "./.yarn/cache/@isaacs-cliui-npm-8.0.2-f4364666d5-4a473b9b32.zip/node_modules/@isaacs/cliui/",\
@@ -3020,15 +3049,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
-      ["@types/ndarray", [\
-        ["npm:1.0.11", {\
-          "packageLocation": "./.yarn/cache/@types-ndarray-npm-1.0.11-0bb4af065a-b2f379d18d.zip/node_modules/@types/ndarray/",\
-          "packageDependencies": [\
-            ["@types/ndarray", "npm:1.0.11"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
       ["@types/node", [\
         ["npm:20.4.5", {\
           "packageLocation": "./.yarn/cache/@types-node-npm-20.4.5-7555fad0d4-36a0304a8d.zip/node_modules/@types/node/",\
@@ -3067,10 +3087,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/react", [\
-        ["npm:18.2.18", {\
-          "packageLocation": "./.yarn/cache/@types-react-npm-18.2.18-cb58ec5c01-2e0d75de2b.zip/node_modules/@types/react/",\
+        ["npm:18.2.21", {\
+          "packageLocation": "./.yarn/cache/@types-react-npm-18.2.21-c50bc2f785-ffed203bfe.zip/node_modules/@types/react/",\
           "packageDependencies": [\
-            ["@types/react", "npm:18.2.18"],\
+            ["@types/react", "npm:18.2.21"],\
             ["@types/prop-types", "npm:15.7.5"],\
             ["@types/scheduler", "npm:0.16.3"],\
             ["csstype", "npm:3.1.2"]\
@@ -3083,7 +3103,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-react-dom-npm-18.2.7-a20ba684a5-e02ea90828.zip/node_modules/@types/react-dom/",\
           "packageDependencies": [\
             ["@types/react-dom", "npm:18.2.7"],\
-            ["@types/react", "npm:18.2.18"]\
+            ["@types/react", "npm:18.2.21"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -4358,13 +4378,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["gif-study", "workspace:."],\
+            ["@ffmpeg/ffmpeg", "npm:0.12.6"],\
+            ["@ffmpeg/util", "npm:0.12.1"],\
             ["@rollup/plugin-commonjs", "virtual:5634bdeca2e45255fbbe7ea60338904b946e9ae4a163b6830850c5654c549ca4273068e00ef5ea019614ede76292aaf0e9d6e3f5f5c866446789ae57114fb193#npm:25.0.3"],\
             ["@types/color", "npm:3.0.3"],\
             ["@types/file-saver", "npm:2.0.5"],\
-            ["@types/ndarray", "npm:1.0.11"],\
             ["@types/omggif", "npm:1.0.3"],\
             ["@types/pixelmatch", "npm:5.2.4"],\
-            ["@types/react", "npm:18.2.18"],\
+            ["@types/react", "npm:18.2.21"],\
             ["@types/react-dom", "npm:18.2.7"],\
             ["@vitejs/plugin-react", "virtual:5634bdeca2e45255fbbe7ea60338904b946e9ae4a163b6830850c5654c549ca4273068e00ef5ea019614ede76292aaf0e9d6e3f5f5c866446789ae57114fb193#npm:4.0.4"],\
             ["color", "npm:4.2.3"],\
@@ -5895,7 +5916,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/__virtual__/react-dom-virtual-3014768f18/0/cache/react-dom-npm-18.2.0-dd675bca1c-7d323310be.zip/node_modules/react-dom/",\
           "packageDependencies": [\
             ["react-dom", "virtual:5634bdeca2e45255fbbe7ea60338904b946e9ae4a163b6830850c5654c549ca4273068e00ef5ea019614ede76292aaf0e9d6e3f5f5c866446789ae57114fb193#npm:18.2.0"],\
-            ["@types/react", "npm:18.2.18"],\
+            ["@types/react", "npm:18.2.21"],\
             ["loose-envify", "npm:1.4.0"],\
             ["react", "npm:18.2.0"],\
             ["scheduler", "npm:0.23.0"]\
@@ -6901,7 +6922,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/__virtual__/use-sync-external-store-virtual-01709176dc/0/cache/use-sync-external-store-npm-1.2.0-44f75d2564-5c639e0f8d.zip/node_modules/use-sync-external-store/",\
           "packageDependencies": [\
             ["use-sync-external-store", "virtual:90be59645583e569d2b40b737685be7c1afdccacb6ae6515d31eb15ee30ec557295af6df14c1dba14a550749daa02eda1dfce1ff6558a87ab7ae475e82872430#npm:1.2.0"],\
-            ["@types/react", "npm:18.2.18"],\
+            ["@types/react", "npm:18.2.21"],\
             ["react", "npm:18.2.0"]\
           ],\
           "packagePeers": [\
@@ -7361,7 +7382,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["zustand", "virtual:5634bdeca2e45255fbbe7ea60338904b946e9ae4a163b6830850c5654c549ca4273068e00ef5ea019614ede76292aaf0e9d6e3f5f5c866446789ae57114fb193#npm:4.4.0"],\
             ["@types/immer", null],\
-            ["@types/react", "npm:18.2.18"],\
+            ["@types/react", "npm:18.2.21"],\
             ["immer", null],\
             ["react", "npm:18.2.0"],\
             ["use-sync-external-store", "virtual:90be59645583e569d2b40b737685be7c1afdccacb6ae6515d31eb15ee30ec557295af6df14c1dba14a550749daa02eda1dfce1ff6558a87ab7ae475e82872430#npm:1.2.0"]\
