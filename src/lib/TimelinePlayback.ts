@@ -31,7 +31,7 @@ export class TimelinePlayback {
     });
     this.#updateFrame();
     this.totalTime = timeline.totalTime;
-    this.currentFrame = timeline.frames[0];
+    this.currentFrame = timeline.frames[0] ?? null;
   }
 
   setTrimStart(value: number) {
@@ -82,8 +82,8 @@ export class TimelinePlayback {
   };
 
   #setFrame = (frame: TimelineFrame | null) => {
-    if (this.currentFrame !== frame) {
-      this.events.frameChanged.emit(this.currentFrame);
+    if (this.currentFrame?.index !== frame?.index) {
+      this.events.frameChanged.emit(frame);
     }
     this.currentFrame = frame;
   };
