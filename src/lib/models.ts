@@ -11,20 +11,6 @@ export interface Timeline {
   trimEnd: number;
 }
 
-export interface GifFrame {
-  id: string;
-  data: ImageData;
-  delay: number;
-}
-
-export interface GifData {
-  id: string;
-  blob: Blob;
-  frames: GifFrame[];
-  width: number;
-  height: number;
-}
-
 export interface TimelineFrame {
   id: string;
   data: ImageData;

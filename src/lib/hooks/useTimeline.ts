@@ -6,8 +6,7 @@ import {
 } from "zustand/middleware";
 import localforage from "localforage";
 import type { Timeline } from "../models";
-import createGifDatafromBlob from "../timeline/createGifDatafromBlob";
-import createTimelineFromGifData from "../timeline/createTimelineFromGifData";
+import createTimelineFromGifBlob from "../timeline/createTimelineFromGifBlob";
 import debounce from "../utils/debounce";
 import React from "react";
 import TimelinePlayback from "../TimelinePlayback";
@@ -74,8 +73,7 @@ const useTimeline = create<UseTimelineValue, MiddleWareType>(
           try {
             if (file) {
               set({ pending: true });
-              const gifData = await createGifDatafromBlob(file);
-              const timeline = createTimelineFromGifData(gifData);
+              const timeline = await createTimelineFromGifBlob(file);
               set({ timeline });
             } else {
               set({ timeline: null });
