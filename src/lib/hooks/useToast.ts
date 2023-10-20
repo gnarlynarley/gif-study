@@ -1,29 +1,33 @@
-import { create } from "zustand";
 import { ToastMessage } from "../models";
 import { createId } from "../utils/createId";
+import { createStore } from "../utils/store";
+import useStore from "./useStore";
 
-interface UseToastValue {
-  toasts: ToastMessage[];
-  removeToast(id: ToastMessage["id"]): void;
-  addToast(
+const store = createStore<ToastMessage[]>([]);
+
+const useToast = () => {
+  const [toasts, setToasts] = useStore(store);
+
+  function removeToast(id: ToastMessage["id"]) {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }
+
+  function addToast(
     message: ToastMessage["message"],
-    type?: ToastMessage["type"],
-    duration?: ToastMessage["duration"],
-  ): void;
-}
+    type: ToastMessage["type"] = "message",
+    duration: ToastMessage["duration"] = 5000,
+  ) {
+    setToasts((prev) =>
+      prev.concat({
+        id: createId(),
+        message,
+        type,
+        duration,
+      }),
+    );
+  }
 
-const useToast = create<UseToastValue>((set, get) => ({
-  toasts: [],
-  removeToast(id: ToastMessage["id"]) {
-    set({
-      toasts: get().toasts.filter((toast) => toast.id !== id),
-    });
-  },
-  addToast(message, type = "message", duration = 5000) {
-    set({
-      toasts: get().toasts.concat({ id: createId(), message, type, duration }),
-    });
-  },
-}));
+  return { toasts, removeToast, addToast };
+};
 
 export default useToast;

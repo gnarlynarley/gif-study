@@ -30,9 +30,7 @@ type Props = {
 };
 
 export function TimelineControlBar({ timelinePlayback }: Props) {
-  const timeline = useTimeline((s) => s.timeline);
-  const timelinePending = useTimeline((s) => s.pending);
-  const setTimelineFile = useTimeline((s) => s.setFile);
+  const { timeline, pending, setFile } = useTimeline();
   const screenFilterOptions = useScreenFilterOptions();
   const [playing, setPlaying] = React.useState(false);
   const [speed, setSpeed] = React.useState(timelinePlayback?.speed ?? 1);
@@ -63,7 +61,7 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
   };
 
   const regenerateFrames = () => {
-    setTimelineFile(timeline?.gifBlob ?? null);
+    setFile(timeline?.gifBlob ?? null);
   };
 
   useKeyboard("k", togglePlay);
@@ -78,10 +76,10 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
     <Panel>
       <div className={$.container}>
         <FileInput
-          disabled={timelinePending}
+          disabled={pending}
           accept="image/gif"
           label="Open gif"
-          onFile={setTimelineFile}
+          onFile={setFile}
         />
 
         {timelinePlayback && (
@@ -147,9 +145,7 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
               >
                 download frames
               </Button>
-              <Button onClick={() => setTimelineFile(null)}>
-                clear frames
-              </Button>
+              <Button onClick={() => setFile(null)}>clear frames</Button>
               <Button onClick={regenerateFrames}>regenerate frames</Button>
             </>
 

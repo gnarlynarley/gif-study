@@ -1,6 +1,6 @@
 export type EventEmitterHandler<T> = (value: T) => void;
 
-export class EventEmitter<T> {
+export class EventEmitter<T = void> {
   handlers = new Set<EventEmitterHandler<T>>();
 
   on = (handler: EventEmitterHandler<T>) => {

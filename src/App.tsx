@@ -10,7 +10,7 @@ import LoadingIndicator from "./lib/components/LoadingIndicator";
 import $ from "./App.module.scss";
 
 const Toasts: React.FC = React.memo(() => {
-  const toasts = useToast((s) => s.toasts);
+  const { toasts } = useToast();
 
   return (
     <div className={$.toasts}>
@@ -23,17 +23,12 @@ const Toasts: React.FC = React.memo(() => {
 
 export default function App() {
   usePwaUpdate();
-  const timelinePending = useTimeline((s) => s.pending);
+  const { pending, setFile } = useTimeline();
   const timelinePlayback = useTimelinePlayback();
-  const setTimelineFile = useTimeline((s) => s.setFile);
 
   return (
-    <DropZone
-      accept="image/gif"
-      disabled={timelinePending}
-      onFileDrop={setTimelineFile}
-    >
-      {timelinePending && (
+    <DropZone accept="image/gif" disabled={pending} onFileDrop={setFile}>
+      {pending && (
         <span className={$.loading}>
           <span>Loading gif</span>
           <LoadingIndicator />
@@ -55,7 +50,7 @@ export default function App() {
           </div>
         )}
 
-        <Toasts />
+        {/* <Toasts /> */}
       </div>
     </DropZone>
   );

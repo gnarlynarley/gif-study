@@ -1,15 +1,12 @@
-import { create } from "zustand";
-import {
-  persist,
-  type PersistStorage,
-  type StorageValue,
-} from "zustand/middleware";
-import localforage from "localforage";
-import type { Timeline } from "../models";
+import { type Timeline } from "../models";
 import createTimelineFromGifBlob from "../timeline/createTimelineFromGifBlob";
-import debounce from "../utils/debounce";
 import React from "react";
 import TimelinePlayback from "../TimelinePlayback";
+import { createStore, createPersistedStore } from "../utils/store";
+import useStore from "./useStore";
+
+const timelineStore = createPersistedStore<Timeline | null>("timeline", null);
+const pendingStore = createStore<boolean>(false);
 
 interface UseTimelineValue {
   timeline: Timeline | null;
@@ -17,28 +14,9 @@ interface UseTimelineValue {
   setFile(file: Blob | null): Promise<void>;
   setTimeline: (timeline: Timeline | null) => void;
 }
-type PersistedTimelineValue = Pick<UseTimelineValue, "timeline">;
-type MiddleWareType = [["zustand/persist", PersistedTimelineValue]];
-
-function createLocalforageStorage<T = any>(): PersistStorage<T> {
-  return {
-    getItem: async (name) => {
-      const state = await localforage.getItem<StorageValue<T>>(name);
-      if (!state) return null;
-      return state;
-    },
-    removeItem: async (name) => {
-      await localforage.removeItem(name);
-    },
-    setItem: debounce(async (name, value) => {
-      await localforage.setItem(name, value);
-    }, 500),
-  };
-}
 
 export const useTimelinePlayback = () => {
-  const timeline = useTimeline((s) => s.timeline);
-  const setTimeline = useTimeline((s) => s.setTimeline);
+  const { timeline, setTimeline } = useTimeline();
   const [timelinePlayback, setTimelinePlayback] =
     React.useState<TimelinePlayback | null>(null);
 
@@ -60,41 +38,23 @@ export const useTimelinePlayback = () => {
   return timelinePlayback;
 };
 
-const useTimeline = create<UseTimelineValue, MiddleWareType>(
-  persist(
-    (set, get) => {
-      return {
-        timeline: null,
-        pending: false,
-        setTimeline(timeline) {
-          set({ timeline });
-        },
-        async setFile(file: Blob | null) {
-          try {
-            if (file) {
-              set({ pending: true });
-              const timeline = await createTimelineFromGifBlob(file);
-              set({ timeline });
-            } else {
-              set({ timeline: null });
-            }
-          } finally {
-            set({ pending: false });
-          }
-        },
-      };
-    },
-    {
-      name: "timeline",
-      version: 2,
-      storage: createLocalforageStorage(),
-      partialize(state) {
-        return {
-          timeline: state.timeline,
-        };
-      },
-    },
-  ),
-);
+const useTimeline = (): UseTimelineValue => {
+  const [timeline, setTimeline] = useStore(timelineStore);
+  const [pending, setPending] = useStore(pendingStore);
+  const setFile = async (file: Blob | null) => {
+    try {
+      if (file) {
+        setPending(true);
+        setTimeline(await createTimelineFromGifBlob(file));
+      } else {
+        setTimeline(null);
+      }
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return { timeline, pending, setFile, setTimeline };
+};
 
 export default useTimeline;
