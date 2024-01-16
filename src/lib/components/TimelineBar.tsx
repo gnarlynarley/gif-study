@@ -6,10 +6,9 @@ import setMoveEvent, { type MoveEvent } from "../utils/setMoveEvent";
 import { ImageDataCanvas } from "./ImageDataCanvas";
 import { cx } from "../utils/joinClassNames";
 import clamp from "../utils/clamp";
-import $ from "./TimelineBar.module.scss";
 import Panel from "./Panel";
-
-const FRAMES_PER_SECOND = 24;
+import formatDuration from "../utils/formatDuration";
+import $ from "./TimelineBar.module.scss";
 
 type TimelineProps = {
   timelinePlayback: TimelinePlayback;
@@ -29,7 +28,7 @@ const Frames: React.FC<{
             style={{ width: `${(frame.duration / totalTime) * 100}%` }}
           >
             <span className={$.frameText}>
-              {Math.floor(frame.duration / FRAMES_PER_SECOND)}
+              {formatDuration(frame.duration)}
             </span>
           </div>
         );
@@ -163,7 +162,6 @@ function Progress({
             className={$.trimHandle}
             style={{
               left: `${(trimStart / totalTime) * 100}%`,
-              background: "red",
             }}
           >
             <span />

@@ -23,6 +23,7 @@ import useScreenFilterOptions from "../hooks/useScreenFilterOptions";
 import Panel from "./Panel";
 import useTimeline from "../hooks/useTimeline";
 import useFullscreen from "../hooks/useFullscreen";
+import formatDuration from "../utils/formatDuration";
 import $ from "./TimelineControlBar.module.scss";
 
 type Props = {
@@ -120,6 +121,14 @@ export function TimelineControlBar({ timelinePlayback }: Props) {
             <FullscreenOpenIcon />
           )}
         </IconButton>
+
+        <span className={$.divider} />
+
+        {timeline && (
+          <div className={$.info}>
+            <span>Total duration: {formatDuration(timeline.totalTime)}</span>
+          </div>
+        )}
 
         <span className={$.push} />
 

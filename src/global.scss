@@ -24,7 +24,7 @@ $spacing--small: $spacing * 0.2;
   --color-primary: #ffbb00;
   --color-primary-text: #111;
   --color-progress: #00c562;
-  --color-muted-progress: color-mix(in oklab, var(--color-progress), black 50%);
+  --color-muted-progress: color-mix(in oklab, var(--color-progress), black 30%);
 
   --spacing: #{$spacing};
   --spacing--small: #{$spacing--small};
