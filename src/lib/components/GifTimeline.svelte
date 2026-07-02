@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { ParsedGifFrame } from '$lib/types';
-  import GifFrameCanvas from './GifFrameCanvas.svelte';
+  import type { ParsedGifFrame } from "$lib/types";
+  import GifFrameCanvas from "./GifFrameCanvas.svelte";
 
   type Props = {
     frames: ParsedGifFrame[];
@@ -9,13 +9,13 @@
 
   let { frames, currentIndex = $bindable() }: Props = $props();
   let framesWrapper = $state<HTMLDivElement | null>(null);
-  let frameNodes = $derived(framesWrapper?.querySelectorAll('.frame'));
+  let frameNodes = $derived(framesWrapper?.querySelectorAll(".frame"));
 
   $effect(() => {
     if (!frameNodes) return;
     const element = frameNodes[currentIndex];
     if (!element) return;
-    element.scrollIntoView({ behavior: 'instant', inline: 'center' });
+    element.scrollIntoView({ behavior: "instant", inline: "nearest" });
   });
 </script>
 
@@ -33,6 +33,7 @@
       >
         <GifFrameCanvas {frame} />
         <p class="delay">{frame.delay}</p>
+        <p class="index">{index}</p>
       </button>
     {/each}
   </div>
@@ -62,16 +63,25 @@
     border: 1px solid transparent;
     background: transparent;
 
+    .index,
     .delay {
       position: absolute;
-      top: 0;
-      right: 0;
       z-index: 1;
       font-size: 0.5em;
       line-height: 1;
       display: inline-block;
       padding: var(--spacing-sm);
       background: var(--color-background);
+    }
+
+    .delay {
+      top: 0;
+      right: 0;
+    }
+
+    .index {
+      bottom: 0;
+      left: 0;
     }
 
     :global(canvas) {
@@ -86,7 +96,7 @@
       border-color: var(--color-primary);
 
       &::after {
-        content: '';
+        content: "";
         display: block;
         position: absolute;
         top: 0;

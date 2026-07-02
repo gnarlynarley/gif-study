@@ -1,5 +1,10 @@
 <script lang="ts">
-  import type { ParsedGifFrame, Point, SketchTool } from '$lib/types';
+  import type {
+    ParsedGifFrame,
+    Point,
+    PointerEvent,
+    SketchTool,
+  } from "$lib/types";
 
   type Props = {
     frame: ParsedGifFrame;
@@ -21,10 +26,13 @@
 
   const { width, height, sketchCanvas } = $derived(frame);
   let canvas = $state<HTMLCanvasElement | null>(null);
-  const context = $derived(canvas?.getContext('2d') ?? null);
+  const context = $derived(canvas?.getContext("2d") ?? null);
   let cursorCanvas = $state<HTMLCanvasElement | null>(null);
-  const cursorContext = $derived(cursorCanvas?.getContext('2d') ?? null);
-  const toolSize = $derived(tool === 'brush' ? brushSize : eraserSize);
+  const cursorContext = $derived(cursorCanvas?.getContext("2d") ?? null);
+  const toolSize = $derived(tool === "brush" ? brushSize : eraserSize);
+  let pointerActive = false;
+  let lastPoint: Point | null = null;
+  let cursorPoint = $state<Point | null>(null);
 
   $effect(() => {
     if (!context) return;
@@ -32,7 +40,7 @@
     context.drawImage(sketchCanvas, 0, 0);
   });
 
-  const getPoint = (ev: PointerEvent, canvas: HTMLCanvasElement): Point => {
+  const getPoint = (ev: Point, canvas: HTMLCanvasElement): Point => {
     const rect = canvas.getBoundingClientRect();
 
     const scale = Math.min(
@@ -42,8 +50,8 @@
     const offsetX = (rect.width - canvas.width * scale) / 2;
     const offsetY = (rect.height - canvas.height * scale) / 2;
 
-    const x = (ev.clientX - rect.left - offsetX) / scale;
-    const y = (ev.clientY - rect.top - offsetY) / scale;
+    const x = (ev.x - rect.left - offsetX) / scale;
+    const y = (ev.y - rect.top - offsetY) / scale;
 
     return { x, y, scale };
   };
@@ -52,16 +60,61 @@
     point: Point,
     context: CanvasRenderingContext2D,
     effectiveBrushSize: number,
-    color: string,
   ) => {
+    context.save();
+    if (tool === "eraser") {
+      context.globalCompositeOperation = "destination-out";
+    }
     context.fillStyle = color;
     context.beginPath();
     context.arc(point.x, point.y, effectiveBrushSize / 2, 0, Math.PI * 2);
     context.fill();
+    context.restore();
   };
 
-  let pointerActive = false;
-  let lastPoint: Point | null = null;
+  const renderCursor = () => {
+    if (!(cursorContext && cursorCanvas && cursorPoint)) return;
+    const point = getPoint(cursorPoint, cursorCanvas);
+    const effectiveBrushSize = toolSize / point.scale;
+
+    cursorContext.save();
+    cursorContext.fillStyle = "black";
+    cursorContext.fillRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+    cursorContext.clearRect(
+      1,
+      1,
+      cursorCanvas.width - 2,
+      cursorCanvas.height - 2,
+    );
+
+    cursorContext.beginPath();
+    cursorContext.arc(point.x, point.y, effectiveBrushSize / 2, 0, Math.PI * 2);
+    if (tool === "brush") {
+      cursorContext.fillStyle = color;
+      cursorContext.fill();
+    }
+    cursorContext.strokeStyle = "black";
+    cursorContext.lineWidth = 2;
+    cursorContext.stroke();
+    cursorContext.restore();
+  };
+
+  $effect(() => {
+    let id = requestAnimationFrame(function queue() {
+      renderCursor();
+      id = requestAnimationFrame(queue);
+    });
+
+    return () => {
+      cancelAnimationFrame(id);
+    };
+  });
+
+  const updateSketchCanvas = () => {
+    if (!canvas) return;
+    frame.sketchContext.clearRect(0, 0, width, height);
+    frame.sketchContext.drawImage(canvas, 0, 0);
+  };
 
   const onpointerdown = (ev: PointerEvent) => {
     if (!canvas) return;
@@ -69,39 +122,27 @@
     pointerActive = true;
     playing = false;
 
-    lastPoint = getPoint(ev, canvas);
+    cursorPoint = { x: ev.clientX, y: ev.clientY, scale: 1 };
+    lastPoint = getPoint(cursorPoint, canvas);
     const effectiveBrushSize = toolSize / lastPoint.scale;
 
-    drawPoint(lastPoint, context, effectiveBrushSize, color);
+    drawPoint(lastPoint, context, effectiveBrushSize);
+    updateSketchCanvas();
   };
+
   const onpointerup = () => {
     pointerActive = false;
     lastPoint = null;
   };
 
   const onpointermove = (ev: PointerEvent) => {
+    cursorPoint = { x: ev.clientX, y: ev.clientY, scale: 1 };
+    playing = false;
+
     if (!canvas) return;
 
-    const point = getPoint(ev, canvas);
-    const effectiveBrushSize = toolSize / point.scale;
-
-    if (cursorContext) {
-      cursorContext.fillStyle = 'black';
-      cursorContext.fillRect(0, 0, width, height);
-      cursorContext.clearRect(1, 1, width - 2, height - 2);
-      cursorContext.fillStyle = tool === 'brush' ? 'black' : 'white';
-      cursorContext.beginPath();
-      cursorContext.arc(
-        point.x,
-        point.y,
-        effectiveBrushSize / 2,
-        0,
-        Math.PI * 2,
-      );
-      cursorContext.fill();
-      cursorContext.lineWidth = 2;
-      cursorContext.stroke();
-    }
+    const sketchPoint = getPoint(cursorPoint, canvas);
+    const effectiveBrushSize = toolSize / sketchPoint.scale;
 
     if (!pointerActive) return;
     if (!canvas) return;
@@ -109,31 +150,27 @@
 
     context.save();
 
-    playing = false;
-
-    if (tool === 'eraser') {
-      context.globalCompositeOperation = 'destination-out';
+    if (tool === "eraser") {
+      context.globalCompositeOperation = "destination-out";
     }
 
     if (lastPoint) {
-      drawPoint(lastPoint, context, effectiveBrushSize, color);
+      drawPoint(lastPoint, context, effectiveBrushSize);
 
       context.strokeStyle = color;
       context.lineWidth = effectiveBrushSize;
       context.beginPath();
       context.moveTo(lastPoint.x, lastPoint.y);
-      context.lineTo(point.x, point.y);
+      context.lineTo(sketchPoint.x, sketchPoint.y);
       context.stroke();
     }
 
-    drawPoint(point, context, effectiveBrushSize, color);
-
-    lastPoint = point;
-
-    frame.sketchContext.clearRect(0, 0, width, height);
-    frame.sketchContext.drawImage(canvas, 0, 0);
+    drawPoint(sketchPoint, context, effectiveBrushSize);
 
     context.restore();
+
+    lastPoint = sketchPoint;
+    updateSketchCanvas();
   };
 </script>
 
@@ -145,7 +182,12 @@
   role="application"
 >
   <canvas bind:this={canvas} {width} {height}></canvas>
-  <canvas class="cursorCanvas" bind:this={cursorCanvas} {width} {height}>
+  <canvas
+    class="cursorCanvas"
+    bind:this={cursorCanvas}
+    width={width * 2}
+    height={height * 2}
+  >
   </canvas>
 </div>
 

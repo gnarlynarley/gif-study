@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { unloadGif } from '$lib/stores/gif.svelte';
-  import type { SketchTool } from '$lib/types';
-  import clamp from '$lib/utils/clamp';
+  import { unloadGif } from "$lib/stores/gif.svelte";
+  import type { SketchTool } from "$lib/types";
+  import clamp from "$lib/utils/clamp";
   import {
     BrushIcon,
     EraserIcon,
@@ -9,10 +9,10 @@
     PauseIcon,
     DoorOpenIcon,
     DownloadIcon,
-  } from '@lucide/svelte';
-  import Tooltip from './Tooltip.svelte';
-  import { settings } from '$lib/stores/settings.svelte';
-  import normalizeKey from '$lib/utils/normalizeKey';
+  } from "@lucide/svelte";
+  import Tooltip from "./Tooltip.svelte";
+  import { settings } from "$lib/stores/settings.svelte";
+  import normalizeKey from "$lib/utils/normalizeKey";
 
   type Props = {
     playing: boolean;
@@ -47,6 +47,18 @@
     playing = !playing;
   }
 
+  function adjustBrushSize(amount: 1 | -1) {
+    if (tool === "brush") {
+      brushSize = clamp(MIN_BRUSH_SIZE, MAX_BRUSH_SIZE, brushSize + amount * 5);
+    } else {
+      eraserSize = clamp(
+        MIN_ERASER_SIZE,
+        MAX_ERASER_SIZE,
+        eraserSize + amount * 5,
+      );
+    }
+  }
+
   function onkeydown(ev: KeyboardEvent) {
     switch (normalizeKey(ev.key)) {
       case $settings.keybinds.togglePlaying: {
@@ -54,11 +66,19 @@
         break;
       }
       case $settings.keybinds.brush: {
-        tool = 'brush';
+        tool = "brush";
         break;
       }
       case $settings.keybinds.eraser: {
-        tool = 'eraser';
+        tool = "eraser";
+        break;
+      }
+      case $settings.keybinds.increaseBrushSize: {
+        adjustBrushSize(1);
+        break;
+      }
+      case $settings.keybinds.decreaseBrushSize: {
+        adjustBrushSize(-1);
         break;
       }
     }
@@ -69,7 +89,7 @@
 
 <div class="wrapper">
   <Tooltip
-    label={`${playing ? 'Pause' : 'Play'} (${$settings.keybinds.togglePlaying})`}
+    label={`${playing ? "Pause" : "Play"} (${$settings.keybinds.togglePlaying})`}
   >
     <button class="button" type="button" onclick={togglePlaying}>
       {#if playing}
@@ -85,10 +105,10 @@
   <Tooltip label={`Brush tool (${$settings.keybinds.brush})`}>
     <button
       class="button"
-      class:is-active={tool === 'brush'}
+      class:is-active={tool === "brush"}
       type="button"
       onclick={() => {
-        tool = 'brush';
+        tool = "brush";
       }}
     >
       <BrushIcon />
@@ -98,10 +118,10 @@
   <Tooltip label={`Eraser tool (${$settings.keybinds.eraser})`}>
     <button
       class="button"
-      class:is-active={tool === 'eraser'}
+      class:is-active={tool === "eraser"}
       type="button"
       onclick={() => {
-        tool = 'eraser';
+        tool = "eraser";
       }}
     >
       <EraserIcon />
@@ -111,7 +131,7 @@
   <Tooltip label={`Toggle color picker`}>
     <button
       class="button"
-      class:is-active={tool === 'eraser'}
+      class:is-active={tool === "eraser"}
       type="button"
       style={`--color: ${color}`}
       onclick={() => {
@@ -123,7 +143,7 @@
     </button>
   </Tooltip>
 
-  {#if tool === 'brush'}
+  {#if tool === "brush"}
     <Tooltip label="Brush size">
       <input
         type="range"
@@ -165,7 +185,7 @@
       class="button"
       type="button"
       onclick={() => {
-        const clear = window.confirm('Do you want to exit?');
+        const clear = window.confirm("Do you want to exit?");
         if (clear) {
           unloadGif();
         }
@@ -228,7 +248,7 @@
     opacity: 0.2;
   }
 
-  input[type='range'] {
+  input[type="range"] {
     writing-mode: vertical-lr;
     direction: rtl;
     vertical-align: middle;

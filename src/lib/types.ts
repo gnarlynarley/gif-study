@@ -17,7 +17,7 @@ export type ParsedGifFrame = {
 
 export type Point = { x: number; y: number; scale: number };
 
-export type SketchTool = 'brush' | 'eraser';
+export type SketchTool = "brush" | "eraser";
 
 export type Settings = {
   keybinds: {
@@ -26,5 +26,9 @@ export type Settings = {
     eraser: string;
     nextFrame: string;
     prevFrame: string;
+    increaseBrushSize: string;
+    decreaseBrushSize: string;
   };
 };
+
+export type PointerEvent = { clientX: number; clientY: number };
