@@ -31,7 +31,7 @@
   let eraserSize = $state(20);
   let tool = $state<SketchTool>('brush');
   let color = $state('#000000');
-  let colorPickerActive = $state(true);
+  let colorPickerActive = $state(false);
 
   $effect(() => {
     if (!playing) return;
