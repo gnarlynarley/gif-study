@@ -1,4 +1,4 @@
-@import '@fontsource-variable/roboto/wght.css';
+@import "@fontsource-variable/roboto/wght.css";
 
 *,
 *::after,
@@ -19,19 +19,19 @@
   --color-accent: color-mix(
     in oklch,
     var(--color-background),
-    var(--color-text) 5%
+    var(--color-text) 10%
   );
 
   accent-color: var(--color-primary);
 }
 
 html {
-  font-size: 140%;
+  font-size: 120%;
 }
 
 body {
   margin: 0;
-  font-family: 'Roboto Variable', sans-serif;
+  font-family: "Roboto Variable", sans-serif;
   min-height: 100dvh;
   display: flex;
   align-items: center;

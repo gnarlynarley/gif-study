@@ -1,7 +1,23 @@
-import type { ParsedGif, ParsedGifFrame } from '$lib/types';
-import { parseGIF, decompressFrames } from 'gifuct-js';
-import createCanvas from './createCanvas';
-import getFilename from './getFilename';
+import type { ParsedGif, ParsedGifFrame } from "$lib/types";
+import { parseGIF, decompressFrames } from "gifuct-js";
+import createCanvas from "./createCanvas";
+import getFilename from "./getFilename";
+
+function imageDataEquals(a: ImageData, b: ImageData): boolean {
+  const aPixels = new Uint32Array(a.data.buffer);
+  const bPixels = new Uint32Array(b.data.buffer);
+
+  for (let i = 0; i < aPixels.length; i++) {
+    if (aPixels[i] === bPixels[i]) continue;
+
+    const aAlpha = a.data[i * 4 + 3];
+    const bAlpha = b.data[i * 4 + 3];
+    if (aAlpha === 0 && bAlpha === 0) continue;
+
+    return false;
+  }
+  return true;
+}
 
 export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
   const gif = parseGIF(buffer);
@@ -13,6 +29,7 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
   const [patchCanvas, patchCtx] = createCanvas();
   const frames: ParsedGifFrame[] = [];
   let previousImageData: ImageData | null = null;
+  let lastKeptImageData: ImageData | null = null;
 
   for (const frame of gifFrames) {
     const { dims } = frame;
@@ -32,18 +49,29 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
 
     workCtx.drawImage(patchCanvas, dims.left, dims.top);
 
-    const [frameCanvas, frameContext] = createCanvas(width, height);
+    const currentImageData = workCtx.getImageData(0, 0, width, height);
 
-    frameContext.drawImage(workCanvas, 0, 0);
-    const [sketchCanvas, sketchContext] = createCanvas(width, height);
-    frames.push({
-      width,
-      height,
-      delay: frame.delay,
-      canvas: frameCanvas,
-      sketchCanvas,
-      sketchContext,
-    });
+    if (
+      lastKeptImageData &&
+      imageDataEquals(currentImageData, lastKeptImageData)
+    ) {
+      frames[frames.length - 1].delay += frame.delay;
+    } else {
+      const [frameCanvas, frameContext] = createCanvas(width, height);
+      frameContext.putImageData(currentImageData, 0, 0);
+      const [sketchCanvas, sketchContext] = createCanvas(width, height);
+
+      frames.push({
+        width,
+        height,
+        delay: frame.delay,
+        canvas: frameCanvas,
+        sketchCanvas,
+        sketchContext,
+      });
+
+      lastKeptImageData = currentImageData;
+    }
 
     // Apply disposal AFTER snapshotting, to prep workCanvas for the next frame
     if (frame.disposalType === 2) {

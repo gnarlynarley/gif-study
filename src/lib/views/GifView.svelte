@@ -1,13 +1,13 @@
 <script lang="ts">
-  import GifTimeline from '$lib/components/GifTimeline.svelte';
-  import SketchCanvas from '$lib/components/SketchCanvas.svelte';
-  import SketchToolbar from '$lib/components/SketchToolbar.svelte';
-  import { settings } from '$lib/stores/settings.svelte';
-  import exportFrames from '$lib/utils/exportFrames';
-  import modulo from '$lib/utils/modulo';
-  import normalizeKey from '$lib/utils/normalizeKey';
-  import type { ParsedGif, SketchTool } from '../types';
-  import ColorPicker, { ChromeVariant } from 'svelte-awesome-color-picker';
+  import GifTimeline from "$lib/components/GifTimeline.svelte";
+  import SketchCanvas from "$lib/components/SketchCanvas.svelte";
+  import SketchToolbar from "$lib/components/SketchToolbar.svelte";
+  import { settings } from "$lib/stores/settings.svelte";
+  import exportFrames from "$lib/utils/exportFrames";
+  import modulo from "$lib/utils/modulo";
+  import normalizeKey from "$lib/utils/normalizeKey";
+  import type { ParsedGif, SketchTool } from "../types";
+  import ColorPicker, { ChromeVariant } from "svelte-awesome-color-picker";
 
   type Props = {
     gif: ParsedGif;
@@ -21,33 +21,47 @@
   let currentFrame = $derived(gif.frames[currentIndex]);
 
   let frameCanvas = $state<HTMLCanvasElement | null>(null);
-  const frameContext = $derived(frameCanvas?.getContext('2d') ?? null);
+  const frameContext = $derived(frameCanvas?.getContext("2d") ?? null);
   let backgroundCanvas = $state<HTMLCanvasElement | null>(null);
   const backgroundContext = $derived(
-    backgroundCanvas?.getContext('2d') ?? null,
+    backgroundCanvas?.getContext("2d") ?? null,
   );
 
   let brushSize = $state(3);
   let eraserSize = $state(20);
-  let tool = $state<SketchTool>('brush');
-  let color = $state('#000000');
+  let tool = $state<SketchTool>("brush");
+  let color = $state("#000000");
   let colorPickerActive = $state(false);
 
   $effect(() => {
     if (!playing) return;
 
-    const id = setTimeout(() => {
-      currentIndex = (currentIndex + 1) % gif.frames.length;
-    }, currentFrame.delay);
+    let rafId: number;
+    let lastTime = performance.now();
+    let accumulated = 0;
 
-    return () => {
-      clearTimeout(id);
+    const tick = (now: number) => {
+      accumulated += now - lastTime;
+      lastTime = now;
+
+      // Handle delay=0 frames (some GIFs use this) and drift correction
+      // by advancing multiple frames in one tick if we've fallen behind
+      while (accumulated >= (gif.frames[currentIndex]?.delay || 100)) {
+        accumulated -= gif.frames[currentIndex].delay || 100;
+        currentIndex = (currentIndex + 1) % gif.frames.length;
+      }
+
+      rafId = requestAnimationFrame(tick);
     };
+
+    rafId = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(rafId);
   });
 
   $effect(() => {
     if (backgroundContext) {
-      backgroundContext.fillStyle = 'white';
+      backgroundContext.fillStyle = "white";
       backgroundContext.fillRect(0, 0, width, height);
     }
   });

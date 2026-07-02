@@ -15,7 +15,11 @@
     if (!frameNodes) return;
     const element = frameNodes[currentIndex];
     if (!element) return;
-    element.scrollIntoView({ behavior: "instant", inline: "nearest" });
+    element.scrollIntoView({
+      behavior: "instant",
+      inline: "center",
+      block: "center",
+    });
   });
 </script>
 
@@ -30,6 +34,7 @@
           ev.currentTarget.blur();
           currentIndex = index;
         }}
+        style={`--delay: ${frame.delay}`}
       >
         <GifFrameCanvas {frame} />
         <p class="delay">{frame.delay}</p>
@@ -56,7 +61,7 @@
   }
 
   .frame {
-    width: 5em;
+    width: calc(var(--delay) * 0.05em);
     height: 5em;
     flex-shrink: 0;
     position: relative;

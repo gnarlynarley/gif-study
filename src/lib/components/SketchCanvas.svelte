@@ -137,7 +137,6 @@
 
   const onpointermove = (ev: PointerEvent) => {
     cursorPoint = { x: ev.clientX, y: ev.clientY, scale: 1 };
-    playing = false;
 
     if (!canvas) return;
 
@@ -147,6 +146,8 @@
     if (!pointerActive) return;
     if (!canvas) return;
     if (!context) return;
+
+    playing = false;
 
     context.save();
 
