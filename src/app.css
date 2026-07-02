@@ -1,0 +1,43 @@
+@import '@fontsource-variable/roboto/wght.css';
+
+:root {
+  color-scheme: light dark;
+  --spacing-sm: 4px;
+  --spacing: 8px;
+
+  --color-primary: rgb(214, 182, 0);
+  --color-accent: hsl(from currentColor h s l / 0.02);
+
+  accent-color: var(--color-primary);
+}
+
+html {
+  font-size: 140%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto Variable', sans-serif;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font: inherit;
+}
+
+input {
+  font: inherit;
+}
+
+#app {
+  display: contents;
+}
