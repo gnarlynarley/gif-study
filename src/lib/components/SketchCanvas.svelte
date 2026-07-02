@@ -163,6 +163,10 @@
     object-fit: contain;
   }
 
+  .cursorCanvas {
+    opacity: 0.8;
+  }
+
   .wrapper:not(:hover) .cursorCanvas {
     display: none;
   }

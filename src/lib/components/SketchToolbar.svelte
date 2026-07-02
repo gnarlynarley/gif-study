@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { gif } from '$lib/stores/gif.svelte';
+  import { unloadGif } from '$lib/stores/gif.svelte';
   import type { SketchTool } from '$lib/types';
+  import clamp from '$lib/utils/clamp';
   import {
     BrushIcon,
     EraserIcon,
@@ -17,6 +18,13 @@
     brushSize: number;
     eraserSize: number;
   };
+
+  const MAX_BRUSH_SIZE = 50;
+  const MIN_BRUSH_SIZE = 1;
+  const BRUSH_SIZE_STEPS = 0.5;
+  const MAX_ERASER_SIZE = 500;
+  const MIN_ERASER_SIZE = 1;
+  const ERASER_SIZE_STEPS = 0.5;
 
   let {
     playing = $bindable(),
@@ -42,6 +50,7 @@
       }
       case 'e': {
         tool = 'eraser';
+        break;
       }
     }
   }
@@ -79,9 +88,21 @@
     <EraserIcon />
   </button>
   {#if tool === 'brush'}
-    <input type="range" bind:value={brushSize} min="1" max="50" step="0.5" />
+    <input
+      type="range"
+      bind:value={brushSize}
+      min={MIN_BRUSH_SIZE}
+      max={MAX_BRUSH_SIZE}
+      step={BRUSH_SIZE_STEPS}
+    />
   {:else}
-    <input type="range" bind:value={eraserSize} min="1" max="500" step="0.5" />
+    <input
+      type="range"
+      bind:value={eraserSize}
+      min={MIN_ERASER_SIZE}
+      max={MAX_ERASER_SIZE}
+      step={ERASER_SIZE_STEPS}
+    />
   {/if}
   <div class="divider"></div>
 
@@ -95,7 +116,7 @@
     onclick={() => {
       const clear = window.confirm('Do you want to exit?');
       if (clear) {
-        gif.clear();
+        unloadGif();
       }
     }}
   >

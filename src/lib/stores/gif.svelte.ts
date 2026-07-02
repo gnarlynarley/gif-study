@@ -1,22 +1,19 @@
 import type { ParsedGif } from '$lib/types';
 import parseGif from '$lib/utils/parseGif';
+import { get, writable } from 'svelte/store';
 
-class Gif {
-  parsed = $state<ParsedGif | null>(null);
+export const gif = writable<ParsedGif | null>(null);
 
-  setFile = async (file: File) => {
-    const buffer = await file.arrayBuffer();
-    this.parsed = parseGif(buffer);
-  };
-
-  clear = () => {
-    this.parsed = null;
-  };
+export async function loadGifFromFile(file: File) {
+  const buffer = await file.arrayBuffer();
+  gif.set(parseGif(buffer));
 }
 
-export const gif = new Gif();
+export function unloadGif() {
+  gif.set(null);
+}
 
 window.addEventListener('beforeunload', (e) => {
-  if (!gif.parsed) return;
+  if (!get(gif)) return;
   e.preventDefault();
 });

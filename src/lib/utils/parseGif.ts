@@ -1,6 +1,5 @@
 import type { ParsedGif, ParsedGifFrame } from '$lib/types';
 import { parseGIF, decompressFrames } from 'gifuct-js';
-import { createContext } from 'svelte';
 import createCanvas from './createCanvas';
 
 export default function parseGif(buffer: ArrayBuffer): ParsedGif {

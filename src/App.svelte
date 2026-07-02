@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { gif } from './lib/stores/gif.svelte';
+  import { gif, loadGifFromFile } from './lib/stores/gif.svelte';
   import GifView from './lib/views/GifView.svelte';
 </script>
 
-{#if gif.parsed}
-  <GifView bind:gif={gif.parsed} />
+{#if $gif}
+  <GifView bind:gif={$gif} />
 {:else}
   <div class="wrapper">
     <label for="load-gif">Load gif:</label>
@@ -15,7 +15,7 @@
       oninput={(ev) => {
         const file = ev.currentTarget.files?.[0] ?? null;
         if (file) {
-          gif.setFile(file);
+          loadGifFromFile(file);
         }
         ev.currentTarget.value = '';
       }}
