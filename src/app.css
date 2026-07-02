@@ -1,12 +1,26 @@
 @import '@fontsource-variable/roboto/wght.css';
 
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 :root {
   color-scheme: light dark;
   --spacing-sm: 4px;
   --spacing: 8px;
 
-  --color-primary: rgb(214, 182, 0);
-  --color-accent: hsl(from currentColor h s l / 0.02);
+  --color-primary: light-dark(orange, #ffc400);
+  --color-text: light-dark(#111, white);
+  --color-background: light-dark(white, #111);
+  --color-accent: color-mix(
+    in oklch,
+    var(--color-background),
+    var(--color-text) 5%
+  );
 
   accent-color: var(--color-primary);
 }
@@ -40,4 +54,8 @@ input {
 
 #app {
   display: contents;
+}
+
+.prose > * + * {
+  margin-block-start: var(--spacing);
 }

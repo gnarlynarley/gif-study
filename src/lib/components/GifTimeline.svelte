@@ -42,12 +42,14 @@
   .wrapper {
     width: 100dvw;
     overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(from var(--color-text) h s l / 0.5)
+      var(--color-background);
     background-color: var(--color-accent);
     display: flex;
   }
   .frames {
     display: inline-flex;
-    border: 1px solid currentColor;
     flex-shrink: 0;
     margin-inline: auto;
   }
@@ -58,6 +60,7 @@
     flex-shrink: 0;
     position: relative;
     border: 1px solid transparent;
+    background: transparent;
 
     .delay {
       position: absolute;
@@ -66,6 +69,9 @@
       z-index: 1;
       font-size: 0.5em;
       line-height: 1;
+      display: inline-block;
+      padding: var(--spacing-sm);
+      background: var(--color-background);
     }
 
     :global(canvas) {

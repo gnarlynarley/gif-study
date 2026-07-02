@@ -139,7 +139,8 @@
   role="application"
 >
   <canvas bind:this={canvas} {width} {height}></canvas>
-  <canvas bind:this={cursorCanvas} {width} {height}></canvas>
+  <canvas class="cursorCanvas" bind:this={cursorCanvas} {width} {height}>
+  </canvas>
 </div>
 
 <style>
@@ -159,5 +160,9 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+
+  .wrapper:not(:hover) .cursorCanvas {
+    display: none;
   }
 </style>

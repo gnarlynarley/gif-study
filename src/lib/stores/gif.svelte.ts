@@ -8,6 +8,15 @@ class Gif {
     const buffer = await file.arrayBuffer();
     this.parsed = parseGif(buffer);
   };
+
+  clear = () => {
+    this.parsed = null;
+  };
 }
 
 export const gif = new Gif();
+
+window.addEventListener('beforeunload', (e) => {
+  if (!gif.parsed) return;
+  e.preventDefault();
+});

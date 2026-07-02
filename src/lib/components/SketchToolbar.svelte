@@ -1,6 +1,14 @@
 <script lang="ts">
+  import { gif } from '$lib/stores/gif.svelte';
   import type { SketchTool } from '$lib/types';
-  import { BrushIcon, EraserIcon, PlayIcon, PauseIcon } from '@lucide/svelte';
+  import {
+    BrushIcon,
+    EraserIcon,
+    PlayIcon,
+    PauseIcon,
+    FileIcon,
+    DoorOpenIcon,
+  } from '@lucide/svelte';
 
   type Props = {
     playing: boolean;
@@ -71,23 +79,40 @@
     <EraserIcon />
   </button>
   {#if tool === 'brush'}
-    <input type="range" bind:value={brushSize} min="1" max="20" step="0.5" />
+    <input type="range" bind:value={brushSize} min="1" max="50" step="0.5" />
   {:else}
-    <input type="range" bind:value={eraserSize} min="1" max="200" step="0.5" />
+    <input type="range" bind:value={eraserSize} min="1" max="500" step="0.5" />
   {/if}
   <div class="divider"></div>
 
   <input type="range" bind:value={opacity} min="0" max="1" step="0.01" />
+
+  <div class="divider"></div>
+
+  <button
+    class="button"
+    type="button"
+    onclick={() => {
+      const clear = window.confirm('Do you want to exit?');
+      if (clear) {
+        gif.clear();
+      }
+    }}
+  >
+    <DoorOpenIcon />
+  </button>
 </div>
 
 <style>
   .wrapper {
     display: grid;
-    background: var(--color-accent);
-    padding: var(--spacing-sm);
-    gap: var(--spacing-sm);
+    background: hsl(from var(--color-accent) h s l / 0.8);
+    padding: var(--spacing);
+    gap: var(--spacing);
     justify-items: center;
     border-radius: 3px;
+    backdrop-filter: blur(8px);
+    box-shadow: 1px 2px 8px hsl(from black h s l / 0.1);
   }
 
   .button {
@@ -99,19 +124,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: var(--spacing-sm);
 
     &.is-active {
-      background: hsl(from white h s l / 0.5);
+      background: hsl(from currentColor h s l / 0.2);
     }
 
     &:hover {
-      background: hsl(from white h s l / 0.8);
+      background: hsl(from currentColor h s l / 0.5);
     }
   }
 
   .divider {
     width: 80%;
-    height: 8px;
+    height: 4px;
     background: currentColor;
     border-radius: 100vw;
     opacity: 0.2;
@@ -121,5 +147,10 @@
     writing-mode: vertical-lr;
     direction: rtl;
     vertical-align: middle;
+  }
+
+  input[type='file'] {
+    display: none;
+    visibility: hidden;
   }
 </style>

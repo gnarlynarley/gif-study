@@ -2,7 +2,7 @@
   import GifTimeline from '$lib/components/GifTimeline.svelte';
   import SketchCanvas from '$lib/components/SketchCanvas.svelte';
   import SketchToolbar from '$lib/components/SketchToolbar.svelte';
-  import createBrushImage from '$lib/utils/createBrushImage';
+  import modulo from '$lib/utils/modulo';
   import type { ParsedGif, SketchTool } from '../types';
 
   type Props = {
@@ -18,14 +18,15 @@
 
   let frameCanvas = $state<HTMLCanvasElement | null>(null);
   const frameContext = $derived(frameCanvas?.getContext('2d') ?? null);
+  let backgroundCanvas = $state<HTMLCanvasElement | null>(null);
+  const backgroundContext = $derived(
+    backgroundCanvas?.getContext('2d') ?? null,
+  );
 
   let brushSize = $state(3);
   let eraserSize = $state(20);
-  let opacity = $state(0.8);
+  let opacity = $state(1);
   let tool = $state<SketchTool>('brush');
-  const brushImage = $derived(
-    createBrushImage(tool === 'brush' ? brushSize : eraserSize),
-  );
 
   $effect(() => {
     if (!playing) return;
@@ -40,15 +41,35 @@
   });
 
   $effect(() => {
+    if (backgroundContext) {
+      backgroundContext.fillStyle = 'white';
+      backgroundContext.fillRect(0, 0, width, height);
+    }
+  });
+
+  $effect(() => {
     if (frameContext) {
-      frameContext.fillStyle = 'white';
-      frameContext.fillRect(0, 0, width, height);
+      frameContext.clearRect(0, 0, width, height);
       frameContext.drawImage(currentFrame.canvas, 0, 0);
     }
   });
 
-  $inspect(brushImage);
+  function onkeydown(ev: KeyboardEvent) {
+    const framesLength = gif.frames.length;
+    switch (ev.key.toLowerCase()) {
+      case 'a': {
+        currentIndex = modulo(currentIndex - 1, framesLength);
+        break;
+      }
+      case 'd': {
+        currentIndex = modulo(currentIndex + 1, framesLength);
+        break;
+      }
+    }
+  }
 </script>
+
+<svelte:window {onkeydown} />
 
 <div class="wrapper">
   <div class="toolbar">
@@ -61,6 +82,7 @@
     />
   </div>
   <div class="render">
+    <canvas bind:this={backgroundCanvas} {width} {height}></canvas>
     <canvas
       class="frameCanvas"
       bind:this={frameCanvas}
