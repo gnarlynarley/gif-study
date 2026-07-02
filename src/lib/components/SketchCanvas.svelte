@@ -27,8 +27,10 @@
   const { width, height, sketchCanvas } = $derived(frame);
   let canvas = $state<HTMLCanvasElement | null>(null);
   const context = $derived(canvas?.getContext("2d") ?? null);
+
   let cursorCanvas = $state<HTMLCanvasElement | null>(null);
   const cursorContext = $derived(cursorCanvas?.getContext("2d") ?? null);
+
   const toolSize = $derived(tool === "brush" ? brushSize : eraserSize);
   let pointerActive = false;
   let lastPoint: Point | null = null;

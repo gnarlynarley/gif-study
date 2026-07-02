@@ -2,6 +2,7 @@
   import GifTimeline from "$lib/components/GifTimeline.svelte";
   import SketchCanvas from "$lib/components/SketchCanvas.svelte";
   import SketchToolbar from "$lib/components/SketchToolbar.svelte";
+  import UnionSkinCanvas from "$lib/components/UnionSkinCanvas.svelte";
   import { settings } from "$lib/stores/settings.svelte";
   import exportFrames from "$lib/utils/exportFrames";
   import modulo from "$lib/utils/modulo";
@@ -32,6 +33,7 @@
   let tool = $state<SketchTool>("brush");
   let color = $state("#000000");
   let colorPickerActive = $state(false);
+  let unionSkinActive = $state(true);
 
   $effect(() => {
     if (!playing) return;
@@ -103,6 +105,7 @@
       bind:brushSize
       bind:eraserSize
       bind:colorPickerActive
+      bind:unionSkinActive
       {color}
       {onExportFramesClick}
     />
@@ -124,6 +127,9 @@
       {color}
       bind:playing
     />
+    {#if unionSkinActive}
+      <UnionSkinCanvas {gif} {currentIndex} />
+    {/if}
 
     {#if colorPickerActive}
       <div class="color">

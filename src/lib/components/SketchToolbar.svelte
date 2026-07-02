@@ -9,6 +9,7 @@
     PauseIcon,
     DoorOpenIcon,
     DownloadIcon,
+    BlendIcon,
   } from "@lucide/svelte";
   import Tooltip from "./Tooltip.svelte";
   import { settings } from "$lib/stores/settings.svelte";
@@ -22,6 +23,7 @@
     eraserSize: number;
     colorPickerActive: boolean;
     color: string;
+    unionSkinActive: boolean;
     onExportFramesClick: () => void;
   };
 
@@ -39,6 +41,7 @@
     brushSize = $bindable(),
     eraserSize = $bindable(),
     colorPickerActive = $bindable(),
+    unionSkinActive = $bindable(),
     color,
     onExportFramesClick,
   }: Props = $props();
@@ -171,6 +174,19 @@
   </Tooltip>
 
   <div class="divider"></div>
+
+  <Tooltip label="Toggle union skin">
+    <button
+      class="button"
+      class:is-active={unionSkinActive}
+      type="button"
+      onclick={() => {
+        unionSkinActive = !unionSkinActive;
+      }}
+    >
+      <BlendIcon />
+    </button>
+  </Tooltip>
 
   <Tooltip label="Download frames">
     <button class="button" type="button" onclick={onExportFramesClick}>
