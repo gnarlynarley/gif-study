@@ -4,10 +4,12 @@
   import SketchToolbar from "$lib/components/SketchToolbar.svelte";
   import UnionSkinCanvas from "$lib/components/UnionSkinCanvas.svelte";
   import { settings } from "$lib/stores/settings.svelte";
+  import clamp from "$lib/utils/clamp";
   import exportFrames from "$lib/utils/exportFrames";
   import modulo from "$lib/utils/modulo";
   import normalizeKey from "$lib/utils/normalizeKey";
-  import type { ParsedGif, SketchTool } from "../types";
+  import styleString from "$lib/utils/styleString";
+  import { type Point, type ParsedGif, type SketchTool } from "../types";
   import ColorPicker, { ChromeVariant } from "svelte-awesome-color-picker";
 
   type Props = {
@@ -20,6 +22,7 @@
   let playing = $state(true);
   let currentIndex = $state(0);
   let currentFrame = $derived(gif.frames[currentIndex]);
+  let mainContainer = $state<HTMLDivElement | null>(null);
 
   let frameCanvas = $state<HTMLCanvasElement | null>(null);
   const frameContext = $derived(frameCanvas?.getContext("2d") ?? null);
@@ -34,6 +37,16 @@
   let color = $state("#000000");
   let colorPickerActive = $state(false);
   let unionSkinActive = $state(true);
+  let panningKeyActive = $state(false);
+  let pointerActive = $state(false);
+  let panningActive = $derived(panningKeyActive && pointerActive);
+  let navigation = $state<Point>({ x: 0, y: 0, scale: 1 });
+
+  $effect(() => {
+    if (!mainContainer) return;
+    navigation.x = (width - mainContainer.clientWidth) * -0.5;
+    navigation.y = (height - mainContainer.clientHeight) * -0.5;
+  });
 
   $effect(() => {
     if (!playing) return;
@@ -75,6 +88,15 @@
     }
   });
 
+  function onExportFramesClick() {
+    exportFrames(gif);
+  }
+
+  const DEFAULT_POINT: Point = { x: 0, y: 0, scale: 1 };
+
+  let initialNavigation: Point = { ...DEFAULT_POINT };
+  let initial: Point = { ...DEFAULT_POINT };
+
   function onkeydown(ev: KeyboardEvent) {
     const framesLength = gif.frames.length;
     switch (normalizeKey(ev.key)) {
@@ -86,15 +108,51 @@
         currentIndex = modulo(currentIndex + 1, framesLength);
         break;
       }
+      case $settings.keybinds.panning: {
+        if (!panningKeyActive) {
+          panningKeyActive = true;
+        }
+      }
     }
   }
 
-  function onExportFramesClick() {
-    exportFrames(gif);
+  function onkeyup(ev: KeyboardEvent) {
+    switch (normalizeKey(ev.key)) {
+      case $settings.keybinds.panning: {
+        panningKeyActive = false;
+      }
+    }
+  }
+
+  function onpointerdown() {
+    pointerActive = true;
+  }
+
+  function onpointerup() {
+    pointerActive = false;
+  }
+
+  function onpointermove(ev: PointerEvent) {
+    if (panningActive) {
+      const y = initial.y - ev.clientY;
+      navigation.y = initialNavigation.y - y;
+      const x = initial.x - ev.clientX;
+      navigation.x = initialNavigation.x - x;
+    } else {
+      initial.x = ev.clientX;
+      initial.y = ev.clientY;
+      initial.scale = 1;
+      initialNavigation = $state.snapshot(navigation);
+    }
+  }
+
+  function onwheel(ev: WheelEvent) {
+    ev.preventDefault();
+    navigation.scale = clamp(0.1, 10, navigation.scale + ev.deltaY * -0.001);
   }
 </script>
 
-<svelte:window {onkeydown} />
+<svelte:window {onkeydown} {onkeyup} />
 
 <div class="wrapper">
   <div class="toolbar">
@@ -110,27 +168,47 @@
       {onExportFramesClick}
     />
   </div>
-  <div class="render">
-    <canvas bind:this={backgroundCanvas} {width} {height}></canvas>
-    <canvas
-      class="frameCanvas"
-      bind:this={frameCanvas}
-      {width}
-      {height}
-      style={`opacity:${gif.opacity};`}
-    ></canvas>
-    <SketchCanvas
-      {brushSize}
-      {eraserSize}
-      {tool}
-      frame={currentFrame}
-      {color}
-      bind:playing
-    />
-    {#if unionSkinActive}
-      <UnionSkinCanvas {gif} {currentIndex} />
-    {/if}
+  <div
+    class="main"
+    role="application"
+    {onpointermove}
+    {onwheel}
+    {onpointerdown}
+    {onpointerup}
+    bind:this={mainContainer}
+  >
+    <div
+      class="render"
+      style={styleString({
+        "--x": navigation.x,
+        "--y": navigation.y,
+        "--scale": navigation.scale,
+      })}
+    >
+      <!-- <canvas bind:this={backgroundCanvas} {width} {height}></canvas> -->
 
+      <canvas
+        class="frameCanvas"
+        bind:this={frameCanvas}
+        {width}
+        {height}
+        style={`opacity:${gif.opacity};`}
+      ></canvas>
+
+      <SketchCanvas
+        {brushSize}
+        {eraserSize}
+        {tool}
+        {panningKeyActive}
+        frame={currentFrame}
+        {color}
+        bind:playing
+      />
+
+      {#if unionSkinActive}
+        <UnionSkinCanvas {gif} {currentIndex} />
+      {/if}
+    </div>
     {#if colorPickerActive}
       <div class="color">
         <ColorPicker
@@ -181,16 +259,17 @@
     }
   }
 
-  .render {
+  .main {
     position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
 
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
+  .render {
+    position: absolute;
+    background-color: white;
+    translate: calc(var(--x) * 1px) calc(var(--y) * 1px);
+    scale: var(--scale);
+    /* transform-origin: top left; */
   }
 </style>

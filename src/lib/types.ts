@@ -28,6 +28,7 @@ export type Settings = {
     prevFrame: string;
     increaseBrushSize: string;
     decreaseBrushSize: string;
+    panning: string;
   };
 };
 

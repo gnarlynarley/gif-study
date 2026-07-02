@@ -9,6 +9,7 @@
   type Props = {
     frame: ParsedGifFrame;
     playing: boolean;
+    panningKeyActive: boolean;
     brushSize: number;
     eraserSize: number;
     tool: SketchTool;
@@ -18,6 +19,7 @@
   let {
     frame,
     playing = $bindable(),
+    panningKeyActive,
     brushSize,
     eraserSize,
     tool,
@@ -121,6 +123,7 @@
   const onpointerdown = (ev: PointerEvent) => {
     if (!canvas) return;
     if (!context) return;
+    if (panningKeyActive) return;
     pointerActive = true;
     playing = false;
 
@@ -148,6 +151,7 @@
     if (!pointerActive) return;
     if (!canvas) return;
     if (!context) return;
+    if (panningKeyActive) return;
 
     playing = false;
 

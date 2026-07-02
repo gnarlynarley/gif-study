@@ -9,6 +9,8 @@
     [$settings.keybinds.prevFrame, "Previous frame"],
     [$settings.keybinds.increaseBrushSize, "Increase brush size"],
     [$settings.keybinds.decreaseBrushSize, "Decrease brush size"],
+    [$settings.keybinds.panning, "Enable panning by holding down and drag"],
+    [$settings.keybinds.togglePlaying, "Toggle play state"],
   ]);
 </script>
 
