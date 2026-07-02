@@ -7,6 +7,7 @@
     brushSize: number;
     eraserSize: number;
     tool: SketchTool;
+    color: string;
   };
 
   let {
@@ -15,6 +16,7 @@
     brushSize,
     eraserSize,
     tool,
+    color,
   }: Props = $props();
 
   const { width, height, sketchCanvas } = $derived(frame);
@@ -70,12 +72,7 @@
     lastPoint = getPoint(ev, canvas);
     const effectiveBrushSize = toolSize / lastPoint.scale;
 
-    drawPoint(
-      lastPoint,
-      context,
-      effectiveBrushSize,
-      tool == 'brush' ? 'black' : 'white',
-    );
+    drawPoint(lastPoint, context, effectiveBrushSize, color);
   };
   const onpointerup = () => {
     pointerActive = false;
@@ -113,7 +110,6 @@
     context.save();
 
     playing = false;
-    const color = tool === 'brush' ? 'black' : 'white';
 
     if (tool === 'eraser') {
       context.globalCompositeOperation = 'destination-out';
@@ -160,7 +156,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    mix-blend-mode: multiply;
     cursor: crosshair;
   }
   canvas {

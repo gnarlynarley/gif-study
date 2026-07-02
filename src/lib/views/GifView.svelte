@@ -7,6 +7,7 @@
   import modulo from '$lib/utils/modulo';
   import normalizeKey from '$lib/utils/normalizeKey';
   import type { ParsedGif, SketchTool } from '../types';
+  import ColorPicker, { ChromeVariant } from 'svelte-awesome-color-picker';
 
   type Props = {
     gif: ParsedGif;
@@ -29,6 +30,8 @@
   let brushSize = $state(3);
   let eraserSize = $state(20);
   let tool = $state<SketchTool>('brush');
+  let color = $state('#000000');
+  let colorPickerActive = $state(true);
 
   $effect(() => {
     if (!playing) return;
@@ -85,6 +88,8 @@
       bind:tool
       bind:brushSize
       bind:eraserSize
+      bind:colorPickerActive
+      {color}
       {onExportFramesClick}
     />
   </div>
@@ -102,8 +107,22 @@
       {eraserSize}
       {tool}
       frame={currentFrame}
+      {color}
       bind:playing
     />
+
+    {#if colorPickerActive}
+      <div class="color">
+        <ColorPicker
+          bind:hex={color}
+          components={ChromeVariant}
+          sliderDirection="horizontal"
+          isDialog={false}
+          isAlpha={false}
+          isTextInput={false}
+        />
+      </div>
+    {/if}
   </div>
   <div class="timeline">
     <GifTimeline frames={gif.frames} bind:currentIndex />
@@ -126,6 +145,20 @@
     align-items: center;
     height: 100%;
     margin-left: var(--spacing);
+  }
+
+  .color {
+    --cp-bg-color: var(--color-accent);
+    position: absolute;
+    bottom: var(--spacing);
+    right: var(--spacing);
+    background-color: hsl(from var(--color-accent) h s l / 0.8);
+    padding: var(--spacing);
+    border-radius: 12px;
+
+    :global(> span > div) {
+      margin: 0;
+    }
   }
 
   .render {

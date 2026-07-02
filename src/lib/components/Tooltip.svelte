@@ -31,9 +31,24 @@
     border-radius: var(--spacing-sm);
     margin-block: var(--spacing-sm);
     z-index: 1;
+    animation: show forwards linear 300ms;
+    pointer-events: none;
 
     .wrapper:not(:hover) & {
       display: none;
+      opacity: 0;
+    }
+  }
+
+  @keyframes show {
+    0%,
+    50% {
+      opacity: 0;
+      scale: 0.95;
+    }
+    100% {
+      opacity: 1;
+      scale: none;
     }
   }
 </style>

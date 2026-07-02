@@ -7,7 +7,6 @@
     EraserIcon,
     PlayIcon,
     PauseIcon,
-    FileIcon,
     DoorOpenIcon,
     DownloadIcon,
   } from '@lucide/svelte';
@@ -21,6 +20,8 @@
     opacity: number;
     brushSize: number;
     eraserSize: number;
+    colorPickerActive: boolean;
+    color: string;
     onExportFramesClick: () => void;
   };
 
@@ -37,6 +38,8 @@
     opacity = $bindable(),
     brushSize = $bindable(),
     eraserSize = $bindable(),
+    colorPickerActive = $bindable(),
+    color,
     onExportFramesClick,
   }: Props = $props();
 
@@ -102,6 +105,21 @@
       }}
     >
       <EraserIcon />
+    </button>
+  </Tooltip>
+
+  <Tooltip label={`Toggle color picker`}>
+    <button
+      class="button"
+      class:is-active={tool === 'eraser'}
+      type="button"
+      style={`--color: ${color}`}
+      onclick={() => {
+        colorPickerActive = !colorPickerActive;
+      }}
+      aria-label="Toggle colorpicker"
+    >
+      <div class="color-swatch"></div>
     </button>
   </Tooltip>
 
@@ -181,6 +199,10 @@
     justify-content: center;
     padding: var(--spacing-sm);
 
+    :global(svg) {
+      color: var(--color);
+    }
+
     &.is-active {
       background: hsl(from currentColor h s l / 0.2);
     }
@@ -188,6 +210,14 @@
     &:hover {
       background: hsl(from currentColor h s l / 0.5);
     }
+  }
+
+  .color-swatch {
+    background-color: var(--color);
+    display: block;
+    aspect-ratio: 1 / 1;
+    width: 24px;
+    border-radius: 2px;
   }
 
   .divider {
