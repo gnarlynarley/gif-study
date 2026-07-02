@@ -65,6 +65,7 @@
     if (!canvas) return;
     if (!context) return;
     pointerActive = true;
+    playing = false;
 
     lastPoint = getPoint(ev, canvas);
     const effectiveBrushSize = toolSize / lastPoint.scale;

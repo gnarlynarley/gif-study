@@ -148,9 +148,4 @@
     direction: rtl;
     vertical-align: middle;
   }
-
-  input[type='file'] {
-    display: none;
-    visibility: hidden;
-  }
 </style>
