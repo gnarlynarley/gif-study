@@ -1,4 +1,4 @@
-import type { ParsedGif } from '$lib/models';
+import type { ParsedGif } from '$lib/types';
 import parseGif from '$lib/utils/parseGif';
 
 class Gif {
