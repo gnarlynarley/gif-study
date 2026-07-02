@@ -2,7 +2,10 @@
   import GifTimeline from '$lib/components/GifTimeline.svelte';
   import SketchCanvas from '$lib/components/SketchCanvas.svelte';
   import SketchToolbar from '$lib/components/SketchToolbar.svelte';
+  import { settings } from '$lib/stores/settings.svelte';
+  import exportFrames from '$lib/utils/exportFrames';
   import modulo from '$lib/utils/modulo';
+  import normalizeKey from '$lib/utils/normalizeKey';
   import type { ParsedGif, SketchTool } from '../types';
 
   type Props = {
@@ -25,7 +28,6 @@
 
   let brushSize = $state(3);
   let eraserSize = $state(20);
-  let opacity = $state(1);
   let tool = $state<SketchTool>('brush');
 
   $effect(() => {
@@ -56,16 +58,20 @@
 
   function onkeydown(ev: KeyboardEvent) {
     const framesLength = gif.frames.length;
-    switch (ev.key.toLowerCase()) {
-      case 'a': {
+    switch (normalizeKey(ev.key)) {
+      case $settings.keybinds.prevFrame: {
         currentIndex = modulo(currentIndex - 1, framesLength);
         break;
       }
-      case 'd': {
+      case $settings.keybinds.nextFrame: {
         currentIndex = modulo(currentIndex + 1, framesLength);
         break;
       }
     }
+  }
+
+  function onExportFramesClick() {
+    exportFrames(gif);
   }
 </script>
 
@@ -75,10 +81,11 @@
   <div class="toolbar">
     <SketchToolbar
       bind:playing
-      bind:opacity
+      bind:opacity={gif.opacity}
       bind:tool
       bind:brushSize
       bind:eraserSize
+      {onExportFramesClick}
     />
   </div>
   <div class="render">
@@ -88,7 +95,7 @@
       bind:this={frameCanvas}
       {width}
       {height}
-      style={`opacity:${opacity};`}
+      style={`opacity:${gif.opacity};`}
     ></canvas>
     <SketchCanvas
       {brushSize}

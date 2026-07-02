@@ -23,6 +23,7 @@
   "dependencies": {
     "@fontsource-variable/roboto": "^5.2.10",
     "@lucide/svelte": "^1.23.0",
+    "@zip.js/zip.js": "^2.8.26",
     "gifuct-js": "^2.1.2"
   }
 }

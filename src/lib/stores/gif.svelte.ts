@@ -6,7 +6,7 @@ export const gif = writable<ParsedGif | null>(null);
 
 export async function loadGifFromFile(file: File) {
   const buffer = await file.arrayBuffer();
-  gif.set(parseGif(buffer));
+  gif.set(parseGif(file.name, buffer));
 }
 
 export function unloadGif() {

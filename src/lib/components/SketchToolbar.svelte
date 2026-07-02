@@ -9,7 +9,11 @@
     PauseIcon,
     FileIcon,
     DoorOpenIcon,
+    DownloadIcon,
   } from '@lucide/svelte';
+  import Tooltip from './Tooltip.svelte';
+  import { settings } from '$lib/stores/settings.svelte';
+  import normalizeKey from '$lib/utils/normalizeKey';
 
   type Props = {
     playing: boolean;
@@ -17,6 +21,7 @@
     opacity: number;
     brushSize: number;
     eraserSize: number;
+    onExportFramesClick: () => void;
   };
 
   const MAX_BRUSH_SIZE = 50;
@@ -32,6 +37,7 @@
     opacity = $bindable(),
     brushSize = $bindable(),
     eraserSize = $bindable(),
+    onExportFramesClick,
   }: Props = $props();
 
   function togglePlaying() {
@@ -39,16 +45,16 @@
   }
 
   function onkeydown(ev: KeyboardEvent) {
-    switch (ev.key.toLowerCase()) {
-      case ' ': {
+    switch (normalizeKey(ev.key)) {
+      case $settings.keybinds.togglePlaying: {
         togglePlaying();
         break;
       }
-      case 'b': {
+      case $settings.keybinds.brush: {
         tool = 'brush';
         break;
       }
-      case 'e': {
+      case $settings.keybinds.eraser: {
         tool = 'eraser';
         break;
       }
@@ -59,69 +65,97 @@
 <svelte:window {onkeydown} />
 
 <div class="wrapper">
-  <button class="button" type="button" onclick={togglePlaying}>
-    {#if playing}
-      <PauseIcon />
-    {:else}
-      <PlayIcon />
-    {/if}
-  </button>
+  <Tooltip
+    label={`${playing ? 'Pause' : 'Play'} (${$settings.keybinds.togglePlaying})`}
+  >
+    <button class="button" type="button" onclick={togglePlaying}>
+      {#if playing}
+        <PauseIcon />
+      {:else}
+        <PlayIcon />
+      {/if}
+    </button>
+  </Tooltip>
+
   <div class="divider"></div>
-  <button
-    class="button"
-    class:is-active={tool === 'brush'}
-    type="button"
-    onclick={() => {
-      tool = 'brush';
-    }}
-  >
-    <BrushIcon />
-  </button>
-  <button
-    class="button"
-    class:is-active={tool === 'eraser'}
-    type="button"
-    onclick={() => {
-      tool = 'eraser';
-    }}
-  >
-    <EraserIcon />
-  </button>
+
+  <Tooltip label={`Brush tool (${$settings.keybinds.brush})`}>
+    <button
+      class="button"
+      class:is-active={tool === 'brush'}
+      type="button"
+      onclick={() => {
+        tool = 'brush';
+      }}
+    >
+      <BrushIcon />
+    </button>
+  </Tooltip>
+
+  <Tooltip label={`Eraser tool (${$settings.keybinds.eraser})`}>
+    <button
+      class="button"
+      class:is-active={tool === 'eraser'}
+      type="button"
+      onclick={() => {
+        tool = 'eraser';
+      }}
+    >
+      <EraserIcon />
+    </button>
+  </Tooltip>
+
   {#if tool === 'brush'}
-    <input
-      type="range"
-      bind:value={brushSize}
-      min={MIN_BRUSH_SIZE}
-      max={MAX_BRUSH_SIZE}
-      step={BRUSH_SIZE_STEPS}
-    />
+    <Tooltip label="Brush size">
+      <input
+        type="range"
+        bind:value={brushSize}
+        min={MIN_BRUSH_SIZE}
+        max={MAX_BRUSH_SIZE}
+        step={BRUSH_SIZE_STEPS}
+      />
+    </Tooltip>
   {:else}
-    <input
-      type="range"
-      bind:value={eraserSize}
-      min={MIN_ERASER_SIZE}
-      max={MAX_ERASER_SIZE}
-      step={ERASER_SIZE_STEPS}
-    />
+    <Tooltip label="Brush size">
+      <input
+        type="range"
+        bind:value={eraserSize}
+        min={MIN_ERASER_SIZE}
+        max={MAX_ERASER_SIZE}
+        step={ERASER_SIZE_STEPS}
+      />
+    </Tooltip>
   {/if}
   <div class="divider"></div>
 
-  <input type="range" bind:value={opacity} min="0" max="1" step="0.01" />
+  <Tooltip label="Opacity">
+    <input type="range" bind:value={opacity} min="0" max="1" step="0.01" />
+  </Tooltip>
 
   <div class="divider"></div>
 
-  <button
-    class="button"
-    type="button"
-    onclick={() => {
-      const clear = window.confirm('Do you want to exit?');
-      if (clear) {
-        unloadGif();
-      }
-    }}
-  >
-    <DoorOpenIcon />
-  </button>
+  <Tooltip label="Download frames">
+    <button class="button" type="button" onclick={onExportFramesClick}>
+      <DownloadIcon />
+    </button>
+  </Tooltip>
+
+  <div class="divider"></div>
+
+  <Tooltip label="Exit">
+    <button
+      class="button"
+      type="button"
+      onclick={() => {
+        const clear = window.confirm('Do you want to exit?');
+        if (clear) {
+          unloadGif();
+        }
+      }}
+    >
+      <DoorOpenIcon />
+    </button>
+  </Tooltip>
 </div>
 
 <style>

@@ -109,8 +109,15 @@
     if (!pointerActive) return;
     if (!canvas) return;
     if (!context) return;
+
+    context.save();
+
     playing = false;
     const color = tool === 'brush' ? 'black' : 'white';
+
+    if (tool === 'eraser') {
+      context.globalCompositeOperation = 'destination-out';
+    }
 
     if (lastPoint) {
       drawPoint(lastPoint, context, effectiveBrushSize, color);
@@ -129,6 +136,8 @@
 
     frame.sketchContext.clearRect(0, 0, width, height);
     frame.sketchContext.drawImage(canvas, 0, 0);
+
+    context.restore();
   };
 </script>
 

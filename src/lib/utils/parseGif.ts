@@ -1,8 +1,9 @@
 import type { ParsedGif, ParsedGifFrame } from '$lib/types';
 import { parseGIF, decompressFrames } from 'gifuct-js';
 import createCanvas from './createCanvas';
+import getFilename from './getFilename';
 
-export default function parseGif(buffer: ArrayBuffer): ParsedGif {
+export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
   const gif = parseGIF(buffer);
   const gifFrames = decompressFrames(gif, true);
 
@@ -53,8 +54,10 @@ export default function parseGif(buffer: ArrayBuffer): ParsedGif {
   }
 
   return {
+    name: getFilename(name),
     width,
     height,
     frames,
+    opacity: 1,
   };
 }

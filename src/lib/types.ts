@@ -1,7 +1,9 @@
 export type ParsedGif = {
+  name: string;
   width: number;
   height: number;
   frames: ParsedGifFrame[];
+  opacity: number;
 };
 
 export type ParsedGifFrame = {
@@ -16,3 +18,13 @@ export type ParsedGifFrame = {
 export type Point = { x: number; y: number; scale: number };
 
 export type SketchTool = 'brush' | 'eraser';
+
+export type Settings = {
+  keybinds: {
+    togglePlaying: string;
+    brush: string;
+    eraser: string;
+    nextFrame: string;
+    prevFrame: string;
+  };
+};
