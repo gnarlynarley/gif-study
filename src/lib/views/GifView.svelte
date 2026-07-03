@@ -206,9 +206,10 @@
         {eraserSize}
         {tool}
         {panningKeyActive}
-        frame={currentFrame}
+        bind:frame={currentFrame}
         {color}
         bind:playing
+        bind:currentIndex
       />
 
       {#if unionSkinActive}

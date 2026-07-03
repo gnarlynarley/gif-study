@@ -9,6 +9,7 @@
 
   type Props = {
     frame: ParsedGifFrame;
+    currentIndex: number;
     playing: boolean;
     panningKeyActive: boolean;
     brushSize: number;
@@ -18,7 +19,8 @@
   };
 
   let {
-    frame,
+    frame = $bindable(),
+    currentIndex = $bindable(),
     playing = $bindable(),
     panningKeyActive,
     brushSize,
@@ -38,9 +40,23 @@
   let pointerActive = false;
   let lastPoint: Point | null = null;
   let cursorPoint = $state<Point | null>(null);
+  let history: { index: number; canvas: HTMLCanvasElement }[] = $state([]);
+
+  function undo() {
+    if (!context) return;
+    const item = history.pop();
+    history = history;
+    if (item !== undefined) {
+      currentIndex = item.index;
+      context.clearRect(0, 0, width, height);
+      context.drawImage(item.canvas, 0, 0);
+      updateSketchCanvas();
+    }
+  }
+
+  $inspect(history);
 
   $effect(() => {
-    console.log("clearing");
     if (!context) return;
     context.clearRect(0, 0, width, height);
     if (frame.sketch) {
@@ -132,6 +148,15 @@
     if (!canvas) return;
     if (!context) return;
     if (panningKeyActive) return;
+
+    const [historyCanvas, historyContext] = createCanvas(
+      canvas.width,
+      canvas.height,
+    );
+    history.push({ index: currentIndex, canvas: historyCanvas });
+    historyContext.drawImage(canvas, 0, 0);
+    history = history.slice(-50);
+
     pointerActive = true;
     playing = false;
 
@@ -187,7 +212,16 @@
     lastPoint = sketchPoint;
     updateSketchCanvas();
   };
+
+  const onkeydown = (ev: KeyboardEvent) => {
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === "z") {
+      ev.preventDefault();
+      undo();
+    }
+  };
 </script>
+
+<svelte:window {onkeydown} />
 
 <div
   class="wrapper"

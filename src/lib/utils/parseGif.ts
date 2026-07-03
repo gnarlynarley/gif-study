@@ -30,7 +30,7 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
   const frames: ParsedGifFrame[] = [];
   let previousImageData: ImageData | null = null;
   let lastKeptImageData: ImageData | null = null;
-
+  let frameNumber = 0;
   for (const frame of gifFrames) {
     const { dims } = frame;
 
@@ -60,12 +60,14 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
       const [frameCanvas, frameContext] = createCanvas(width, height);
       frameContext.putImageData(currentImageData, 0, 0);
 
+      frameNumber++;
       frames.push({
         width,
         height,
         delay: frame.delay,
         canvas: frameCanvas,
         sketch: null,
+        frameNumber,
       });
 
       lastKeptImageData = currentImageData;
