@@ -44,8 +44,14 @@
 
   $effect(() => {
     if (!mainContainer) return;
-    navigation.x = (width - mainContainer.clientWidth) * -0.5;
-    navigation.y = (height - mainContainer.clientHeight) * -0.5;
+    const border = 50;
+    const scale = Math.min(
+      (mainContainer.clientWidth - border) / width,
+      (mainContainer.clientHeight - border) / height,
+    );
+    navigation.x = (mainContainer.clientWidth - width) * 0.5;
+    navigation.y = (mainContainer.clientHeight - height) * 0.5;
+    navigation.scale = scale;
   });
 
   $effect(() => {
@@ -270,6 +276,6 @@
     background-color: white;
     translate: calc(var(--x) * 1px) calc(var(--y) * 1px);
     scale: var(--scale);
-    /* transform-origin: top left; */
+    transform-origin: center center;
   }
 </style>
