@@ -30,8 +30,9 @@
       context.clearRect(0, 0, width, height);
       for (let i = 1; i <= amount; i++) {
         const frame = frames[modulo(currentIndex + i * offset, frames.length)];
+        if (!frame.sketch) continue;
         context.globalAlpha = 1 - (1 / (amount + 1)) * i;
-        context.drawImage(frame.sketchCanvas, 0, 0);
+        context.drawImage(frame.sketch.canvas, 0, 0);
       }
       context.globalAlpha = 1;
       context.globalCompositeOperation = "source-in";

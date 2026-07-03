@@ -5,6 +5,7 @@
     PointerEvent,
     SketchTool,
   } from "$lib/types";
+  import createCanvas from "$lib/utils/createCanvas";
 
   type Props = {
     frame: ParsedGifFrame;
@@ -26,7 +27,7 @@
     color,
   }: Props = $props();
 
-  const { width, height, sketchCanvas } = $derived(frame);
+  const { width, height } = $derived(frame);
   let canvas = $state<HTMLCanvasElement | null>(null);
   const context = $derived(canvas?.getContext("2d") ?? null);
 
@@ -39,9 +40,12 @@
   let cursorPoint = $state<Point | null>(null);
 
   $effect(() => {
+    console.log("clearing");
     if (!context) return;
     context.clearRect(0, 0, width, height);
-    context.drawImage(sketchCanvas, 0, 0);
+    if (frame.sketch) {
+      context.drawImage(frame.sketch.canvas, 0, 0);
+    }
   });
 
   const getPoint = (ev: Point, canvas: HTMLCanvasElement): Point => {
@@ -116,8 +120,12 @@
 
   const updateSketchCanvas = () => {
     if (!canvas) return;
-    frame.sketchContext.clearRect(0, 0, width, height);
-    frame.sketchContext.drawImage(canvas, 0, 0);
+    if (!frame.sketch) {
+      const [canvas, context] = createCanvas(width, height);
+      frame.sketch = { canvas, context };
+    }
+    frame.sketch.context.clearRect(0, 0, width, height);
+    frame.sketch.context.drawImage(canvas, 0, 0);
   };
 
   const onpointerdown = (ev: PointerEvent) => {

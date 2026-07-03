@@ -11,8 +11,10 @@ export type ParsedGifFrame = {
   height: number;
   delay: number;
   canvas: HTMLCanvasElement;
-  sketchCanvas: HTMLCanvasElement;
-  sketchContext: CanvasRenderingContext2D;
+  sketch: {
+    canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D;
+  } | null;
 };
 
 export type Point = { x: number; y: number; scale: number };

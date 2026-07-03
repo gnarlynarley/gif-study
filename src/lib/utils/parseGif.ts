@@ -59,15 +59,13 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
     } else {
       const [frameCanvas, frameContext] = createCanvas(width, height);
       frameContext.putImageData(currentImageData, 0, 0);
-      const [sketchCanvas, sketchContext] = createCanvas(width, height);
 
       frames.push({
         width,
         height,
         delay: frame.delay,
         canvas: frameCanvas,
-        sketchCanvas,
-        sketchContext,
+        sketch: null,
       });
 
       lastKeptImageData = currentImageData;

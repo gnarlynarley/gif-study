@@ -51,13 +51,16 @@
     scrollbar-width: thin;
     scrollbar-color: hsl(from var(--color-text) h s l / 0.5)
       var(--color-background);
-    background-color: var(--color-accent);
+    background-color: var(--color-background);
+    border-top: 1px solid var(--color-accent);
     display: flex;
+
   }
   .frames {
     display: inline-flex;
     flex-shrink: 0;
     margin-inline: auto;
+    padding: var(--spacing) 0;
   }
 
   .frame {

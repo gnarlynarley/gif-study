@@ -27,6 +27,7 @@
 
 html {
   font-size: 120%;
+  background-color: var(--color-background);
 }
 
 body {
@@ -36,6 +37,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-size: 20px 20px;
+  background-image: radial-gradient(
+    circle,
+    var(--color-accent) 1px,
+    rgba(0, 0, 0, 0) 1px
+  );
 }
 
 canvas {
