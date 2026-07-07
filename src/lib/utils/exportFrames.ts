@@ -9,7 +9,7 @@ async function createFileFromFrame(
 ) {
   const [canvas, context] = createCanvas(frame.width, frame.height);
 
-  context.fillStyle = "white";
+  context.fillStyle = gif.backgroundColor;
   context.fillRect(0, 0, frame.width, frame.height);
   context.globalAlpha = gif.opacity;
   context.drawImage(frame.canvas, 0, 0);

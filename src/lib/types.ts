@@ -4,6 +4,7 @@ export type GifEntry = {
   height: number;
   frames: GifEntryFrame[];
   opacity: number;
+  backgroundColor: string;
 };
 
 export type GifEntryFrame = {

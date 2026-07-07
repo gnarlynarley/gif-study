@@ -89,5 +89,6 @@ export default function parseGif(name: string, buffer: ArrayBuffer): GifEntry {
     height,
     frames,
     opacity: 1,
+    backgroundColor: "white",
   };
 }

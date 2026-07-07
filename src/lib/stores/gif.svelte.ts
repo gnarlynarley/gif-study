@@ -1,13 +1,30 @@
 import type { GifEntry, GifEntryFrame } from "$lib/types";
 import createCanvas from "$lib/utils/createCanvas";
 import parseGif from "$lib/utils/parseGif";
-import { produce, castDraft, finishDraft } from "immer";
+import localforage from "localforage";
+import { writable } from "svelte/store";
+
+const LOCAL_KEY_FILE = "gif-file";
+
+localforage.getItem<File>(LOCAL_KEY_FILE).then((file) => {
+  localGifLoading.set(false);
+  if (file) loadGifFromFile(file);
+});
+
+export const localGifLoading = writable(true);
 
 export const gif = $state<{ value: GifEntry | null }>({ value: null });
 
 export async function loadGifFromFile(file: File) {
-  const buffer = await file.arrayBuffer();
-  gif.value = parseGif(file.name, buffer);
+  try {
+    localGifLoading.set(true);
+
+    await localforage.setItem(LOCAL_KEY_FILE, file);
+    const buffer = await file.arrayBuffer();
+    gif.value = parseGif(file.name, buffer);
+  } finally {
+    localGifLoading.set(false);
+  }
 }
 
 export async function updateFrameSketch(
@@ -30,6 +47,7 @@ export async function updateFrameSketch(
 
 export function unloadGif() {
   gif.value = null;
+  localforage.removeItem(LOCAL_KEY_FILE);
 }
 
 window.addEventListener("beforeunload", (e) => {

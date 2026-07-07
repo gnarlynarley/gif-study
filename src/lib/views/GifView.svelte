@@ -160,7 +160,7 @@
 
 <svelte:window {onkeydown} {onkeyup} />
 
-<div class="wrapper">
+<div class="wrapper" style:--background-color={gif.backgroundColor}>
   <div class="toolbar">
     <SketchToolbar
       bind:playing
@@ -275,9 +275,10 @@
 
   .render {
     position: absolute;
-    background-color: white;
+    background-color: var(--background-color);
     translate: calc(var(--x) * 1px) calc(var(--y) * 1px);
     scale: var(--scale);
     transform-origin: center center;
+    border: 1px solid var(--color-accent);
   }
 </style>
