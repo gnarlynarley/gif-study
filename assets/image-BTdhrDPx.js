@@ -1,0 +1,1 @@
+var e=`/gif-study/assets/image-CCMmd1vX.gif`;export{e as default};
