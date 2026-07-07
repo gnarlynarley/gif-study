@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { updateFrameSketch } from "$lib/stores/gif.svelte";
   import type { ParsedGifFrame, Point, SketchTool } from "$lib/types";
   import { drawPoint, renderLine } from "$lib/utils/canvas-render";
   import createCanvas from "$lib/utils/createCanvas";
@@ -8,6 +9,7 @@
     currentIndex: number;
     playing: boolean;
     panningKeyActive: boolean;
+    panningActive: boolean;
     brushSize: number;
     eraserSize: number;
     tool: SketchTool;
@@ -19,6 +21,7 @@
     currentIndex = $bindable(),
     playing = $bindable(),
     panningKeyActive,
+    panningActive,
     brushSize,
     eraserSize,
     tool,
@@ -32,7 +35,7 @@
   let cursorCanvas = $state<HTMLCanvasElement | null>(null);
   const cursorContext = $derived(cursorCanvas?.getContext("2d") ?? null);
 
-  const cursorScale = 2;
+  const cursorScale = 1;
   const toolSize = $derived(tool === "brush" ? brushSize : eraserSize);
   let pointerActive = false;
   let lastPoint: Point | null = null;
@@ -47,7 +50,7 @@
       currentIndex = item.index;
       context.clearRect(0, 0, width, height);
       context.drawImage(item.canvas, 0, 0);
-      updateSketchCanvas();
+      updateFrameSketch(canvas, frame);
     }
   }
 
@@ -105,16 +108,6 @@
     };
   });
 
-  const updateSketchCanvas = () => {
-    if (!canvas) return;
-    if (!frame.sketch) {
-      const [canvas, context] = createCanvas(width, height);
-      frame.sketch = { canvas, context };
-    }
-    frame.sketch.context.clearRect(0, 0, width, height);
-    frame.sketch.context.drawImage(canvas, 0, 0);
-  };
-
   const onpointerdown = (ev: PointerEvent) => {
     if (!canvas) return;
     if (!context) return;
@@ -139,13 +132,13 @@
       context.globalCompositeOperation = "destination-out";
     }
     drawPoint(context, lastPoint, toolSize, color);
-    updateSketchCanvas();
     context.restore();
   };
 
   const onpointerup = () => {
     pointerActive = false;
     lastPoint = null;
+    updateFrameSketch(canvas, frame);
   };
 
   const onpointermove = (ev: PointerEvent) => {
@@ -180,7 +173,6 @@
     context.restore();
 
     lastPoint = sketchPoint;
-    updateSketchCanvas();
   };
 
   const onkeydown = (ev: KeyboardEvent) => {
@@ -195,6 +187,8 @@
 
 <div
   class="wrapper"
+  class:is-panning={panningKeyActive}
+  class:is-panning-active={panningActive}
   {onpointerdown}
   {onpointerup}
   {onpointermove}
@@ -218,6 +212,14 @@
     width: 100%;
     height: 100%;
     cursor: crosshair;
+
+    &.is-panning {
+      cursor: grab;
+    }
+
+    &.is-panning-active {
+      cursor: grabbing;
+    }
   }
   canvas {
     position: absolute;
@@ -230,6 +232,10 @@
 
   .cursorCanvas {
     opacity: 0.8;
+
+    .wrapper.is-panning & {
+      display: none;
+    }
   }
 
   .wrapper:not(:hover) .cursorCanvas {

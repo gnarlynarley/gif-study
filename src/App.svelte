@@ -4,8 +4,8 @@
   import GifView from "./lib/views/GifView.svelte";
 </script>
 
-{#if $gif}
-  <GifView bind:gif={$gif} />
+{#if gif.value}
+  <GifView bind:gif={gif.value} />
 {:else}
   <HomeView />
 {/if}

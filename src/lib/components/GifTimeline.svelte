@@ -25,20 +25,20 @@
 
 <div class="wrapper">
   <div class="frames" bind:this={framesWrapper}>
-    {#each frames as frame, index}
+    {#each frames as frame}
       <button
         class="frame"
-        class:is-active={index === currentIndex}
+        class:is-active={frame.index === currentIndex}
         type="button"
         onclick={(ev) => {
           ev.currentTarget.blur();
-          currentIndex = index;
+          currentIndex = frame.index;
         }}
         style={`--delay: ${frame.delay}`}
       >
         <GifFrameCanvas {frame} />
         <p class="delay">{frame.delay}</p>
-        <p class="index">{index}</p>
+        <p class="index">{frame.index + 1}</p>
       </button>
     {/each}
   </div>
@@ -54,7 +54,6 @@
     background-color: var(--color-background);
     border-top: 1px solid var(--color-accent);
     display: flex;
-
   }
   .frames {
     display: inline-flex;

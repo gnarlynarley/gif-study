@@ -1,4 +1,4 @@
-import type { ParsedGif, ParsedGifFrame } from "$lib/types";
+import { type ParsedGif, type ParsedGifFrame } from "$lib/types";
 import { parseGIF, decompressFrames } from "gifuct-js";
 import createCanvas from "./createCanvas";
 import getFilename from "./getFilename";
@@ -25,7 +25,9 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
 
   const { width, height } = gif.lsd;
 
-  const [workCanvas, workCtx] = createCanvas(width, height);
+  const [workCanvas, workCtx] = createCanvas(width, height, {
+    willReadFrequently: true,
+  });
   const [patchCanvas, patchCtx] = createCanvas();
   const frames: ParsedGifFrame[] = [];
   let previousImageData: ImageData | null = null;
@@ -60,20 +62,20 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
       const [frameCanvas, frameContext] = createCanvas(width, height);
       frameContext.putImageData(currentImageData, 0, 0);
 
-      frameNumber++;
       frames.push({
         width,
         height,
         delay: frame.delay,
         canvas: frameCanvas,
+        index: frameNumber,
         sketch: null,
-        frameNumber,
       });
+
+      frameNumber++;
 
       lastKeptImageData = currentImageData;
     }
 
-    // Apply disposal AFTER snapshotting, to prep workCanvas for the next frame
     if (frame.disposalType === 2) {
       workCtx.clearRect(dims.left, dims.top, dims.width, dims.height);
     } else if (frame.disposalType === 3 && previousImageData) {

@@ -25,6 +25,7 @@
     "@lucide/svelte": "^1.23.0",
     "@zip.js/zip.js": "^2.8.26",
     "gifuct-js": "^2.1.2",
+    "immer": "^11.1.11",
     "svelte-awesome-color-picker": "^4.1.3"
   }
 }

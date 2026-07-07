@@ -1,3 +1,5 @@
+import createCanvas from "./utils/createCanvas";
+
 export type ParsedGif = {
   name: string;
   width: number;
@@ -11,11 +13,11 @@ export type ParsedGifFrame = {
   height: number;
   delay: number;
   canvas: HTMLCanvasElement;
+  index: number;
   sketch: {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
   } | null;
-  frameNumber: number;
 };
 
 export type Point = { x: number; y: number; scale: number };

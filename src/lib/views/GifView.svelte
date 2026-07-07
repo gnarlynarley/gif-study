@@ -19,7 +19,7 @@
   const { gif = $bindable() }: Props = $props();
 
   const { width, height } = $derived(gif);
-  let playing = $state(true);
+  let playing = $state(import.meta.env.PROD ? true : false);
   let currentIndex = $state(0);
   let currentFrame = $derived(gif.frames[currentIndex]);
   let mainContainer = $state<HTMLDivElement | null>(null);
@@ -206,6 +206,7 @@
         {eraserSize}
         {tool}
         {panningKeyActive}
+        {panningActive}
         bind:frame={currentFrame}
         {color}
         bind:playing
