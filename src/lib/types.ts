@@ -1,14 +1,12 @@
-import createCanvas from "./utils/createCanvas";
-
-export type ParsedGif = {
+export type GifEntry = {
   name: string;
   width: number;
   height: number;
-  frames: ParsedGifFrame[];
+  frames: GifEntryFrame[];
   opacity: number;
 };
 
-export type ParsedGifFrame = {
+export type GifEntryFrame = {
   width: number;
   height: number;
   delay: number;

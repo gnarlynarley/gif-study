@@ -1,9 +1,9 @@
-import type { ParsedGif, ParsedGifFrame } from "$lib/types";
+import type { GifEntry, GifEntryFrame } from "$lib/types";
 import createCanvas from "$lib/utils/createCanvas";
 import parseGif from "$lib/utils/parseGif";
 import { produce, castDraft, finishDraft } from "immer";
 
-export const gif = $state<{ value: ParsedGif | null }>({ value: null });
+export const gif = $state<{ value: GifEntry | null }>({ value: null });
 
 export async function loadGifFromFile(file: File) {
   const buffer = await file.arrayBuffer();
@@ -12,7 +12,7 @@ export async function loadGifFromFile(file: File) {
 
 export async function updateFrameSketch(
   canvas: HTMLCanvasElement | null,
-  { index, width, height }: ParsedGifFrame,
+  { index, width, height }: GifEntryFrame,
 ) {
   if (!canvas) return;
   const draft = gif.value;

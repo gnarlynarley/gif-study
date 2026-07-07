@@ -9,11 +9,11 @@
   import modulo from "$lib/utils/modulo";
   import normalizeKey from "$lib/utils/normalizeKey";
   import styleString from "$lib/utils/styleString";
-  import { type Point, type ParsedGif, type SketchTool } from "../types";
+  import { type Point, type GifEntry, type SketchTool } from "../types";
   import ColorPicker, { ChromeVariant } from "svelte-awesome-color-picker";
 
   type Props = {
-    gif: ParsedGif;
+    gif: GifEntry;
   };
 
   const { gif = $bindable() }: Props = $props();

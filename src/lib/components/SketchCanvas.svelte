@@ -1,11 +1,11 @@
 <script lang="ts">
   import { updateFrameSketch } from "$lib/stores/gif.svelte";
-  import type { ParsedGifFrame, Point, SketchTool } from "$lib/types";
+  import type { GifEntryFrame, Point, SketchTool } from "$lib/types";
   import { drawPoint, renderLine } from "$lib/utils/canvas-render";
   import createCanvas from "$lib/utils/createCanvas";
 
   type Props = {
-    frame: ParsedGifFrame;
+    frame: GifEntryFrame;
     currentIndex: number;
     playing: boolean;
     panningKeyActive: boolean;

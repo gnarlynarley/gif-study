@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { ParsedGifFrame } from '$lib/types';
+  import type { GifEntryFrame } from '$lib/types';
   type Props = {
-    frame: ParsedGifFrame;
+    frame: GifEntryFrame;
   };
 
   const { frame }: Props = $props();

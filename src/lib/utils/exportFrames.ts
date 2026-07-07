@@ -1,10 +1,10 @@
-import type { ParsedGif, ParsedGifFrame } from "$lib/types";
+import type { GifEntry, GifEntryFrame } from "$lib/types";
 import createCanvas from "./createCanvas";
 import downloadFile from "./downloadFile";
 
 async function createFileFromFrame(
-  frame: ParsedGifFrame,
-  gif: ParsedGif,
+  frame: GifEntryFrame,
+  gif: GifEntry,
   index: number,
 ) {
   const [canvas, context] = createCanvas(frame.width, frame.height);
@@ -27,7 +27,7 @@ async function createFileFromFrame(
   return new File([blob], fileName);
 }
 
-export default async function exportFrames(gif: ParsedGif) {
+export default async function exportFrames(gif: GifEntry) {
   const zipFilesPromise = import("./zipFiles");
   const files = await Promise.all(
     gif.frames.map((frame, index) => createFileFromFrame(frame, gif, index)),

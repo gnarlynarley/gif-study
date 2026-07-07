@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { ParsedGifFrame } from "$lib/types";
+  import type { GifEntryFrame } from "$lib/types";
   import GifFrameCanvas from "./GifFrameCanvas.svelte";
 
   type Props = {
-    frames: ParsedGifFrame[];
+    frames: GifEntryFrame[];
     currentIndex: number;
   };
 

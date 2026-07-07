@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { ParsedGif, ParsedGifFrame } from "$lib/types";
+  import type { GifEntry, GifEntryFrame } from "$lib/types";
   import modulo from "$lib/utils/modulo";
 
   type Props = {
-    gif: ParsedGif;
+    gif: GifEntry;
     currentIndex: number;
   };
 

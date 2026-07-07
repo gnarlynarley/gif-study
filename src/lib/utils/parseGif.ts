@@ -1,4 +1,4 @@
-import { type ParsedGif, type ParsedGifFrame } from "$lib/types";
+import { type GifEntry, type GifEntryFrame } from "$lib/types";
 import { parseGIF, decompressFrames } from "gifuct-js";
 import createCanvas from "./createCanvas";
 import getFilename from "./getFilename";
@@ -19,7 +19,7 @@ function imageDataEquals(a: ImageData, b: ImageData): boolean {
   return true;
 }
 
-export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
+export default function parseGif(name: string, buffer: ArrayBuffer): GifEntry {
   const gif = parseGIF(buffer);
   const gifFrames = decompressFrames(gif, true);
 
@@ -29,7 +29,7 @@ export default function parseGif(name: string, buffer: ArrayBuffer): ParsedGif {
     willReadFrequently: true,
   });
   const [patchCanvas, patchCtx] = createCanvas();
-  const frames: ParsedGifFrame[] = [];
+  const frames: GifEntryFrame[] = [];
   let previousImageData: ImageData | null = null;
   let lastKeptImageData: ImageData | null = null;
   let frameNumber = 0;
