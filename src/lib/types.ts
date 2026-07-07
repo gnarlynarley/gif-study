@@ -15,7 +15,7 @@ export type ParsedGifFrame = {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
   } | null;
-  frameNumber: number
+  frameNumber: number;
 };
 
 export type Point = { x: number; y: number; scale: number };
@@ -34,5 +34,3 @@ export type Settings = {
     panning: string;
   };
 };
-
-export type PointerEvent = { clientX: number; clientY: number };

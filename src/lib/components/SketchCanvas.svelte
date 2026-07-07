@@ -1,10 +1,6 @@
 <script lang="ts">
-  import type {
-    ParsedGifFrame,
-    Point,
-    PointerEvent,
-    SketchTool,
-  } from "$lib/types";
+  import type { ParsedGifFrame, Point, SketchTool } from "$lib/types";
+  import { drawPoint, renderLine } from "$lib/utils/canvas-render";
   import createCanvas from "$lib/utils/createCanvas";
 
   type Props = {
@@ -36,6 +32,7 @@
   let cursorCanvas = $state<HTMLCanvasElement | null>(null);
   const cursorContext = $derived(cursorCanvas?.getContext("2d") ?? null);
 
+  const cursorScale = 2;
   const toolSize = $derived(tool === "brush" ? brushSize : eraserSize);
   let pointerActive = false;
   let lastPoint: Point | null = null;
@@ -53,8 +50,6 @@
       updateSketchCanvas();
     }
   }
-
-  $inspect(history);
 
   $effect(() => {
     if (!context) return;
@@ -80,37 +75,13 @@
     return { x, y, scale };
   };
 
-  const drawPoint = (
-    point: Point,
-    context: CanvasRenderingContext2D,
-    effectiveBrushSize: number,
-  ) => {
-    context.save();
-    if (tool === "eraser") {
-      context.globalCompositeOperation = "destination-out";
-    }
-    context.fillStyle = color;
-    context.beginPath();
-    context.arc(point.x, point.y, effectiveBrushSize / 2, 0, Math.PI * 2);
-    context.fill();
-    context.restore();
-  };
-
   const renderCursor = () => {
     if (!(cursorContext && cursorCanvas && cursorPoint)) return;
     const point = getPoint(cursorPoint, cursorCanvas);
-    const effectiveBrushSize = toolSize / point.scale;
+    const effectiveBrushSize = toolSize * cursorScale;
 
     cursorContext.save();
-    cursorContext.fillStyle = "black";
-    cursorContext.fillRect(0, 0, cursorCanvas.width, cursorCanvas.height);
-    cursorContext.clearRect(
-      1,
-      1,
-      cursorCanvas.width - 2,
-      cursorCanvas.height - 2,
-    );
-
+    cursorContext.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
     cursorContext.beginPath();
     cursorContext.arc(point.x, point.y, effectiveBrushSize / 2, 0, Math.PI * 2);
     if (tool === "brush") {
@@ -162,10 +133,14 @@
 
     cursorPoint = { x: ev.clientX, y: ev.clientY, scale: 1 };
     lastPoint = getPoint(cursorPoint, canvas);
-    const effectiveBrushSize = toolSize / lastPoint.scale;
 
-    drawPoint(lastPoint, context, effectiveBrushSize);
+    context.save();
+    if (tool === "eraser") {
+      context.globalCompositeOperation = "destination-out";
+    }
+    drawPoint(context, lastPoint, toolSize, color);
     updateSketchCanvas();
+    context.restore();
   };
 
   const onpointerup = () => {
@@ -179,12 +154,13 @@
     if (!canvas) return;
 
     const sketchPoint = getPoint(cursorPoint, canvas);
-    const effectiveBrushSize = toolSize / sketchPoint.scale;
 
     if (!pointerActive) return;
     if (!canvas) return;
     if (!context) return;
     if (panningKeyActive) return;
+
+    ev.preventDefault();
 
     playing = false;
 
@@ -195,17 +171,11 @@
     }
 
     if (lastPoint) {
-      drawPoint(lastPoint, context, effectiveBrushSize);
-
-      context.strokeStyle = color;
-      context.lineWidth = effectiveBrushSize;
-      context.beginPath();
-      context.moveTo(lastPoint.x, lastPoint.y);
-      context.lineTo(sketchPoint.x, sketchPoint.y);
-      context.stroke();
+      drawPoint(context, lastPoint, toolSize, color);
+      renderLine(context, lastPoint, sketchPoint, toolSize, color);
     }
 
-    drawPoint(sketchPoint, context, effectiveBrushSize);
+    renderLine(context, sketchPoint, sketchPoint, toolSize, color);
 
     context.restore();
 
@@ -234,8 +204,8 @@
   <canvas
     class="cursorCanvas"
     bind:this={cursorCanvas}
-    width={width * 2}
-    height={height * 2}
+    width={width * cursorScale}
+    height={height * cursorScale}
   >
   </canvas>
 </div>
