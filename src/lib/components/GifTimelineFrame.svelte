@@ -8,7 +8,6 @@
     gif: GifEntry;
     frame: GifEntryFrame;
     playing: boolean;
-    showFrames: boolean;
     currentIndex: number;
     selectFrames: boolean;
   };
@@ -19,7 +18,6 @@
     currentIndex = $bindable(),
     selectFrames,
     playing,
-    showFrames,
   }: Props = $props();
   let isActive = $derived(currentIndex === frame.index);
   let element = $state<HTMLElement | null>(null);
@@ -29,7 +27,7 @@
     if (!isActive) return;
     if (!element) return;
     if (!playing) return;
-    if (showFrames) return;
+    if (selectFrames) return;
     element.scrollIntoView({
       behavior: "instant",
       inline: "nearest",
@@ -74,7 +72,7 @@
     style:--delay={frame.delay}
   >
     <GifFrameCanvas {frame} />
-    <p class="delay">{frame.delay}</p>
+    <p class="delay">{frame.delay.toFixed(2)}</p>
     <p class="index">{frame.index + 1}</p>
   </button>
 </div>
@@ -85,6 +83,10 @@
     flex-direction: column;
     gap: var(--spacing-sm);
     height: 5em;
+
+    &.is-active {
+      background-color: var(--color-primary);
+    }
   }
 
   .trim {
@@ -124,8 +126,7 @@
         width: 100%;
         height: 100%;
         background-color: var(--color-primary);
-        mix-blend-mode: screen;
-        opacity: 0.5;
+        mix-blend-mode: multiply;
       }
     }
   }

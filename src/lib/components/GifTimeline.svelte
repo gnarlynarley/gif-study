@@ -64,7 +64,6 @@
             bind:gif
             {frame}
             {playing}
-            {showFrames}
             bind:currentIndex
             {selectFrames}
           />
