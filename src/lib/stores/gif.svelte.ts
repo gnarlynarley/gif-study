@@ -4,12 +4,17 @@ import getFramesFromVideoFile from "$lib/utils/getFramesFromVideoFile";
 import parseGif from "$lib/utils/parseGif";
 import { writable } from "svelte/store";
 import { latestFile } from "./latestFile";
+import { addNotification } from "./notifications.svelte";
 
 export const gifPending = writable(false);
 
 export const gif = $state<{ value: GifEntry | null }>({ value: null });
 
-export async function loadGifFromFile(file: File) {
+export async function loadGifFromFile(
+  file: File,
+  startTimestamp?: number,
+  endTimestamp?: number,
+) {
   try {
     gifPending.set(true);
     if (file.type === "image/gif") {
@@ -18,7 +23,11 @@ export async function loadGifFromFile(file: File) {
       gif.value = parseGif(file.name, buffer);
     } else if (file.type.includes("video/")) {
       latestFile.set(file);
-      const extracted = await getFramesFromVideoFile(file);
+      const extracted = await getFramesFromVideoFile(
+        file,
+        startTimestamp,
+        endTimestamp,
+      );
       const parsed = new GifEntry({
         name: extracted.name,
         width: extracted.width,
@@ -33,6 +42,10 @@ export async function loadGifFromFile(file: File) {
         })),
       });
       gif.value = parsed;
+    }
+  } catch (err) {
+    if (err instanceof Error) {
+      addNotification(err.message, "error");
     }
   } finally {
     gifPending.set(false);

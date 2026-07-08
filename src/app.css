@@ -13,6 +13,7 @@
   /* color-scheme: light; */
   --spacing-sm: 4px;
   --spacing: 8px;
+  --spacing-lg: 16px;
 
   --color-primary: light-dark(#ff7b00, #e2ad00);
   --color-text: light-dark(#111, white);
@@ -22,6 +23,7 @@
     var(--color-background),
     var(--color-text) 10%
   );
+  --color-error: light-dark(#ff7070, #871717);
 
   accent-color: var(--color-primary);
 }

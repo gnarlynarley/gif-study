@@ -19,6 +19,8 @@ interface ExtractedFrame {
 
 export default async function getFramesFromVideoFile(
   file: File,
+  startTimestamp: number = 0,
+  endTimestamp?: number,
 ): Promise<ExtractedVideo> {
   const { Input, ALL_FORMATS, BlobSource, VideoSampleSink } =
     await import("mediabunny");
@@ -44,7 +46,7 @@ export default async function getFramesFromVideoFile(
   const frames: ExtractedFrame[] = [];
   let lastKeptImageData: ImageData | null = null;
 
-  for await (const sample of sink.samples()) {
+  for await (const sample of sink.samples(startTimestamp, endTimestamp)) {
     const [canvas, context] = createCanvas(
       sample.displayWidth,
       sample.displayHeight,

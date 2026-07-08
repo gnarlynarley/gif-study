@@ -14,7 +14,7 @@
   import Tooltip from "./Tooltip.svelte";
   import { settings } from "$lib/stores/settings.svelte";
   import normalizeKey from "$lib/utils/normalizeKey";
-  import IconButton from "./IconButton.svelte";
+  import Button from "./Button.svelte";
 
   type Props = {
     playing: boolean;
@@ -95,41 +95,44 @@
   <Tooltip
     label={`${playing ? "Pause" : "Play"} (${$settings.keybinds.togglePlaying})`}
   >
-    <IconButton onclick={togglePlaying}>
+    <Button icon onclick={togglePlaying}>
       {#if playing}
         <PauseIcon />
       {:else}
         <PlayIcon />
       {/if}
-    </IconButton>
+    </Button>
   </Tooltip>
 
   <div class="divider"></div>
 
   <Tooltip label={`Brush tool (${$settings.keybinds.brush})`}>
-    <IconButton
+    <Button
+      icon
       active={tool === "brush"}
       onclick={() => {
         tool = "brush";
       }}
     >
       <BrushIcon />
-    </IconButton>
+    </Button>
   </Tooltip>
 
   <Tooltip label={`Eraser tool (${$settings.keybinds.eraser})`}>
-    <IconButton
+    <Button
+      icon
       active={tool === "eraser"}
       onclick={() => {
         tool = "eraser";
       }}
     >
       <EraserIcon />
-    </IconButton>
+    </Button>
   </Tooltip>
 
   <Tooltip label={`Toggle color picker`}>
-    <IconButton
+    <Button
+      icon
       active={colorPickerActive}
       onclick={() => {
         colorPickerActive = !colorPickerActive;
@@ -137,7 +140,7 @@
       label="Toggle colorpicker"
     >
       <div class="color-swatch" style:--color={color}></div>
-    </IconButton>
+    </Button>
   </Tooltip>
 
   {#if tool === "brush"}
@@ -170,26 +173,28 @@
   <div class="divider"></div>
 
   <Tooltip label="Toggle union skin">
-    <IconButton
+    <Button
+      icon
       active={unionSkinActive}
       onclick={() => {
         unionSkinActive = !unionSkinActive;
       }}
     >
       <BlendIcon />
-    </IconButton>
+    </Button>
   </Tooltip>
 
   <Tooltip label="Download frames">
-    <IconButton onclick={onExportFramesClick}>
+    <Button icon onclick={onExportFramesClick}>
       <DownloadIcon />
-    </IconButton>
+    </Button>
   </Tooltip>
 
   <div class="divider"></div>
 
   <Tooltip label="Exit">
-    <IconButton
+    <Button
+      icon
       onclick={() => {
         const clear = window.confirm("Do you want to exit?");
         if (clear) {
@@ -198,7 +203,7 @@
       }}
     >
       <DoorOpenIcon />
-    </IconButton>
+    </Button>
   </Tooltip>
 </div>
 

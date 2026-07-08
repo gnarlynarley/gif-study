@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { GifEntry, GifEntryFrame } from "$lib/types.svelte";
   import GifFrameCanvas from "./GifFrameCanvas.svelte";
-  import IconButton from "./IconButton.svelte";
+  import Button from "./Button.svelte";
   import { ArrowLeftToLineIcon, ArrowRightToLineIcon } from "@lucide/svelte";
 
   type Props = {
@@ -46,20 +46,22 @@
 >
   {#if selectFrames}
     <div class="trim">
-      <IconButton
+      <Button
+        icon
         onclick={() => {
           gif.frameStartIndex = frame.index;
         }}
       >
         <ArrowLeftToLineIcon size="16" absoluteStrokeWidth />
-      </IconButton>
-      <IconButton
+      </Button>
+      <Button
+        icon
         onclick={() => {
           gif.frameEndIndex = frame.index;
         }}
       >
         <ArrowRightToLineIcon size="16" absoluteStrokeWidth />
-      </IconButton>
+      </Button>
     </div>
   {/if}
   <button

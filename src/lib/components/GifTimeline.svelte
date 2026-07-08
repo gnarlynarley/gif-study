@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { GifEntry } from "$lib/types.svelte";
   import GifTimelineFrame from "./GifTimelineFrame.svelte";
-  import IconButton from "./IconButton.svelte";
+  import Button from "./Button.svelte";
   import {
     ChevronsLeftRightEllipsisIcon,
     ChevronUpIcon,
@@ -27,30 +27,33 @@
 <div class="wrapper">
   <div class="options">
     {#if showFrames}
-      <IconButton
+      <Button
+        icon
         active={selectFrames}
         onclick={() => {
           selectFrames = !selectFrames;
         }}
       >
         <ChevronsLeftRightEllipsisIcon size={16} absoluteStrokeWidth />
-      </IconButton>
-      <IconButton
+      </Button>
+      <Button
+        icon
         active={selectFrames}
         onclick={() => {
           showFrames = false;
         }}
       >
         <ChevronDownIcon size={16} absoluteStrokeWidth />
-      </IconButton>
+      </Button>
     {:else}
-      <IconButton
+      <Button
+        icon
         onclick={() => {
           showFrames = true;
         }}
       >
         <ChevronUpIcon size={16} absoluteStrokeWidth />
-      </IconButton>
+      </Button>
     {/if}
   </div>
   {#if showFrames}

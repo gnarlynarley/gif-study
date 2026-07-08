@@ -1,4 +1,5 @@
 <script lang="ts">
+  import NotificationManager from "$lib/components/NotificationManager.svelte";
   import HomeView from "$lib/views/HomeView.svelte";
   import LoadingView from "$lib/views/LoadingView.svelte";
   import { gif, gifPending } from "./lib/stores/gif.svelte";
@@ -12,3 +13,5 @@
 {:else}
   <HomeView />
 {/if}
+
+<NotificationManager />
