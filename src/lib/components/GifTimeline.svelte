@@ -1,118 +1,95 @@
 <script lang="ts">
-  import type { GifEntryFrame } from "$lib/types";
-  import GifFrameCanvas from "./GifFrameCanvas.svelte";
+  import type { GifEntry } from "$lib/types.svelte";
+  import GifTimelineFrame from "./GifTimelineFrame.svelte";
+  import IconButton from "./IconButton.svelte";
+  import {
+    ChevronsLeftRightEllipsisIcon,
+    ChevronUpIcon,
+    ChevronDownIcon,
+  } from "@lucide/svelte";
 
   type Props = {
-    frames: GifEntryFrame[];
+    gif: GifEntry;
     currentIndex: number;
   };
 
-  let { frames, currentIndex = $bindable() }: Props = $props();
-  let framesWrapper = $state<HTMLDivElement | null>(null);
-  let frameNodes = $derived(framesWrapper?.querySelectorAll(".frame"));
-
-  $effect(() => {
-    if (!frameNodes) return;
-    const element = frameNodes[currentIndex];
-    if (!element) return;
-    element.scrollIntoView({
-      behavior: "instant",
-      inline: "center",
-      block: "center",
-    });
-  });
+  let { gif = $bindable(), currentIndex = $bindable() }: Props = $props();
+  let selectFrames = $state(false);
+  let showFrames = $state(true);
+  const frames = $derived(selectFrames ? gif.frames : gif.trimmedFrames);
 </script>
 
 <div class="wrapper">
-  <div class="frames" bind:this={framesWrapper}>
-    {#each frames as frame}
-      <button
-        class="frame"
-        class:is-active={frame.index === currentIndex}
-        type="button"
-        onclick={(ev) => {
-          ev.currentTarget.blur();
-          currentIndex = frame.index;
+  <div class="options">
+    {#if showFrames}
+      <IconButton
+        active={selectFrames}
+        onclick={() => {
+          selectFrames = !selectFrames;
         }}
-        style={`--delay: ${frame.delay}`}
       >
-        <GifFrameCanvas {frame} />
-        <p class="delay">{frame.delay}</p>
-        <p class="index">{frame.index + 1}</p>
-      </button>
-    {/each}
+        <ChevronsLeftRightEllipsisIcon size={16} absoluteStrokeWidth />
+      </IconButton>
+      <IconButton
+        active={selectFrames}
+        onclick={() => {
+          showFrames = false;
+        }}
+      >
+        <ChevronDownIcon size={16} absoluteStrokeWidth />
+      </IconButton>
+    {:else}
+      <IconButton
+        onclick={() => {
+          showFrames = true;
+        }}
+      >
+        <ChevronUpIcon size={16} absoluteStrokeWidth />
+      </IconButton>
+    {/if}
   </div>
+  {#if showFrames}
+    <div class="frames">
+      <div class="frames-inner">
+        {#each frames as frame}
+          <GifTimelineFrame bind:gif {frame} bind:currentIndex {selectFrames} />
+        {/each}
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
   .wrapper {
+    position: relative;
+    width: 100dvw;
+  }
+
+  .options {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: hsl(from var(--color-accent) h s l / 0.6);
+    padding: var(--spacing);
+    border-top-left-radius: var(--spacing);
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+
+  .frames {
     width: 100dvw;
     overflow: auto;
-    scrollbar-width: thin;
     scrollbar-color: hsl(from var(--color-text) h s l / 0.5)
       var(--color-background);
     background-color: var(--color-background);
     border-top: 1px solid var(--color-accent);
     display: flex;
   }
-  .frames {
+
+  .frames-inner {
     display: inline-flex;
     flex-shrink: 0;
     margin-inline: auto;
     padding: var(--spacing) 0;
-  }
-
-  .frame {
-    width: calc(var(--delay) * 0.05em);
-    height: 5em;
-    flex-shrink: 0;
-    position: relative;
-    border: 1px solid transparent;
-    background: transparent;
-
-    .index,
-    .delay {
-      position: absolute;
-      z-index: 1;
-      font-size: 0.5em;
-      line-height: 1;
-      display: inline-block;
-      padding: var(--spacing-sm);
-      background: var(--color-background);
-    }
-
-    .delay {
-      top: 0;
-      right: 0;
-    }
-
-    .index {
-      bottom: 0;
-      left: 0;
-    }
-
-    :global(canvas) {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    &.is-active {
-      border-color: var(--color-primary);
-
-      &::after {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: var(--color-primary);
-        mix-blend-mode: screen;
-      }
-    }
   }
 </style>

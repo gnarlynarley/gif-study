@@ -6,17 +6,16 @@
   import { settings } from "$lib/stores/settings.svelte";
   import clamp from "$lib/utils/clamp";
   import exportFrames from "$lib/utils/exportFrames";
-  import modulo from "$lib/utils/modulo";
   import normalizeKey from "$lib/utils/normalizeKey";
   import styleString from "$lib/utils/styleString";
-  import { type Point, type GifEntry, type SketchTool } from "../types";
+  import { GifEntry, type Point, type SketchTool } from "../types.svelte";
   import ColorPicker, { ChromeVariant } from "svelte-awesome-color-picker";
 
   type Props = {
     gif: GifEntry;
   };
 
-  const { gif = $bindable() }: Props = $props();
+  let { gif = $bindable() }: Props = $props();
 
   const { width, height } = $derived(gif);
   let playing = $state(import.meta.env.PROD ? true : false);
@@ -26,10 +25,6 @@
 
   let frameCanvas = $state<HTMLCanvasElement | null>(null);
   const frameContext = $derived(frameCanvas?.getContext("2d") ?? null);
-  let backgroundCanvas = $state<HTMLCanvasElement | null>(null);
-  const backgroundContext = $derived(
-    backgroundCanvas?.getContext("2d") ?? null,
-  );
 
   let brushSize = $state(3);
   let eraserSize = $state(20);
@@ -41,6 +36,10 @@
   let pointerActive = $state(false);
   let panningActive = $derived(panningKeyActive && pointerActive);
   let navigation = $state<Point>({ x: 0, y: 0, scale: 1 });
+
+  $effect(() => {
+    currentIndex = gif.getIndexByOffset(currentIndex, 0);
+  });
 
   $effect(() => {
     if (!mainContainer) return;
@@ -65,11 +64,9 @@
       accumulated += now - lastTime;
       lastTime = now;
 
-      // Handle delay=0 frames (some GIFs use this) and drift correction
-      // by advancing multiple frames in one tick if we've fallen behind
       while (accumulated >= (gif.frames[currentIndex]?.delay || 100)) {
         accumulated -= gif.frames[currentIndex].delay || 100;
-        currentIndex = (currentIndex + 1) % gif.frames.length;
+        currentIndex = gif.getIndexByOffset(currentIndex, 1);
       }
 
       rafId = requestAnimationFrame(tick);
@@ -78,13 +75,6 @@
     rafId = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(rafId);
-  });
-
-  $effect(() => {
-    if (backgroundContext) {
-      backgroundContext.fillStyle = "white";
-      backgroundContext.fillRect(0, 0, width, height);
-    }
   });
 
   $effect(() => {
@@ -104,14 +94,13 @@
   let initial: Point = { ...DEFAULT_POINT };
 
   function onkeydown(ev: KeyboardEvent) {
-    const framesLength = gif.frames.length;
     switch (normalizeKey(ev.key)) {
       case $settings.keybinds.prevFrame: {
-        currentIndex = modulo(currentIndex - 1, framesLength);
+        currentIndex = gif.getIndexByOffset(currentIndex, -1);
         break;
       }
       case $settings.keybinds.nextFrame: {
-        currentIndex = modulo(currentIndex + 1, framesLength);
+        currentIndex = gif.getIndexByOffset(currentIndex, 1);
         break;
       }
       case $settings.keybinds.panning: {
@@ -160,62 +149,68 @@
 
 <svelte:window {onkeydown} {onkeyup} />
 
-<div class="wrapper" style:--background-color={gif.backgroundColor}>
-  <div class="toolbar">
-    <SketchToolbar
-      bind:playing
-      bind:opacity={gif.opacity}
-      bind:tool
-      bind:brushSize
-      bind:eraserSize
-      bind:colorPickerActive
-      bind:unionSkinActive
-      {color}
-      {onExportFramesClick}
-    />
-  </div>
-  <div
-    class="main"
-    role="application"
-    {onpointermove}
-    {onwheel}
-    {onpointerdown}
-    {onpointerup}
-    bind:this={mainContainer}
-  >
-    <div
-      class="render"
-      style={styleString({
-        "--x": navigation.x,
-        "--y": navigation.y,
-        "--scale": navigation.scale,
-      })}
-    >
-      <!-- <canvas bind:this={backgroundCanvas} {width} {height}></canvas> -->
-
-      <canvas
-        class="frameCanvas"
-        bind:this={frameCanvas}
-        {width}
-        {height}
-        style={`opacity:${gif.opacity};`}
-      ></canvas>
-
-      <SketchCanvas
-        {brushSize}
-        {eraserSize}
-        {tool}
-        {panningKeyActive}
-        {panningActive}
-        bind:frame={currentFrame}
-        {color}
+<div
+  class="wrapper"
+  style:--background-color={gif.backgroundColor}
+  class:is-panning={panningKeyActive}
+  class:is-panning-active={panningActive}
+>
+  <div class="main">
+    <div class="toolbar">
+      <SketchToolbar
         bind:playing
-        bind:currentIndex
+        bind:opacity={gif.opacity}
+        bind:tool
+        bind:brushSize
+        bind:eraserSize
+        bind:colorPickerActive
+        bind:unionSkinActive
+        {color}
+        {onExportFramesClick}
       />
+    </div>
+    <div
+      class="canvas"
+      role="application"
+      {onpointermove}
+      {onwheel}
+      {onpointerdown}
+      {onpointerup}
+      bind:this={mainContainer}
+    >
+      <div
+        class="render"
+        style={styleString({
+          "--x": navigation.x,
+          "--y": navigation.y,
+          "--scale": navigation.scale,
+        })}
+      >
+        <canvas
+          class="frameCanvas"
+          bind:this={frameCanvas}
+          {width}
+          {height}
+          style={`opacity:${gif.opacity};`}
+        ></canvas>
 
-      {#if unionSkinActive}
-        <UnionSkinCanvas {gif} {currentIndex} />
-      {/if}
+        <SketchCanvas
+          {gif}
+          {brushSize}
+          {eraserSize}
+          {tool}
+          {panningKeyActive}
+          {panningActive}
+          bind:frame={currentFrame}
+          {color}
+          bind:playing
+          bind:currentIndex
+        />
+
+        {#if unionSkinActive}
+          <UnionSkinCanvas {gif} {currentIndex} />
+        {/if}
+      </div>
     </div>
     {#if colorPickerActive}
       <div class="color">
@@ -231,7 +226,7 @@
     {/if}
   </div>
   <div class="timeline">
-    <GifTimeline frames={gif.frames} bind:currentIndex />
+    <GifTimeline bind:gif bind:currentIndex />
   </div>
 </div>
 
@@ -271,6 +266,23 @@
     position: relative;
     overflow: hidden;
     width: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .is-panning & {
+      cursor: grab !important;
+    }
+
+    .is-panning-active & {
+      cursor: grabbing !important;
+    }
   }
 
   .render {

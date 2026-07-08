@@ -1,4 +1,4 @@
-import type { GifEntry, GifEntryFrame } from "$lib/types";
+import type { GifEntry, GifEntryFrame } from "$lib/types.svelte";
 import createCanvas from "./createCanvas";
 import downloadFile from "./downloadFile";
 
@@ -30,7 +30,9 @@ async function createFileFromFrame(
 export default async function exportFrames(gif: GifEntry) {
   const zipFilesPromise = import("./zipFiles");
   const files = await Promise.all(
-    gif.frames.map((frame, index) => createFileFromFrame(frame, gif, index)),
+    gif.trimmedFrames.map((frame, index) =>
+      createFileFromFrame(frame, gif, index),
+    ),
   );
   const filtered = files.filter((file) => file !== null);
   const zipFiles = (await zipFilesPromise).default;

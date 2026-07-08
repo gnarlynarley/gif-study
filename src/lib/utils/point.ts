@@ -1,4 +1,4 @@
-import type { Point } from "$lib/types";
+import type { Point } from "$lib/types.svelte";
 
 export function addPoints(a: Point, b: Point): Point {
   return {

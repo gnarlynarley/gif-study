@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { GifEntryFrame } from '$lib/types';
+  import type { GifEntryFrame } from "$lib/types.svelte";
   type Props = {
     frame: GifEntryFrame;
   };
@@ -8,7 +8,7 @@
   const { width, height } = $derived(frame);
 
   let canvas = $state<HTMLCanvasElement | null>(null);
-  const context = $derived(canvas?.getContext('2d') ?? null);
+  const context = $derived(canvas?.getContext("2d") ?? null);
 
   $effect(() => {
     if (!context) return;

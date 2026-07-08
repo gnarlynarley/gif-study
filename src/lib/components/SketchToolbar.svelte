@@ -1,6 +1,6 @@
 <script lang="ts">
   import { unloadGif } from "$lib/stores/gif.svelte";
-  import type { SketchTool } from "$lib/types";
+  import type { SketchTool } from "$lib/types.svelte";
   import clamp from "$lib/utils/clamp";
   import {
     BrushIcon,
@@ -14,6 +14,7 @@
   import Tooltip from "./Tooltip.svelte";
   import { settings } from "$lib/stores/settings.svelte";
   import normalizeKey from "$lib/utils/normalizeKey";
+  import IconButton from "./IconButton.svelte";
 
   type Props = {
     playing: boolean;
@@ -94,56 +95,49 @@
   <Tooltip
     label={`${playing ? "Pause" : "Play"} (${$settings.keybinds.togglePlaying})`}
   >
-    <button class="button" type="button" onclick={togglePlaying}>
+    <IconButton onclick={togglePlaying}>
       {#if playing}
         <PauseIcon />
       {:else}
         <PlayIcon />
       {/if}
-    </button>
+    </IconButton>
   </Tooltip>
 
   <div class="divider"></div>
 
   <Tooltip label={`Brush tool (${$settings.keybinds.brush})`}>
-    <button
-      class="button"
-      class:is-active={tool === "brush"}
-      type="button"
+    <IconButton
+      active={tool === "brush"}
       onclick={() => {
         tool = "brush";
       }}
     >
       <BrushIcon />
-    </button>
+    </IconButton>
   </Tooltip>
 
   <Tooltip label={`Eraser tool (${$settings.keybinds.eraser})`}>
-    <button
-      class="button"
-      class:is-active={tool === "eraser"}
-      type="button"
+    <IconButton
+      active={tool === "eraser"}
       onclick={() => {
         tool = "eraser";
       }}
     >
       <EraserIcon />
-    </button>
+    </IconButton>
   </Tooltip>
 
   <Tooltip label={`Toggle color picker`}>
-    <button
-      class="button"
-      class:is-active={tool === "eraser"}
-      type="button"
-      style={`--color: ${color}`}
+    <IconButton
+      active={colorPickerActive}
       onclick={() => {
         colorPickerActive = !colorPickerActive;
       }}
-      aria-label="Toggle colorpicker"
+      label="Toggle colorpicker"
     >
-      <div class="color-swatch"></div>
-    </button>
+      <div class="color-swatch" style:--color={color}></div>
+    </IconButton>
   </Tooltip>
 
   {#if tool === "brush"}
@@ -176,30 +170,26 @@
   <div class="divider"></div>
 
   <Tooltip label="Toggle union skin">
-    <button
-      class="button"
-      class:is-active={unionSkinActive}
-      type="button"
+    <IconButton
+      active={unionSkinActive}
       onclick={() => {
         unionSkinActive = !unionSkinActive;
       }}
     >
       <BlendIcon />
-    </button>
+    </IconButton>
   </Tooltip>
 
   <Tooltip label="Download frames">
-    <button class="button" type="button" onclick={onExportFramesClick}>
+    <IconButton onclick={onExportFramesClick}>
       <DownloadIcon />
-    </button>
+    </IconButton>
   </Tooltip>
 
   <div class="divider"></div>
 
   <Tooltip label="Exit">
-    <button
-      class="button"
-      type="button"
+    <IconButton
       onclick={() => {
         const clear = window.confirm("Do you want to exit?");
         if (clear) {
@@ -208,7 +198,7 @@
       }}
     >
       <DoorOpenIcon />
-    </button>
+    </IconButton>
   </Tooltip>
 </div>
 
@@ -222,30 +212,6 @@
     border-radius: 3px;
     backdrop-filter: blur(8px);
     box-shadow: 1px 2px 8px hsl(from black h s l / 0.1);
-  }
-
-  .button {
-    border: none;
-    background: none;
-    border-radius: 3px;
-    line-height: 1;
-    aspect-ratio: 1 / 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-sm);
-
-    :global(svg) {
-      color: var(--color);
-    }
-
-    &.is-active {
-      background: hsl(from currentColor h s l / 0.2);
-    }
-
-    &:hover {
-      background: hsl(from currentColor h s l / 0.5);
-    }
   }
 
   .color-swatch {

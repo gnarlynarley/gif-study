@@ -1,4 +1,4 @@
-import type { Settings } from "$lib/types";
+import type { Settings } from "$lib/types.svelte";
 import { writable } from "svelte/store";
 
 export const settings = writable<Settings>({

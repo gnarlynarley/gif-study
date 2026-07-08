@@ -1,15 +1,20 @@
 <script lang="ts">
-  import { updateFrameSketch } from "$lib/stores/gif.svelte";
-  import type { GifEntryFrame, Point, SketchTool } from "$lib/types";
+  import type {
+    GifEntry,
+    GifEntryFrame,
+    Point,
+    SketchTool,
+  } from "$lib/types.svelte";
   import { drawPoint, renderLine } from "$lib/utils/canvas-render";
   import createCanvas from "$lib/utils/createCanvas";
 
   type Props = {
+    gif: GifEntry;
     frame: GifEntryFrame;
     currentIndex: number;
     playing: boolean;
-    panningKeyActive: boolean;
     panningActive: boolean;
+    panningKeyActive: boolean;
     brushSize: number;
     eraserSize: number;
     tool: SketchTool;
@@ -17,11 +22,12 @@
   };
 
   let {
+    gif,
     frame = $bindable(),
     currentIndex = $bindable(),
     playing = $bindable(),
-    panningKeyActive,
     panningActive,
+    panningKeyActive,
     brushSize,
     eraserSize,
     tool,
@@ -50,7 +56,7 @@
       currentIndex = item.index;
       context.clearRect(0, 0, width, height);
       context.drawImage(item.canvas, 0, 0);
-      updateFrameSketch(canvas, frame);
+      gif.updateFrameSketch(canvas, frame);
     }
   }
 
@@ -90,10 +96,11 @@
     if (tool === "brush") {
       cursorContext.fillStyle = color;
       cursorContext.fill();
+    } else {
+      cursorContext.strokeStyle = "white";
+      cursorContext.lineWidth = 2;
+      cursorContext.stroke();
     }
-    cursorContext.strokeStyle = "black";
-    cursorContext.lineWidth = 2;
-    cursorContext.stroke();
     cursorContext.restore();
   };
 
@@ -138,7 +145,7 @@
   const onpointerup = () => {
     pointerActive = false;
     lastPoint = null;
-    updateFrameSketch(canvas, frame);
+    gif.updateFrameSketch(canvas, frame);
   };
 
   const onpointermove = (ev: PointerEvent) => {
@@ -187,8 +194,9 @@
 
 <div
   class="wrapper"
-  class:is-panning={panningKeyActive}
-  class:is-panning-active={panningActive}
+  class:is-eraser-tool={tool === "eraser"}
+  class:is-active-panning={panningKeyActive}
+  class:is-panning={panningActive}
   {onpointerdown}
   {onpointerup}
   {onpointermove}
@@ -211,14 +219,9 @@
     left: 0;
     width: 100%;
     height: 100%;
-    cursor: crosshair;
 
-    &.is-panning {
-      cursor: grab;
-    }
-
-    &.is-panning-active {
-      cursor: grabbing;
+    &:not(.is-active-panning) {
+      cursor: crosshair;
     }
   }
   canvas {
@@ -231,14 +234,14 @@
   }
 
   .cursorCanvas {
-    opacity: 0.8;
+    .is-eraser-tool & {
+      mix-blend-mode: difference;
+    }
 
+    .wrapper:not(:hover) &,
     .wrapper.is-panning & {
       display: none;
+      visibility: hidden;
     }
-  }
-
-  .wrapper:not(:hover) .cursorCanvas {
-    display: none;
   }
 </style>

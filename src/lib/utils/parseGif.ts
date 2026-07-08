@@ -1,4 +1,4 @@
-import { type GifEntry, type GifEntryFrame } from "$lib/types";
+import { GifEntry, type GifEntryFrame } from "$lib/types.svelte";
 import { parseGIF, decompressFrames } from "gifuct-js";
 import createCanvas from "./createCanvas";
 import getFilename from "./getFilename";
@@ -83,12 +83,11 @@ export default function parseGif(name: string, buffer: ArrayBuffer): GifEntry {
     }
   }
 
-  return {
+  return new GifEntry({
     name: getFilename(name),
     width,
     height,
     frames,
     opacity: 1,
-    backgroundColor: "white",
-  };
+  });
 }

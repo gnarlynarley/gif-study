@@ -1,4 +1,4 @@
-import type { GifEntry, GifEntryFrame } from "$lib/types";
+import type { GifEntry, GifEntryFrame } from "$lib/types.svelte";
 import createCanvas from "$lib/utils/createCanvas";
 import parseGif from "$lib/utils/parseGif";
 import localforage from "localforage";
@@ -49,8 +49,3 @@ export function unloadGif() {
   gif.value = null;
   localforage.removeItem(LOCAL_KEY_FILE);
 }
-
-window.addEventListener("beforeunload", (e) => {
-  if (gif.value === null) return;
-  e.preventDefault();
-});

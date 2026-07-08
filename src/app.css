@@ -10,10 +10,11 @@
 
 :root {
   color-scheme: light dark;
+  /* color-scheme: light; */
   --spacing-sm: 4px;
   --spacing: 8px;
 
-  --color-primary: light-dark(orange, #ffc400);
+  --color-primary: light-dark(#ff7b00, #e2ad00);
   --color-text: light-dark(#111, white);
   --color-background: light-dark(white, #111);
   --color-accent: color-mix(
@@ -51,6 +52,8 @@ canvas {
 
 button {
   font: inherit;
+  border: none;
+  padding: 0;
 }
 
 input {
