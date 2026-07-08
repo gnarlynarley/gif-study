@@ -9,12 +9,10 @@ export class GifEntry {
   trimmedFrames: GifEntryFrame[];
   frameStartIndex: number;
   frameEndIndex: number;
-  opacity: number;
+  opacity = $state(1);
   backgroundColor = $state<string>("white");
 
-  constructor(
-    opts: Pick<GifEntry, "name" | "width" | "height" | "frames" | "opacity">,
-  ) {
+  constructor(opts: Pick<GifEntry, "name" | "width" | "height" | "frames">) {
     this.name = $state(opts.name);
     this.width = $state(opts.width);
     this.height = $state(opts.height);
@@ -25,7 +23,6 @@ export class GifEntry {
     this.trimmedFrames = $derived(
       wrapSlice(this.frames, this.frameStartIndex, this.frameEndIndex),
     );
-    this.opacity = $state(opts.opacity);
   }
 
   updateFrameSketch = async (

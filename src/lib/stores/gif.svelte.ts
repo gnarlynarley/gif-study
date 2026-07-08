@@ -1,29 +1,41 @@
-import type { GifEntry, GifEntryFrame } from "$lib/types.svelte";
+import { GifEntry, type GifEntryFrame } from "$lib/types.svelte";
 import createCanvas from "$lib/utils/createCanvas";
+import getFramesFromVideoFile from "$lib/utils/getFramesFromVideoFile";
 import parseGif from "$lib/utils/parseGif";
-import localforage from "localforage";
 import { writable } from "svelte/store";
+import { latestFile } from "./latestFile";
 
-const LOCAL_KEY_FILE = "gif-file";
-
-localforage.getItem<File>(LOCAL_KEY_FILE).then((file) => {
-  localGifLoading.set(false);
-  if (file) loadGifFromFile(file);
-});
-
-export const localGifLoading = writable(true);
+export const gifPending = writable(false);
 
 export const gif = $state<{ value: GifEntry | null }>({ value: null });
 
 export async function loadGifFromFile(file: File) {
   try {
-    localGifLoading.set(true);
-
-    await localforage.setItem(LOCAL_KEY_FILE, file);
-    const buffer = await file.arrayBuffer();
-    gif.value = parseGif(file.name, buffer);
+    gifPending.set(true);
+    if (file.type === "image/gif") {
+      latestFile.set(file);
+      const buffer = await file.arrayBuffer();
+      gif.value = parseGif(file.name, buffer);
+    } else if (file.type.includes("video/")) {
+      latestFile.set(file);
+      const extracted = await getFramesFromVideoFile(file);
+      const parsed = new GifEntry({
+        name: extracted.name,
+        width: extracted.width,
+        height: extracted.height,
+        frames: extracted.frames.map((frame, index) => ({
+          width: frame.width,
+          height: frame.height,
+          delay: frame.delay,
+          canvas: frame.canvas,
+          index: index,
+          sketch: null,
+        })),
+      });
+      gif.value = parsed;
+    }
   } finally {
-    localGifLoading.set(false);
+    gifPending.set(false);
   }
 }
 
@@ -47,5 +59,4 @@ export async function updateFrameSketch(
 
 export function unloadGif() {
   gif.value = null;
-  localforage.removeItem(LOCAL_KEY_FILE);
 }

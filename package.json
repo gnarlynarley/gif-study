@@ -27,6 +27,7 @@
     "gifuct-js": "^2.1.2",
     "immer": "^11.1.11",
     "localforage": "^1.10.0",
+    "mediabunny": "^1.50.7",
     "svelte-awesome-color-picker": "^4.1.3"
   }
 }

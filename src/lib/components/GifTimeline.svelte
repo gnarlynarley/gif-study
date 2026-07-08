@@ -11,9 +11,14 @@
   type Props = {
     gif: GifEntry;
     currentIndex: number;
+    playing: boolean;
   };
 
-  let { gif = $bindable(), currentIndex = $bindable() }: Props = $props();
+  let {
+    gif = $bindable(),
+    currentIndex = $bindable(),
+    playing,
+  }: Props = $props();
   let selectFrames = $state(false);
   let showFrames = $state(true);
   const frames = $derived(selectFrames ? gif.frames : gif.trimmedFrames);
@@ -52,7 +57,14 @@
     <div class="frames">
       <div class="frames-inner">
         {#each frames as frame}
-          <GifTimelineFrame bind:gif {frame} bind:currentIndex {selectFrames} />
+          <GifTimelineFrame
+            bind:gif
+            {frame}
+            {playing}
+            {showFrames}
+            bind:currentIndex
+            {selectFrames}
+          />
         {/each}
       </div>
     </div>

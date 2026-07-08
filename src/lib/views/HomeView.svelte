@@ -1,5 +1,6 @@
 <script lang="ts">
   import { loadGifFromFile } from "$lib/stores/gif.svelte";
+  import { latestFile } from "$lib/stores/latestFile";
   import { settings } from "$lib/stores/settings.svelte";
 
   const keybinds: [string, string][] = $derived([
@@ -15,11 +16,22 @@
 </script>
 
 <div class="wrapper">
-  <label for="load-gif">Load gif:</label>
+  {#if $latestFile}
+    <button
+      class="button"
+      type="button"
+      onclick={() => {
+        loadGifFromFile($latestFile);
+      }}
+    >
+      Load latest: {$latestFile.name}
+    </button>
+  {/if}
+  <label class="button" for="load-gif">Load</label>
   <input
     id="load-gif"
     type="file"
-    accept="image/gif"
+    accept="image/gif,video/*"
     oninput={(ev) => {
       const file = ev.currentTarget.files?.[0] ?? null;
       if (file) {
@@ -54,5 +66,18 @@
     padding: var(--spacing-sm);
     border-radius: var(--spacing-sm);
     background-color: var(--color-accent);
+  }
+
+  .button {
+    padding: var(--spacing);
+    background: var(--color-accent);
+    border-radius: var(--spacing-sm);
+    text-align: center;
+    cursor: pointer;
+  }
+
+  input[type="file"] {
+    display: none;
+    visibility: hidden;
   }
 </style>
