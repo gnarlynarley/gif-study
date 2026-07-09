@@ -190,7 +190,7 @@
   };
 </script>
 
-<svelte:window {onkeydown} />
+<svelte:window {onkeydown} {onpointerup} {onpointermove} />
 
 <div
   class="wrapper"
@@ -198,8 +198,6 @@
   class:is-active-panning={panningKeyActive}
   class:is-panning={panningActive}
   {onpointerdown}
-  {onpointerup}
-  {onpointermove}
   role="application"
 >
   <canvas bind:this={canvas} {width} {height}></canvas>

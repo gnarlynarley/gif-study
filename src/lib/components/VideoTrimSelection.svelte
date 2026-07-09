@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from "./Button.svelte";
+  import VideoPlayer from "./VideoPlayer.svelte";
 
   type Props = {
     file: File;
@@ -9,16 +10,16 @@
 
   let { file, start = $bindable(), end = $bindable() }: Props = $props();
   const src = $derived(URL.createObjectURL(file));
-  let video = $state<HTMLVideoElement | null>(null);
+  let videoElement = $state<HTMLVideoElement | null>(null);
 
   $effect(() => {
-    if (!video) return;
+    if (!videoElement) return;
     const ac = new AbortController();
 
-    video.addEventListener(
+    videoElement.addEventListener(
       "loadedmetadata",
       (ev) => {
-        const duration = video?.duration;
+        const duration = videoElement?.duration;
         if (duration !== undefined) end = duration;
       },
       { signal: ac.signal },
@@ -38,31 +39,14 @@
   }
 </script>
 
-<video bind:this={video} controls {src} muted></video>
-<div class="buttons">
-  <Button
-    onclick={() => {
-      if (video !== null) {
-        setTrims(video.currentTime, end);
-      }
-    }}
-  >
-    Trim start: {start}
-  </Button>
-  <Button
-    onclick={() => {
-      if (video !== null) {
-        setTrims(start, video.currentTime);
-      }
-    }}
-  >
-    Trim end: {end}
-  </Button>
+<div class="wrapper">
+  <VideoPlayer bind:videoElement {src} bind:start bind:end />
 </div>
 
 <style>
-  .buttons {
+  .wrapper {
     display: flex;
+    flex-direction: column;
     gap: var(--spacing);
   }
 </style>
