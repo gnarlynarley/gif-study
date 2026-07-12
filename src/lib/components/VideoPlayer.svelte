@@ -108,6 +108,7 @@
     bind:this={videoElement}
     {src}
     {poster}
+    muted
     ontimeupdate={onTimeUpdate}
     onloadedmetadata={onLoadedMetadata}
     onplay={() => (playing = true)}
