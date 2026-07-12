@@ -6,7 +6,10 @@
     ChevronsLeftRightEllipsisIcon,
     ChevronUpIcon,
     ChevronDownIcon,
+    DownloadIcon,
   } from "@lucide/svelte";
+  import Tooltip from "./Tooltip.svelte";
+  import exportFrames from "$lib/utils/exportFrames";
 
   type Props = {
     gif: GifEntry;
@@ -27,33 +30,50 @@
 <div class="wrapper">
   <div class="options">
     {#if showFrames}
-      <Button
-        icon
-        active={selectFrames}
-        onclick={() => {
-          selectFrames = !selectFrames;
-        }}
-      >
-        <ChevronsLeftRightEllipsisIcon size={16} absoluteStrokeWidth />
-      </Button>
-      <Button
-        icon
-        active={selectFrames}
-        onclick={() => {
-          showFrames = false;
-        }}
-      >
-        <ChevronDownIcon size={16} absoluteStrokeWidth />
-      </Button>
+      <Tooltip label={selectFrames ? "Exit select frames" : "Select frames"}>
+        <Button
+          icon
+          active={selectFrames}
+          onclick={() => {
+            selectFrames = !selectFrames;
+          }}
+        >
+          <ChevronsLeftRightEllipsisIcon size={16} absoluteStrokeWidth />
+        </Button>
+      </Tooltip>
+
+      <Tooltip label="Download frames">
+        <Button
+          icon
+          onclick={() => {
+            exportFrames(gif);
+          }}
+        >
+          <DownloadIcon size={16} absoluteStrokeWidth />
+        </Button>
+      </Tooltip>
+
+      <Tooltip label="Hide timeline">
+        <Button
+          icon
+          onclick={() => {
+            showFrames = false;
+          }}
+        >
+          <ChevronDownIcon size={16} absoluteStrokeWidth />
+        </Button>
+      </Tooltip>
     {:else}
-      <Button
-        icon
-        onclick={() => {
-          showFrames = true;
-        }}
-      >
-        <ChevronUpIcon size={16} absoluteStrokeWidth />
-      </Button>
+      <Tooltip label="Hide timeline">
+        <Button
+          icon
+          onclick={() => {
+            showFrames = true;
+          }}
+        >
+          <ChevronUpIcon size={16} absoluteStrokeWidth />
+        </Button>
+      </Tooltip>
     {/if}
   </div>
   {#if showFrames}

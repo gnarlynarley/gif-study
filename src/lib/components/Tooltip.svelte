@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type { Snippet } from "svelte";
 
   type Props = {
     label: string;
@@ -25,12 +25,14 @@
     position: fixed;
     position-anchor: var(--anchor-id);
     position-visibility: always;
+    position-try-fallbacks: flip-block;
+    position-area: bottom;
     white-space: nowrap;
     background: var(--color-accent);
     padding: var(--spacing-sm);
     border-radius: var(--spacing-sm);
     margin-block: var(--spacing-sm);
-    z-index: 1;
+    z-index: 9999;
     animation: show forwards linear 300ms;
     pointer-events: none;
 

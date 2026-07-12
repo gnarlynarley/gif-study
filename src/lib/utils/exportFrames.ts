@@ -1,23 +1,13 @@
 import type { GifEntry, GifEntryFrame } from "$lib/types.svelte";
-import createCanvas from "./createCanvas";
 import downloadFile from "./downloadFile";
+import { flattenFrame } from "./flattenFrames";
 
 async function createFileFromFrame(
   frame: GifEntryFrame,
   gif: GifEntry,
   index: number,
 ) {
-  const [canvas, context] = createCanvas(frame.width, frame.height);
-
-  context.fillStyle = gif.backgroundColor;
-  context.fillRect(0, 0, frame.width, frame.height);
-  context.globalAlpha = gif.opacity;
-  context.drawImage(frame.canvas, 0, 0);
-  context.globalAlpha = 1;
-  if (frame.sketch) {
-    context.drawImage(frame.sketch.canvas, 0, 0);
-  }
-
+  const { canvas } = flattenFrame(gif, frame);
   const blob = await new Promise<Blob | null>((r) =>
     canvas.toBlob(r, "image/png"),
   );

@@ -114,19 +114,24 @@
       height: 100%;
     }
 
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--color-primary);
+      mix-blend-mode: multiply;
+      opacity: 0;
+    }
+
     .is-active & {
       border-color: var(--color-primary);
 
       &::after {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: var(--color-primary);
-        mix-blend-mode: multiply;
+        opacity: 1;
       }
     }
   }

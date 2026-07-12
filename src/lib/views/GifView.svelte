@@ -84,10 +84,6 @@
     }
   });
 
-  function onExportFramesClick() {
-    exportFrames(gif);
-  }
-
   const DEFAULT_POINT: Point = { x: 0, y: 0, scale: 1 };
 
   let initialNavigation: Point = { ...DEFAULT_POINT };
@@ -166,7 +162,6 @@
         bind:colorPickerActive
         bind:unionSkinActive
         {color}
-        {onExportFramesClick}
       />
     </div>
     <div

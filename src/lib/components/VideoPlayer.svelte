@@ -45,7 +45,6 @@
   function onHandlePointerMove(e: PointerEvent) {
     if (!videoElement) return;
     if (!draggingHandle) return;
-    console.log("start changed", start);
     const t = timeFromPointer(e.clientX);
     if (draggingHandle === "start") {
       start = Math.min(t, end);

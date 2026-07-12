@@ -8,7 +8,6 @@
     PlayIcon,
     PauseIcon,
     DoorOpenIcon,
-    DownloadIcon,
     BlendIcon,
   } from "@lucide/svelte";
   import Tooltip from "./Tooltip.svelte";
@@ -25,7 +24,6 @@
     colorPickerActive: boolean;
     color: string;
     unionSkinActive: boolean;
-    onExportFramesClick: () => void;
   };
 
   const MAX_BRUSH_SIZE = 50;
@@ -44,7 +42,6 @@
     colorPickerActive = $bindable(),
     unionSkinActive = $bindable(),
     color,
-    onExportFramesClick,
   }: Props = $props();
 
   function togglePlaying() {
@@ -181,12 +178,6 @@
       }}
     >
       <BlendIcon />
-    </Button>
-  </Tooltip>
-
-  <Tooltip label="Download frames">
-    <Button icon onclick={onExportFramesClick}>
-      <DownloadIcon />
     </Button>
   </Tooltip>
 

@@ -6,8 +6,8 @@
   import GifView from "./lib/views/GifView.svelte";
 </script>
 
-{#if $gifPending}
-  <LoadingView />
+{#if gifPending.pending}
+  <LoadingView progress={gifPending.progress} />
 {:else if gif.value}
   <GifView bind:gif={gif.value} />
 {:else}

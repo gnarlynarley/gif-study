@@ -21,6 +21,7 @@ export default async function getFramesFromVideoFile(
   file: File,
   startTimestamp: number = 0,
   endTimestamp?: number,
+  onProgress?: (progress: number) => void,
 ): Promise<ExtractedVideo> {
   const { Input, ALL_FORMATS, BlobSource, VideoSampleSink } =
     await import("mediabunny");
@@ -41,6 +42,10 @@ export default async function getFramesFromVideoFile(
       "This video codec is not supported for decoding in this browser",
     );
   }
+
+  const trackEndTimestamp =
+    endTimestamp ?? (await videoTrack.computeDuration());
+  const totalDuration = Math.max(trackEndTimestamp - startTimestamp, 0);
 
   const sink = new VideoSampleSink(videoTrack);
   const frames: ExtractedFrame[] = [];
@@ -78,8 +83,16 @@ export default async function getFramesFromVideoFile(
       lastKeptImageData = currentImageData;
     }
 
+    if (onProgress && totalDuration > 0) {
+      const elapsed = sample.timestamp - startTimestamp;
+      const progress = Math.min(Math.max(elapsed / totalDuration, 0), 1);
+      onProgress(progress);
+    }
+
     sample.close();
   }
+
+  onProgress?.(1);
 
   const firstFrame = frames.at(0);
 

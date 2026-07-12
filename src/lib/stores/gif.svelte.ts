@@ -6,7 +6,10 @@ import { writable } from "svelte/store";
 import { latestFile } from "./latestFile";
 import { addNotification } from "./notifications.svelte";
 
-export const gifPending = writable(false);
+export const gifPending = $state({
+  pending: false,
+  progress: 0,
+});
 
 export const gif = $state<{ value: GifEntry | null }>({ value: null });
 
@@ -16,7 +19,8 @@ export async function loadGifFromFile(
   endTimestamp?: number,
 ) {
   try {
-    gifPending.set(true);
+    gifPending.pending = true;
+    gifPending.progress = 0;
     if (file.type === "image/gif") {
       latestFile.set(file);
       const buffer = await file.arrayBuffer();
@@ -27,6 +31,9 @@ export async function loadGifFromFile(
         file,
         startTimestamp,
         endTimestamp,
+        (progress) => {
+          gifPending.progress = progress;
+        },
       );
       const parsed = new GifEntry({
         name: extracted.name,
@@ -48,7 +55,8 @@ export async function loadGifFromFile(
       addNotification(err.message, "error");
     }
   } finally {
-    gifPending.set(false);
+    gifPending.pending = false;
+    gifPending.progress = 1;
   }
 }
 
