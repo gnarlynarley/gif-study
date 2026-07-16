@@ -2,9 +2,9 @@ import { GifEntry, type GifEntryFrame } from "$lib/types.svelte";
 import createCanvas from "$lib/utils/createCanvas";
 import getFramesFromVideoFile from "$lib/utils/getFramesFromVideoFile";
 import parseGif from "$lib/utils/parseGif";
-import { writable } from "svelte/store";
 import { latestFile } from "./latestFile";
 import { addNotification } from "./notifications.svelte";
+import getFramesFromAvifFile from "$lib/utils/getFramesFromAvifFile";
 
 export const gifPending = $state({
   pending: false,
@@ -25,6 +25,9 @@ export async function loadGifFromFile(
       latestFile.set(file);
       const buffer = await file.arrayBuffer();
       gif.value = parseGif(file.name, buffer);
+    } else if (file.type === "image/avif") {
+      latestFile.set(file);
+      gif.value = await getFramesFromAvifFile(file);
     } else if (file.type.includes("video/")) {
       latestFile.set(file);
       const extracted = await getFramesFromVideoFile(

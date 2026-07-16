@@ -5,6 +5,8 @@
   import { settings } from "$lib/stores/settings.svelte";
   import VideoTrimView from "./VideoTrimView.svelte";
 
+  const SUPPORTED_MIME_TYPES = ["image/gif", "image/avif", "video/*"].join(",");
+
   const keybinds: [string, string][] = $derived([
     [$settings.keybinds.brush, "Brush"],
     [$settings.keybinds.eraser, "Eraser"],
@@ -19,10 +21,10 @@
   let videoFile = $state<File | null>(null);
 
   function loadFile(file: File) {
-    if (file.type === "image/gif") {
-      loadGifFromFile(file);
-    } else if (file.type.includes("video/")) {
+    if (file.type.includes("video/")) {
       videoFile = file;
+    } else {
+      loadGifFromFile(file);
     }
   }
 </script>
@@ -46,7 +48,7 @@
     <input
       id="load-gif"
       type="file"
-      accept="image/gif,video/*"
+      accept={SUPPORTED_MIME_TYPES}
       oninput={(ev) => {
         const file = ev.currentTarget.files?.[0] ?? null;
         if (file) {
