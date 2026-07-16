@@ -34,6 +34,7 @@
     color,
   }: Props = $props();
 
+  let wrapperElement = $state<HTMLDivElement | null>(null);
   const { width, height } = $derived(frame);
   let canvas = $state<HTMLCanvasElement | null>(null);
   const context = $derived(canvas?.getContext("2d") ?? null);
@@ -117,8 +118,10 @@
 
   const onpointerdown = (ev: PointerEvent) => {
     if (!canvas) return;
+    if (!wrapperElement) return;
     if (!context) return;
     if (panningKeyActive) return;
+    wrapperElement.setPointerCapture(ev.pointerId);
 
     const [historyCanvas, historyContext] = createCanvas(
       canvas.width,
@@ -142,10 +145,12 @@
     context.restore();
   };
 
-  const onpointerup = () => {
+  const onpointerup = (ev: PointerEvent) => {
+    if (!wrapperElement) return;
     pointerActive = false;
     lastPoint = null;
     gif.updateFrameSketch(canvas, frame);
+    wrapperElement.releasePointerCapture(ev.pointerId);
   };
 
   const onpointermove = (ev: PointerEvent) => {
@@ -190,15 +195,25 @@
   };
 </script>
 
-<svelte:window {onkeydown} {onpointerup} {onpointermove} />
+<svelte:window
+  {onkeydown}
+  {onpointerup}
+  {onpointermove}
+  onpointercancel={onpointerup}
+  onpointerleave={(ev) => {
+    if (ev.pointerType === "mouse") onpointerup(ev);
+  }}
+/>
 
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
+  role="application"
   class="wrapper"
+  bind:this={wrapperElement}
   class:is-eraser-tool={tool === "eraser"}
   class:is-active-panning={panningKeyActive}
   class:is-panning={panningActive}
   {onpointerdown}
-  role="application"
 >
   <canvas bind:this={canvas} {width} {height}></canvas>
   <canvas
@@ -217,6 +232,8 @@
     left: 0;
     width: 100%;
     height: 100%;
+    user-select: none;
+    touch-action: none;
 
     &:not(.is-active-panning) {
       cursor: crosshair;
