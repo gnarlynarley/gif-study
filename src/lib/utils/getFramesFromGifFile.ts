@@ -4,7 +4,10 @@ import createCanvas from "./createCanvas";
 import getFilename from "./getFilename";
 import imageDataEquals from "./imageDataEquals";
 
-export default function parseGif(name: string, buffer: ArrayBuffer): GifEntry {
+export default async function getFramesFromGifFile(
+  file: File,
+): Promise<GifEntry> {
+  const buffer = await file.arrayBuffer();
   const gif = parseGIF(buffer);
   const gifFrames = decompressFrames(gif, true);
 
@@ -69,7 +72,7 @@ export default function parseGif(name: string, buffer: ArrayBuffer): GifEntry {
   }
 
   return new GifEntry({
-    name: getFilename(name),
+    name: getFilename(file.name),
     width,
     height,
     frames,

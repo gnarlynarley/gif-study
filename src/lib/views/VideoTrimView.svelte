@@ -12,8 +12,6 @@
   let end = $state(0);
   let trimmedDuration = $derived(end - start);
   let warn = $derived(trimmedDuration > 10);
-
-  $inspect(start);
 </script>
 
 <div class="wrapper">

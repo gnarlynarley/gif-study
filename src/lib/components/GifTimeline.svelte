@@ -7,9 +7,16 @@
     ChevronUpIcon,
     ChevronDownIcon,
     DownloadIcon,
+    VideoIcon,
   } from "@lucide/svelte";
   import Tooltip from "./Tooltip.svelte";
   import exportFrames from "$lib/utils/exportFrames";
+  import LoadingDialog from "./LoadingDialog.svelte";
+  import convertToMp4 from "$lib/utils/convert/convertToMp4";
+  import { reportError } from "$lib/stores/notifications.svelte";
+  import downloadFile from "$lib/utils/downloadFile";
+  import Dialog from "./Dialog.svelte";
+  import Input from "./Input.svelte";
 
   type Props = {
     gif: GifEntry;
@@ -20,12 +27,63 @@
   let {
     gif = $bindable(),
     currentIndex = $bindable(),
-    playing,
+    playing = $bindable(),
   }: Props = $props();
   let selectFrames = $state(false);
   let showFrames = $state(true);
   const frames = $derived(selectFrames ? gif.frames : gif.trimmedFrames);
+
+  let exportDialog = $state<HTMLDialogElement | null>(null);
+  let exportProgress = $state<null | number>(null);
+  let exportAbortController: AbortController | null = null;
+  let exportLoops = $state(1);
+
+  function openExportDialog() {
+    exportDialog?.showModal();
+    playing = false;
+  }
+
+  function abortExport() {
+    exportAbortController?.abort();
+  }
+
+  async function createMp4() {
+    try {
+      exportAbortController?.abort();
+      exportAbortController = new AbortController();
+      exportAbortController.signal.addEventListener("abort", () => {
+        exportProgress = null;
+        exportAbortController = null;
+      });
+      const file = await convertToMp4({
+        gif,
+        loops: exportLoops,
+        onProgress(progress) {
+          exportProgress = progress;
+        },
+        signal: exportAbortController.signal,
+      });
+      downloadFile(file);
+    } catch (err) {
+      reportError(err);
+    } finally {
+      exportProgress = null;
+      exportAbortController = null;
+    }
+  }
 </script>
+
+<Dialog
+  bind:dialog={exportDialog}
+  onSubmit={createMp4}
+  submitLabel="Create MP4"
+>
+  <h1>Create video</h1>
+  <label>
+    <p>Loops</p>
+    <Input type="number" bind:value={exportLoops} />
+  </label>
+</Dialog>
 
 <div class="wrapper">
   <div class="options">
@@ -50,6 +108,12 @@
           }}
         >
           <DownloadIcon size={16} absoluteStrokeWidth />
+        </Button>
+      </Tooltip>
+
+      <Tooltip label="Download as MP4">
+        <Button icon onclick={openExportDialog}>
+          <VideoIcon size={16} absoluteStrokeWidth />
         </Button>
       </Tooltip>
 
@@ -92,6 +156,14 @@
     </div>
   {/if}
 </div>
+
+{#if exportProgress}
+  <LoadingDialog
+    message="Creating mp4"
+    progress={exportProgress}
+    onClose={abortExport}
+  />
+{/if}
 
 <style>
   .wrapper {

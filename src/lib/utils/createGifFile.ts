@@ -22,5 +22,5 @@ export default function createGifFile(gif: GifEntry) {
 
   encoder.finish();
   const bytes = encoder.bytes();
-  return new File([bytes], "preview.gif");
+  return new File([bytes as any], "preview.gif");
 }

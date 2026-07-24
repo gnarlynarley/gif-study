@@ -1,17 +1,16 @@
 import { GifEntry, type GifEntryFrame } from "$lib/types.svelte";
 import createCanvas from "$lib/utils/createCanvas";
 import getFramesFromVideoFile from "$lib/utils/getFramesFromVideoFile";
-import parseGif from "$lib/utils/parseGif";
+import getFramesFromGifFile from "$lib/utils/getFramesFromGifFile";
 import { latestFile } from "./latestFile";
 import { addNotification } from "./notifications.svelte";
 import getFramesFromAvifFile from "$lib/utils/getFramesFromAvifFile";
 
+export const gif = $state<{ value: GifEntry | null }>({ value: null });
 export const gifPending = $state({
   pending: false,
   progress: 0,
 });
-
-export const gif = $state<{ value: GifEntry | null }>({ value: null });
 
 export async function loadGifFromFile(
   file: File,
@@ -23,14 +22,13 @@ export async function loadGifFromFile(
     gifPending.progress = 0;
     if (file.type === "image/gif") {
       latestFile.set(file);
-      const buffer = await file.arrayBuffer();
-      gif.value = parseGif(file.name, buffer);
+      gif.value = await getFramesFromGifFile(file);
     } else if (file.type === "image/avif") {
       latestFile.set(file);
       gif.value = await getFramesFromAvifFile(file);
     } else if (file.type.includes("video/")) {
       latestFile.set(file);
-      const extracted = await getFramesFromVideoFile(
+      gif.value = await getFramesFromVideoFile(
         file,
         startTimestamp,
         endTimestamp,
@@ -38,20 +36,6 @@ export async function loadGifFromFile(
           gifPending.progress = progress;
         },
       );
-      const parsed = new GifEntry({
-        name: extracted.name,
-        width: extracted.width,
-        height: extracted.height,
-        frames: extracted.frames.map((frame, index) => ({
-          width: frame.width,
-          height: frame.height,
-          delay: frame.delay,
-          canvas: frame.canvas,
-          index: index,
-          sketch: null,
-        })),
-      });
-      gif.value = parsed;
     }
   } catch (err) {
     if (err instanceof Error) {

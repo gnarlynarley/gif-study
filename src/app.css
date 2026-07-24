@@ -67,6 +67,12 @@ input {
   display: contents;
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-spacing, var(--spacing-lg));
+}
+
 .prose > * + * {
   margin-block-start: var(--spacing);
 }

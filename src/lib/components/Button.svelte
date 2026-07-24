@@ -1,17 +1,18 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import type { MouseEventHandler } from "svelte/elements";
+  import type { HTMLButtonAttributes } from "svelte/elements";
 
-  type Props = {
+  type Props = HTMLButtonAttributes & {
     icon?: boolean;
     primary?: boolean;
-    onclick?: MouseEventHandler<HTMLButtonElement>;
     active?: boolean;
-    children: Snippet;
     label?: string;
+    inline?: boolean;
   };
 
-  const { primary, onclick, active, children, label, icon }: Props = $props();
+  const { primary, active, children, label, icon, inline, ...rest }: Props =
+    $props();
 </script>
 
 <button
@@ -19,11 +20,12 @@
   class:is-icon={icon}
   class:is-active={active}
   class:is-primary={primary}
+  class:is-inline={inline}
   type="button"
-  {onclick}
   aria-label={label}
+  {...rest}
 >
-  {@render children()}
+  {@render children?.()}
 </button>
 
 <style>
@@ -38,7 +40,14 @@
     background-color: var(--color-accent);
     padding: var(--spacing-lg);
     cursor: pointer;
-    width: 100%;
+
+    &:not(.is-inline) {
+      width: 100%;
+    }
+
+    &.is-inline {
+      display: inline-flex;
+    }
 
     &.is-icon {
       padding: var(--spacing-sm);

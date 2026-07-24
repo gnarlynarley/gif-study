@@ -1,6 +1,7 @@
 import getFilename from "./getFilename";
 import createCanvas from "./createCanvas";
 import imageDataEquals from "./imageDataEquals";
+import { GifEntry } from "$lib/types.svelte";
 
 interface ExtractedVideo {
   name: string;
@@ -22,7 +23,7 @@ export default async function getFramesFromVideoFile(
   startTimestamp: number = 0,
   endTimestamp?: number,
   onProgress?: (progress: number) => void,
-): Promise<ExtractedVideo> {
+): Promise<GifEntry> {
   const { Input, ALL_FORMATS, BlobSource, VideoSampleSink } =
     await import("mediabunny");
 
@@ -106,5 +107,17 @@ export default async function getFramesFromVideoFile(
     frames,
   };
 
-  return result;
+  return new GifEntry({
+    name: result.name,
+    width: result.width,
+    height: result.height,
+    frames: result.frames.map((frame, index) => ({
+      width: frame.width,
+      height: frame.height,
+      delay: frame.delay,
+      canvas: frame.canvas,
+      index: index,
+      sketch: null,
+    })),
+  });
 }

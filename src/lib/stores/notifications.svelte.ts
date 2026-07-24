@@ -28,3 +28,10 @@ export function addNotification(
 export function removeNotification(id: string) {
   notificationsStore.update((value) => value.filter((n) => n.id !== id));
 }
+
+export function reportError(err: unknown) {
+  if (err instanceof DOMException) return;
+  if (err instanceof Error) {
+    addNotification(err.message, "error");
+  }
+}

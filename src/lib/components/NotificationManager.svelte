@@ -22,5 +22,6 @@
     flex-direction: column;
     gap: var(--spacing-sm);
     max-width: 15em;
+    z-index: 1111111;
   }
 </style>

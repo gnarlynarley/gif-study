@@ -221,7 +221,7 @@
     {/if}
   </div>
   <div class="timeline">
-    <GifTimeline {playing} bind:gif bind:currentIndex />
+    <GifTimeline bind:playing bind:gif bind:currentIndex />
   </div>
 </div>
 
