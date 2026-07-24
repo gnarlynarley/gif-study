@@ -43,21 +43,29 @@
 
 <dialog
   {id}
-  class="modal stack"
+  class="modal"
   bind:this={dialog}
   onbeforetoggle={(ev) => {
     if (ev.newState === "closed") onClose?.();
   }}
 >
-  {@render children()}
+  <div class="stack">
+    {@render children()}
 
-  <div class="buttons">
-    <Button inline commandfor={id} command="close">{closeLabel}</Button>
-    {#if onSubmit}
-      <Button inline commandfor={id} command="close" onclick={onSubmit} primary>
-        {submitLabel}
-      </Button>
-    {/if}
+    <div class="buttons">
+      <Button inline commandfor={id} command="close">{closeLabel}</Button>
+      {#if onSubmit}
+        <Button
+          inline
+          commandfor={id}
+          command="close"
+          onclick={onSubmit}
+          primary
+        >
+          {submitLabel}
+        </Button>
+      {/if}
+    </div>
   </div>
 </dialog>
 
