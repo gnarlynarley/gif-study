@@ -1,14 +1,6 @@
 import type { GifEntry } from "$lib/types.svelte";
 import createCanvas from "../createCanvas";
 import flattenFrames from "../flattenFrames";
-import {
-  Output,
-  Mp4OutputFormat,
-  BufferTarget,
-  CanvasSource,
-  getFirstEncodableVideoCodec,
-  QUALITY_VERY_HIGH,
-} from "mediabunny";
 
 export default async function convertToMp4({
   gif,
@@ -21,6 +13,14 @@ export default async function convertToMp4({
   onProgress: (progress: number | null) => void;
   signal: AbortSignal;
 }) {
+  const {
+    Output,
+    Mp4OutputFormat,
+    BufferTarget,
+    CanvasSource,
+    getFirstEncodableVideoCodec,
+    QUALITY_VERY_HIGH,
+  } = await import("mediabunny");
   try {
     if (signal.aborted) throw new Error("Signal was aborted");
     onProgress(0);

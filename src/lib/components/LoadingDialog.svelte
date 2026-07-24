@@ -33,7 +33,6 @@
   <h1>{message}</h1>
   <div class="bar" style:--progress={progress}></div>
   <p>{progress.toFixed(2)}</p>
-  <button popovertarget={id} popovertargetaction="hide">cancel</button>
 </Dialog>
 
 <style>

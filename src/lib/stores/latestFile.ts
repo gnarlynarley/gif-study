@@ -1,11 +1,11 @@
-import localforage from "localforage";
+import { get, set, del, keys } from "idb-keyval";
 import { writable } from "svelte/store";
 
 const LOCAL_KEY_FILE = "gif-file";
 
-localforage.getItem<File>(LOCAL_KEY_FILE).then((file) => {
+get<File>(LOCAL_KEY_FILE).then((file) => {
   latestFileLoading.set(false);
-  latestFile.set(file);
+  latestFile.set(file ?? null);
 });
 
 export const latestFile = writable<File | null>(null);
@@ -13,8 +13,8 @@ export const latestFileLoading = writable<boolean>(true);
 
 latestFile.subscribe((file) => {
   if (file) {
-    localforage.setItem(LOCAL_KEY_FILE, file);
+    set(LOCAL_KEY_FILE, file);
   } else {
-    localforage.removeItem(LOCAL_KEY_FILE);
+    del(LOCAL_KEY_FILE);
   }
 });
