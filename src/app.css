@@ -57,10 +57,16 @@ button {
   border: none;
   padding: 0;
   background: transparent;
+  cursor: pointer;
 }
 
 input {
   font: inherit;
+}
+
+hr {
+  border: none;
+  border-top: hsl(from currentColor h s l / 0.2) 1px solid;
 }
 
 #app {

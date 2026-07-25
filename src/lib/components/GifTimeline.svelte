@@ -17,6 +17,8 @@
   import downloadFile from "$lib/utils/downloadFile";
   import Dialog from "./Dialog.svelte";
   import Input from "./Input.svelte";
+  import MenuItem from "./MenuItem.svelte";
+  import Menu from "./Menu.svelte";
 
   type Props = {
     gif: GifEntry;
@@ -100,22 +102,21 @@
         </Button>
       </Tooltip>
 
-      <Tooltip label="Download frames">
-        <Button
-          icon
-          onclick={() => {
+      <Menu>
+        <MenuItem
+          icon={DownloadIcon}
+          label="Download frames"
+          onClick={() => {
             exportFrames(gif);
           }}
-        >
-          <DownloadIcon size={16} absoluteStrokeWidth />
-        </Button>
-      </Tooltip>
-
-      <Tooltip label="Download as MP4">
-        <Button icon onclick={openExportDialog}>
-          <VideoIcon size={16} absoluteStrokeWidth />
-        </Button>
-      </Tooltip>
+        />
+        <hr />
+        <MenuItem
+          icon={VideoIcon}
+          label="Download as MP4"
+          onClick={openExportDialog}
+        />
+      </Menu>
 
       <Tooltip label="Hide timeline">
         <Button
