@@ -17,7 +17,8 @@
   --color-primary: light-dark(#ffac00, #e2ad00);
   --color-primary-text: light-dark(black, black);
   --color-text: light-dark(#111, white);
-  --color-background: light-dark(white, #111);
+  --color-background: light-dark(#ececec, #111);
+  --color-foreground: light-dark(white, #222222);
   --color-accent: light-dark(#eee, #2b2b2b);
   --color-error: light-dark(#ff7070, #871717);
 

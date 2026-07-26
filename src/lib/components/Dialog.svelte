@@ -4,14 +4,21 @@
 
   type Props = {
     dialog?: HTMLDialogElement | null;
-    open?: boolean;
     closeLabel?: string;
     submitLabel?: string;
-    onClose?: () => void;
     onSubmit?: () => void;
     children: Snippet;
     wide?: boolean;
-  };
+  } & (
+    | {
+        open?: false;
+        onClose?: () => void;
+      }
+    | {
+        open: true;
+        onClose: () => void;
+      }
+  );
 
   let {
     dialog = $bindable(),
@@ -74,11 +81,15 @@
 
 <style>
   .modal {
+    --modal-padding: var(--spacing-lg);
+    position: relative;
     margin: auto;
     border: none;
-    padding: var(--spacing-lg);
+    padding: var(--modal-padding);
+    padding-bottom: 0;
     border-radius: var(--spacing);
     width: 100%;
+    background-color: var(--color-foreground);
 
     &:not(.is-wide) {
       max-width: 30em;
@@ -94,8 +105,11 @@
     display: flex;
     justify-content: space-between;
     gap: var(--spacing);
-    margin-inline: calc(var(--spacing-lg) * -1);
-    margin-block-end: calc(var(--spacing-lg) * -1);
-    padding: var(--spacing);
+    background-color: var(--color-accent);
+    position: sticky;
+    left: calc(var(--modal-padding) * -1);
+    margin-inline: calc(var(--modal-padding) * -1);
+
+    bottom: 0;
   }
 </style>

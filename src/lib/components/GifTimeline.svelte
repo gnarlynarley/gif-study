@@ -19,6 +19,7 @@
   import Input from "./Input.svelte";
   import MenuItem from "./MenuItem.svelte";
   import Menu from "./Menu.svelte";
+  import convertToGif from "$lib/utils/convert/convertToGif";
 
   type Props = {
     gif: GifEntry;
@@ -40,6 +41,15 @@
   let exportAbortController: AbortController | null = null;
   let exportLoops = $state(1);
 
+  function createAbortController() {
+    exportAbortController?.abort();
+    exportAbortController = new AbortController();
+    exportAbortController.signal.addEventListener("abort", () => {
+      abortExport();
+    });
+    return exportAbortController;
+  }
+
   function openExportDialog() {
     exportDialog?.showModal();
     playing = false;
@@ -47,16 +57,13 @@
 
   function abortExport() {
     exportAbortController?.abort();
+    exportAbortController = null;
+    exportProgress = null;
   }
 
   async function createMp4() {
     try {
-      exportAbortController?.abort();
-      exportAbortController = new AbortController();
-      exportAbortController.signal.addEventListener("abort", () => {
-        exportProgress = null;
-        exportAbortController = null;
-      });
+      const exportAbortController = createAbortController();
       const file = await convertToMp4({
         gif,
         loops: exportLoops,
@@ -69,8 +76,25 @@
     } catch (err) {
       reportError(err);
     } finally {
+      abortExport();
+    }
+  }
+
+  async function createGif() {
+    try {
+      abortExport();
+      const ac = createAbortController();
+      downloadFile(
+        await convertToGif({
+          gif,
+          signal: ac.signal,
+          onProgress(progress) {
+            exportProgress = progress;
+          },
+        }),
+      );
+    } finally {
       exportProgress = null;
-      exportAbortController = null;
     }
   }
 </script>
@@ -83,6 +107,14 @@
   <h1>Create video</h1>
   <Input label="Loops" type="number" bind:value={exportLoops} />
 </Dialog>
+
+{#if exportProgress}
+  <LoadingDialog
+    message="Creating mp4"
+    progress={exportProgress}
+    onClose={abortExport}
+  />
+{/if}
 
 <div class="wrapper">
   <div class="options">
@@ -107,11 +139,15 @@
             exportFrames(gif);
           }}
         />
-        <hr />
         <MenuItem
           icon={VideoIcon}
           label="Download as MP4"
           onClick={openExportDialog}
+        />
+        <MenuItem
+          icon={VideoIcon}
+          label="Download as GIF"
+          onClick={createGif}
         />
       </Menu>
 
@@ -154,14 +190,6 @@
     </div>
   {/if}
 </div>
-
-{#if exportProgress}
-  <LoadingDialog
-    message="Creating mp4"
-    progress={exportProgress}
-    onClose={abortExport}
-  />
-{/if}
 
 <style>
   .wrapper {
