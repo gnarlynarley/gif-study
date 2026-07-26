@@ -48,5 +48,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing);
+    /* flex-grow: 1; */
   }
 </style>

@@ -43,5 +43,6 @@
     grid-template-rows: 1fr auto;
     width: 100%;
     padding: var(--spacing);
+    flex-grow: 1;
   }
 </style>

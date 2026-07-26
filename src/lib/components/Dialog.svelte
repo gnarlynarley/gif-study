@@ -59,23 +59,17 @@
     if (ev.newState === "closed") onClose?.();
   }}
 >
-  <div class="stack">
+  <div class="children">
     {@render children()}
+  </div>
 
-    <div class="buttons">
-      <Button inline commandfor={id} command="close">{closeLabel}</Button>
-      {#if onSubmit}
-        <Button
-          inline
-          commandfor={id}
-          command="close"
-          onclick={onSubmit}
-          primary
-        >
-          {submitLabel}
-        </Button>
-      {/if}
-    </div>
+  <div class="buttons">
+    <Button inline commandfor={id} command="close">{closeLabel}</Button>
+    {#if onSubmit}
+      <Button inline commandfor={id} command="close" onclick={onSubmit} primary>
+        {submitLabel}
+      </Button>
+    {/if}
   </div>
 </dialog>
 
@@ -85,7 +79,6 @@
     position: relative;
     margin: auto;
     border: none;
-    padding: var(--modal-padding);
     padding-bottom: 0;
     border-radius: var(--spacing);
     width: 100%;
@@ -95,10 +88,25 @@
       max-width: 30em;
     }
 
+    &.is-wide {
+      height: 100%;
+    }
+
     &::backdrop {
       background: hsl(from var(--color-background) h s l / 0.9);
       backdrop-filter: blur(10px);
     }
+
+    &:open {
+      display: grid;
+      grid-template-rows: 1fr auto;
+    }
+  }
+
+  .children {
+    padding: var(--modal-padding);
+    display: flex;
+    flex-direction: column;
   }
 
   .buttons {
@@ -106,10 +114,5 @@
     justify-content: space-between;
     gap: var(--spacing);
     background-color: var(--color-accent);
-    position: sticky;
-    left: calc(var(--modal-padding) * -1);
-    margin-inline: calc(var(--modal-padding) * -1);
-
-    bottom: 0;
   }
 </style>
