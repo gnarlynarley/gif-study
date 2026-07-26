@@ -4,6 +4,7 @@
     poster?: string;
     start: number;
     end: number;
+    duration: number;
     videoElement?: HTMLVideoElement | null;
   }
 
@@ -12,6 +13,7 @@
     poster,
     start = $bindable(),
     end = $bindable(),
+    duration = $bindable(),
     videoElement = $bindable(),
   }: Props = $props();
 
@@ -19,7 +21,6 @@
 
   let playing = $state(false);
   let currentTime = $state(0);
-  let duration = $state(0);
   let dragging = $state(false);
 
   let scrubTime = $state(0);
@@ -197,29 +198,28 @@
   }
 
   video {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    display: block;
-    border-radius: 8px;
     background: black;
     cursor: pointer;
   }
 
   .controls {
+    position: absolute;
+    left: var(--spacing);
+    bottom: var(--spacing);
     display: flex;
     align-items: center;
     gap: var(--spacing);
     padding: var(--spacing);
-    position: absolute;
-    left: var(--spacing);
-    bottom: var(--spacing);
     width: calc(100% - (var(--spacing) * 2));
     background-color: hsl(from var(--color-accent) h s l / 0.8);
     border-radius: var(--spacing);
     backdrop-filter: blur(var(--spacing));
+    transition: 100ms ease-in-out;
+
+    .player:not(:hover) & {
+      opacity: 0.5;
+    }
   }
 
   .play-btn {
@@ -248,6 +248,7 @@
     align-items: center;
     cursor: pointer;
     touch-action: none;
+    margin-right: var(--spacing);
   }
 
   .bar-track {

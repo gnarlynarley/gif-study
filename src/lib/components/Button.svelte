@@ -30,6 +30,7 @@
 
 <style>
   .button {
+    --button-color: var(--color-accent);
     border: none;
     background: none;
     border-radius: var(--spacing-sm);
@@ -37,7 +38,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--color-accent);
+    background-color: var(--button-color);
     padding: var(--spacing-lg);
     cursor: pointer;
 
@@ -65,11 +66,12 @@
     }
 
     &.is-primary {
-      background-color: var(--color-primary);
+      --button-color: var(--color-primary);
+      color: var(--color-primary-text);
     }
 
     &:hover {
-      background: hsl(from currentColor h s l / 0.5);
+      background: color-mix(in oklch, var(--button-color), var(--color-text));
     }
   }
 </style>

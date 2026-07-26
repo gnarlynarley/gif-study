@@ -1,9 +1,8 @@
 <script lang="ts">
-  import VideoTrimSelection from "$lib/components/VideoTrimSelection.svelte";
+  import TrimVideoDialog from "$lib/components/TrimVideoDialog.svelte";
   import { loadGifFromFile } from "$lib/stores/gif.svelte";
   import { latestFile } from "$lib/stores/latestFile";
   import { settings } from "$lib/stores/settings.svelte";
-  import VideoTrimView from "./VideoTrimView.svelte";
 
   const SUPPORTED_MIME_TYPES = ["image/gif", "image/avif", "video/*"].join(",");
 
@@ -30,43 +29,49 @@
 </script>
 
 {#if videoFile}
-  <VideoTrimView file={videoFile} />
-{:else}
-  <div class="wrapper">
-    {#if $latestFile}
-      <button
-        class="button"
-        type="button"
-        onclick={() => {
-          loadFile($latestFile);
-        }}
-      >
-        Load latest: {$latestFile.name}
-      </button>
-    {/if}
-    <label class="button" for="load-gif">Load</label>
-    <input
-      id="load-gif"
-      type="file"
-      accept={SUPPORTED_MIME_TYPES}
-      oninput={(ev) => {
-        const file = ev.currentTarget.files?.[0] ?? null;
-        if (file) {
-          loadFile(file);
-        }
-        ev.currentTarget.value = "";
+  <TrimVideoDialog
+    file={videoFile}
+    onClose={() => {
+      videoFile = null;
+    }}
+  />
+{/if}
+
+<div class="wrapper">
+  {#if $latestFile}
+    <button
+      class="button"
+      type="button"
+      onclick={() => {
+        loadFile($latestFile);
       }}
-    />
-    <div class="box prose">
-      <h3>Keybinds:</h3>
-      {#each keybinds as [keybind, label]}
-        <p>
-          <code>{keybind.toUpperCase()}</code>
-          <span>{label}</span>
-        </p>
-      {/each}
-    </div>
-  </div>{/if}
+    >
+      Load latest: {$latestFile.name}
+    </button>
+  {/if}
+  <label class="button" for="load-gif">Load</label>
+  <input
+    id="load-gif"
+    type="file"
+    accept={SUPPORTED_MIME_TYPES}
+    oninput={(ev) => {
+      const file = ev.currentTarget.files?.[0] ?? null;
+      if (file) {
+        loadFile(file);
+      }
+      ev.currentTarget.value = "";
+    }}
+  />
+  <div class="box prose">
+    <h3>Keybinds:</h3>
+    {#each keybinds as [keybind, label]}
+      <p>
+        <code>{keybind.toUpperCase()}</code>
+        <span>{label}</span>
+      </p>
+    {/each}
+  </div>
+</div>
 
 <style>
   .wrapper {

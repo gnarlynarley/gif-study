@@ -81,10 +81,7 @@
   submitLabel="Create MP4"
 >
   <h1>Create video</h1>
-  <label>
-    <p>Loops</p>
-    <Input type="number" bind:value={exportLoops} />
-  </label>
+  <Input label="Loops" type="number" bind:value={exportLoops} />
 </Dialog>
 
 <div class="wrapper">

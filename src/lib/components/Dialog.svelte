@@ -10,6 +10,7 @@
     onClose?: () => void;
     onSubmit?: () => void;
     children: Snippet;
+    wide?: boolean;
   };
 
   let {
@@ -20,6 +21,7 @@
     onClose,
     onSubmit,
     children,
+    wide,
   }: Props = $props();
   const id = $props.id();
 
@@ -44,6 +46,7 @@
 <dialog
   {id}
   class="modal"
+  class:is-wide={wide}
   bind:this={dialog}
   onbeforetoggle={(ev) => {
     if (ev.newState === "closed") onClose?.();
@@ -76,7 +79,10 @@
     padding: var(--spacing-lg);
     border-radius: var(--spacing);
     width: 100%;
-    max-width: 30em;
+
+    &:not(.is-wide) {
+      max-width: 30em;
+    }
 
     &::backdrop {
       background: hsl(from var(--color-background) h s l / 0.9);
@@ -91,6 +97,5 @@
     margin-inline: calc(var(--spacing-lg) * -1);
     margin-block-end: calc(var(--spacing-lg) * -1);
     padding: var(--spacing);
-    background-color: var(--color-accent);
   }
 </style>
