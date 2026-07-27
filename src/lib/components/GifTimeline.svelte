@@ -109,9 +109,9 @@
   <Input label="Loops" type="number" bind:value={exportLoops} />
 </Dialog>
 
-{#if exportProgress}
+{#if exportProgress !== null}
   <LoadingDialog
-    message="Creating mp4"
+    message="Exporting"
     progress={exportProgress}
     onClose={abortExport}
   />

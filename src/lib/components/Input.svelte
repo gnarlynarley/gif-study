@@ -26,6 +26,7 @@
     padding: var(--spacing);
     border: 1px solid var(--color-accent);
     border-radius: var(--spacing);
+    background-color: var(--color-accent);
   }
 
   label {
