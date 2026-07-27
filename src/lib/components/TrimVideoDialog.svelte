@@ -14,10 +14,13 @@
   let duration = $state(0);
   let trimmedDuration = $derived(end - start);
   let submitLabel = $derived.by(() => {
-    if (trimmedDuration === duration) {
-      return "Open video";
+    let label = `Trim ${parseTime(trimmedDuration)}`;
+
+    if (duration === trimmedDuration) {
+      label += " (full)";
     }
-    return `Trim ${parseTime(trimmedDuration)}`;
+
+    return label;
   });
 </script>
 

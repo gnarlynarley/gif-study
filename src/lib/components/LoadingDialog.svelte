@@ -4,7 +4,7 @@
   type Props = {
     message: string;
     progress: number;
-    onClose?: () => void;
+    onClose: () => void;
     obSubmit?: () => void;
   };
 

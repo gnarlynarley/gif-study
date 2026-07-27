@@ -17,5 +17,5 @@ export function flattenFrame(gif: GifEntry, frame: GifEntryFrame) {
 }
 
 export default function flattenFrames(gif: GifEntry) {
-  return gif.frames.map((frame) => flattenFrame(gif, frame));
+  return gif.trimmedFrames.map((frame) => flattenFrame(gif, frame));
 }

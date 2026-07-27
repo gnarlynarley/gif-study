@@ -49,7 +49,8 @@
       Load latest: {$latestFile.name}
     </button>
   {/if}
-  <label class="button" for="load-gif">Load</label>
+
+  <label class="button" for="load-gif">Load new gif</label>
   <input
     id="load-gif"
     type="file"
@@ -62,6 +63,9 @@
       ev.currentTarget.value = "";
     }}
   />
+
+  <hr />
+
   <div class="box prose">
     <h3>Keybinds:</h3>
     {#each keybinds as [keybind, label]}
@@ -76,7 +80,7 @@
 <style>
   .wrapper {
     display: grid;
-    gap: var(--spacing);
+    gap: var(--spacing-lg);
   }
   .box {
     padding: var(--spacing);
@@ -91,7 +95,7 @@
   }
 
   .button {
-    padding: var(--spacing);
+    padding: var(--spacing-lg);
     background: var(--color-accent);
     border-radius: var(--spacing-sm);
     text-align: center;

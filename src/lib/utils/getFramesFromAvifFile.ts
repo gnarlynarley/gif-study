@@ -46,6 +46,8 @@ export default async function getFramesFromAvifFile(
         width,
         height,
         index,
+        nextIndex: 0,
+        prevIndex: 0,
       });
       lastImageData = imageData;
       index += 1;

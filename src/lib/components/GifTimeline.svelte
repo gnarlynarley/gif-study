@@ -116,7 +116,7 @@
   />
 {/if}
 
-<div class="wrapper">
+<div class="wrapper" class:is-selecting={selectFrames}>
   <div class="options">
     {#if showFrames}
       <Tooltip label={selectFrames ? "Exit select frames" : "Select frames"}>
@@ -178,13 +178,15 @@
     <div class="frames">
       <div class="frames-inner">
         {#each frames as frame}
-          <GifTimelineFrame
-            bind:gif
-            {frame}
-            {playing}
-            bind:currentIndex
-            {selectFrames}
-          />
+          <div class="frame">
+            <GifTimelineFrame
+              bind:gif
+              {frame}
+              {playing}
+              bind:currentIndex
+              {selectFrames}
+            />
+          </div>
         {/each}
       </div>
     </div>
@@ -216,6 +218,15 @@
     background-color: var(--color-background);
     border-top: 1px solid var(--color-accent);
     display: flex;
+  }
+
+  .frame {
+    border: 1px solid var(--color-accent);
+    border-radius: var(--spacing-sm);
+
+    &:not(:first-child) {
+      margin-left: var(--spacing-sm);
+    }
   }
 
   .frames-inner {

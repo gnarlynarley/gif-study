@@ -38,6 +38,7 @@
   let navigation = $state<Point>({ x: 0, y: 0, scale: 1 });
 
   $effect(() => {
+    console.log("setting");
     currentIndex = gif.getIndexByOffset(currentIndex, 0);
   });
 
@@ -64,8 +65,10 @@
       accumulated += now - lastTime;
       lastTime = now;
 
-      while (accumulated >= (gif.frames[currentIndex]?.delay || 100)) {
-        accumulated -= gif.frames[currentIndex].delay || 100;
+      while (
+        accumulated >= (gif.trimmedFramesMap.get(currentIndex)?.delay || 100)
+      ) {
+        accumulated -= gif.trimmedFramesMap.get(currentIndex)?.delay || 100;
         currentIndex = gif.getIndexByOffset(currentIndex, 1);
       }
 
