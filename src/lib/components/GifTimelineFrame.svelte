@@ -26,6 +26,7 @@
   let isActive = $derived(currentIndex === frame.index);
   let element = $state<HTMLElement | null>(null);
   let isWithinTrim = $derived(gif.isWithinTrim(frame));
+  let isMerged = $derived(gif.isMerge(frame));
   const isStartFrame = $derived(gif.isStartFrame(frame));
   const isEndFrame = $derived(gif.isEndFrame(frame));
 
@@ -42,18 +43,21 @@
   });
 </script>
 
-<div bind:this={element} class="wrapper" class:is-active={isActive}>
+<div
+  bind:this={element}
+  class="wrapper"
+  class:is-active={isActive}
+  class:is-merged={isMerged}
+>
   {#if selectFrames}
     <div class="trim" class:is-within-trim={isWithinTrim}>
       <Button
-        icon
+        icon={ArrowLeftToLineIcon}
         active={isStartFrame}
         onclick={() => {
           gif.setStartFrame(frame);
         }}
-      >
-        <ArrowLeftToLineIcon size="16" absoluteStrokeWidth />
-      </Button>
+      />
       {#if !isStartFrame && isWithinTrim}
         <Button
           icon
@@ -97,6 +101,10 @@
     flex-direction: column;
     height: 5em;
 
+    &.is-merged {
+      opacity: 0.5;
+    }
+
     &.is-active {
       background-color: var(--color-primary);
     }
@@ -118,12 +126,13 @@
   }
 
   .image {
-    width: calc(var(--delay) * 0.05em);
+    min-width: calc(var(--delay) * 0.05em);
     flex-shrink: 0;
     position: relative;
     background: transparent;
     border: 1px solid transparent;
     flex-grow: 1;
+    width: 100%;
 
     :global(canvas) {
       position: absolute;

@@ -9,8 +9,9 @@ export function flattenFrame(gif: GifEntry, frame: GifEntryFrame) {
   context.globalAlpha = gif.opacity;
   context.drawImage(frame.canvas, 0, 0);
   context.globalAlpha = 1;
-  if (frame.sketch) {
-    context.drawImage(frame.sketch.canvas, 0, 0);
+  const sketch = gif.getSketch(frame);
+  if (sketch) {
+    context.drawImage(sketch.canvas, 0, 0);
   }
 
   return { canvas, delay: frame.delay };

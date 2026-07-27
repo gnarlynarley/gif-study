@@ -47,24 +47,6 @@ export async function loadGifFromFile(
   }
 }
 
-export async function updateFrameSketch(
-  canvas: HTMLCanvasElement | null,
-  { index, width, height }: GifEntryFrame,
-) {
-  if (!canvas) return;
-  const draft = gif.value;
-  if (!draft) return;
-  const frame = draft.frames.at(index);
-  if (!frame) return;
-  if (!frame.sketch) {
-    const [canvas, context] = createCanvas(width, height);
-    frame.sketch = { canvas, context };
-  }
-  frame.sketch.context.clearRect(0, 0, width, height);
-  frame.sketch.context.drawImage(canvas, 0, 0);
-  frame.sketch = { ...frame.sketch };
-}
-
 export function unloadGif() {
   gif.value = null;
 }

@@ -8,6 +8,7 @@
     ChevronDownIcon,
     DownloadIcon,
     VideoIcon,
+    RotateCcwIcon,
   } from "@lucide/svelte";
   import Tooltip from "./Tooltip.svelte";
   import exportFrames from "$lib/utils/exportFrames";
@@ -119,6 +120,19 @@
 <div class="wrapper" class:is-selecting={selectFrames}>
   <div class="options">
     {#if showFrames}
+      {#if selectFrames && gif.isTrimmed}
+        <Tooltip label="Clear frame selection">
+          <Button
+            icon={RotateCcwIcon}
+            onclick={() => {
+              const shouldReset = window.confirm(
+                "You want to reset the frame selection?",
+              );
+              if (shouldReset) gif.resetTrim();
+            }}
+          />
+        </Tooltip>
+      {/if}
       <Tooltip label={selectFrames ? "Exit select frames" : "Select frames"}>
         <Button
           icon

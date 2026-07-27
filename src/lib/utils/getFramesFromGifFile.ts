@@ -56,7 +56,6 @@ export default async function getFramesFromGifFile(
         delay: frame.delay,
         canvas: frameCanvas,
         index: frameNumber,
-        sketch: null,
         nextIndex: 0,
         prevIndex: 0,
       });

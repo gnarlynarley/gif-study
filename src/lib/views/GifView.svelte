@@ -38,11 +38,6 @@
   let navigation = $state<Point>({ x: 0, y: 0, scale: 1 });
 
   $effect(() => {
-    console.log("setting");
-    currentIndex = gif.getIndexByOffset(currentIndex, 0);
-  });
-
-  $effect(() => {
     if (!mainContainer) return;
     const border = 50;
     const scale = Math.min(

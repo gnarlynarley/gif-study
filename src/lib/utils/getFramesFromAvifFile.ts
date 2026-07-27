@@ -42,7 +42,6 @@ export default async function getFramesFromAvifFile(
       frames.push({
         canvas,
         delay,
-        sketch: null,
         width,
         height,
         index,

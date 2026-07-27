@@ -38,6 +38,7 @@
   const { width, height } = $derived(frame);
   let canvas = $state<HTMLCanvasElement | null>(null);
   const context = $derived(canvas?.getContext("2d") ?? null);
+  const sketch = $derived(gif.getSketch(frame));
 
   let cursorCanvas = $state<HTMLCanvasElement | null>(null);
   const cursorContext = $derived(cursorCanvas?.getContext("2d") ?? null);
@@ -64,8 +65,8 @@
   $effect(() => {
     if (!context) return;
     context.clearRect(0, 0, width, height);
-    if (frame.sketch) {
-      context.drawImage(frame.sketch.canvas, 0, 0);
+    if (sketch) {
+      context.drawImage(sketch.canvas, 0, 0);
     }
   });
 

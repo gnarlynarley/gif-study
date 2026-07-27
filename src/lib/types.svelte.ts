@@ -1,4 +1,4 @@
-import { SvelteSet } from "svelte/reactivity";
+import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import createCanvas from "./utils/createCanvas";
 import modulo from "./utils/modulo";
 import wrapSlice from "./utils/wrapSlice";
@@ -10,6 +10,11 @@ export type GifEntryData = {
   frames: Omit<GifEntryFrame, "prevIndex" | "nextIndex">[];
 };
 
+export type GifEntryFrameSketch = {
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
+};
+
 export type GifEntryOrder = {};
 
 export class GifEntry {
@@ -17,6 +22,7 @@ export class GifEntry {
   width: number;
   height: number;
   frames: GifEntryFrame[];
+  sketches = new SvelteMap<number, GifEntryFrameSketch>();
   trimmedFrames: GifEntryFrame[];
   trimmedFramesMap: Map<number, GifEntryFrame>;
   #frameStartIndex: number;
@@ -24,6 +30,7 @@ export class GifEntry {
   opacity = $state(1);
   backgroundColor = $state<string>("white");
   #mergeFrames = new SvelteSet();
+  isTrimmed: boolean;
 
   constructor(opts: GifEntryData) {
     this.name = $state(opts.name);
@@ -40,27 +47,27 @@ export class GifEntry {
     this.#frameStartIndex = $state(0);
     this.#frameEndIndex = $state(opts.frames.length - 1);
     this.trimmedFrames = $derived.by(() => {
-      const frameByIndex = new Map(
-        this.frames.map((frame) => [frame.index, frame]),
+      console.log("calculating trimmed frames");
+      const frameCountTotal = this.frames.length;
+      const frameByIndexArr: (GifEntryFrame | undefined)[] = new Array(
+        frameCountTotal,
       );
-      const mergeSet = this.#mergeFrames;
-
-      const orderedFrames: GifEntryFrame[] = [];
-      let currentIndex = this.#frameStartIndex;
-      while (true) {
-        const frame = frameByIndex.get(currentIndex);
-        if (!frame) {
-          throw new Error(`Frame with index ${currentIndex} not found`);
-        }
-        orderedFrames.push(frame);
-        if (currentIndex === this.#frameEndIndex) break;
-        currentIndex = frame.nextIndex;
+      for (const frame of this.frames) {
+        frameByIndexArr[frame.index] = frame;
       }
+      const mergeSet = this.#mergeFrames;
 
       const survivingFrames: GifEntryFrame[] = [];
       let carryDelay = 0;
 
-      for (const frame of orderedFrames) {
+      let currentIndex = this.#frameStartIndex;
+      const maxSteps = frameCountTotal;
+      for (let step = 0; step < maxSteps; step++) {
+        const frame = frameByIndexArr[currentIndex];
+        if (!frame) {
+          throw new Error(`Frame with index ${currentIndex} not found`);
+        }
+
         if (mergeSet.has(frame.index)) {
           if (survivingFrames.length > 0) {
             survivingFrames[survivingFrames.length - 1].delay += frame.delay;
@@ -71,6 +78,9 @@ export class GifEntry {
           survivingFrames.push({ ...frame, delay: frame.delay + carryDelay });
           carryDelay = 0;
         }
+
+        if (currentIndex === this.#frameEndIndex) break;
+        currentIndex = frame.nextIndex;
       }
 
       if (survivingFrames.length === 0) {
@@ -89,12 +99,18 @@ export class GifEntry {
         survivingFrames[i].prevIndex = prevFrame.index;
       }
 
-      survivingFrames.sort((a, b) => b.index - b.index);
+      survivingFrames.sort((a, b) => a.index - b.index);
 
       return survivingFrames;
     });
     this.trimmedFramesMap = $derived.by(() => {
       return new Map(this.trimmedFrames.map((frame) => [frame.index, frame]));
+    });
+    this.isTrimmed = $derived.by(() => {
+      if (this.#frameStartIndex !== 0) return true;
+      if (this.#frameEndIndex !== this.frames.length - 1) return true;
+      if (this.#mergeFrames.size > 0) return true;
+      return false;
     });
   }
 
@@ -106,13 +122,14 @@ export class GifEntry {
     const frame = this.frames.at(index);
     if (!frame) return;
     const { width, height } = frame;
-    if (!frame.sketch) {
+    let sketch = this.sketches.get(index);
+    if (!sketch) {
       const [canvas, context] = createCanvas(width, height);
-      frame.sketch = { canvas, context };
+      sketch = { canvas, context };
     }
-    frame.sketch.context.clearRect(0, 0, width, height);
-    frame.sketch.context.drawImage(canvas, 0, 0);
-    frame.sketch = { ...frame.sketch };
+    sketch.context.clearRect(0, 0, width, height);
+    sketch.context.drawImage(canvas, 0, 0);
+    this.sketches.set(index, sketch);
   };
 
   getIndexByOffset = (currentIndex: number, offset: 0 | 1 | -1): number => {
@@ -172,6 +189,16 @@ export class GifEntry {
     this.#frameEndIndex = index;
     this.#mergeFrames.delete(index);
   }
+
+  resetTrim() {
+    this.#mergeFrames.clear();
+    this.#frameStartIndex = 0;
+    this.#frameEndIndex = this.frames.length - 1;
+  }
+
+  getSketch({ index }: { index: number }): GifEntryFrameSketch | null {
+    return this.sketches.get(index) ?? null;
+  }
 }
 
 export type GifEntryFrame = {
@@ -180,10 +207,6 @@ export type GifEntryFrame = {
   delay: number;
   canvas: HTMLCanvasElement;
   index: number;
-  sketch: {
-    canvas: HTMLCanvasElement;
-    context: CanvasRenderingContext2D;
-  } | null;
   prevIndex: number;
   nextIndex: number;
 };

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { MouseEventHandler } from "svelte/elements";
+  import type { LucideProps } from "@lucide/svelte";
+  import type { Component } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
 
   type Props = HTMLButtonAttributes & {
-    icon?: boolean;
+    icon?: boolean | Component<LucideProps>;
     primary?: boolean;
     active?: boolean;
     label?: string;
@@ -25,7 +25,12 @@
   aria-label={label}
   {...rest}
 >
-  {@render children?.()}
+  {#if icon && typeof icon !== "boolean"}
+    {@const Icon = icon}
+    <Icon size={16} absoluteStrokeWidth />
+  {:else}
+    {@render children?.()}
+  {/if}
 </button>
 
 <style>
