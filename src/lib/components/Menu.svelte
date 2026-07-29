@@ -3,7 +3,7 @@
   import Button from "./Button.svelte";
   import { MenuIcon } from "@lucide/svelte";
   import { setMenuId } from "./Menu.context";
-  import { SMALL_ICON_SIZE } from "$lib/consts";
+  import { ICON_STROKE_WIDTH, SMALL_ICON_SIZE } from "$lib/consts";
 
   type Props = {
     children: Snippet;
@@ -17,7 +17,11 @@
 <div class="wrapper">
   <div class="icon">
     <Button icon popovertarget={id} popovertargetaction="toggle">
-      <MenuIcon size={SMALL_ICON_SIZE} absoluteStrokeWidth />
+      <MenuIcon
+        size={SMALL_ICON_SIZE}
+        absoluteStrokeWidth
+        strokeWidth={ICON_STROKE_WIDTH}
+      />
     </Button>
   </div>
 

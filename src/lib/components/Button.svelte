@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ICON_SIZE, SMALL_ICON_SIZE } from "$lib/consts";
+  import { ICON_SIZE, ICON_STROKE_WIDTH, SMALL_ICON_SIZE } from "$lib/consts";
   import type { LucideProps } from "@lucide/svelte";
   import type { Component } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
@@ -39,7 +39,11 @@
 >
   {#if icon && typeof icon !== "boolean"}
     {@const Icon = icon}
-    <Icon size={smallIcon ? SMALL_ICON_SIZE : ICON_SIZE} absoluteStrokeWidth />
+    <Icon
+      size={smallIcon ? SMALL_ICON_SIZE : ICON_SIZE}
+      absoluteStrokeWidth
+      strokeWidth={ICON_STROKE_WIDTH}
+    />
   {:else}
     {@render children?.()}
   {/if}
@@ -52,12 +56,15 @@
     background: none;
     border-radius: var(--spacing-sm);
     line-height: 1;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     background-color: var(--button-color);
-    padding: var(--spacing-lg);
     cursor: pointer;
+    padding: var(--spacing-lg);
+    line-height: 1;
+    flex-grow: 0;
+    flex-shrink: 0;
 
     &:not(.is-inline) {
       width: 100%;
@@ -70,7 +77,6 @@
     &.is-icon {
       padding: var(--spacing-sm);
       background-color: transparent;
-      aspect-ratio: 1 / 1;
       width: auto;
     }
 
@@ -89,6 +95,10 @@
 
     &:hover {
       background: color-mix(in oklch, var(--button-color), var(--color-text));
+    }
+
+    :global(svg) {
+      display: block;
     }
   }
 </style>

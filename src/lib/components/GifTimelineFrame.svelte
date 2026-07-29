@@ -49,11 +49,13 @@
   class:is-merged={isMerged}
   style:--height={TIMELINE_FRAME_HEIGHT}
   style:--canvas-zoom={zoom}
+  style:--delay={frame.delay}
 >
   {#if selectFrames}
     <div class="trim" class:is-within-trim={isWithinTrim}>
       <Button
         icon={ArrowLeftToLineIcon}
+        smallIcon
         active={isStartFrame}
         onclick={() => {
           gif.setStartFrame(frame);
@@ -61,24 +63,22 @@
       />
       {#if !isStartFrame && isWithinTrim}
         <Button
-          icon
+          icon={MergeIcon}
+          smallIcon
           active={gif.isMerge(frame)}
           onclick={() => {
             gif.toggleSkipFrame(frame);
           }}
-        >
-          <MergeIcon size="16" absoluteStrokeWidth />
-        </Button>
+        />
       {/if}
       <Button
-        icon
+        icon={ArrowRightToLineIcon}
+        smallIcon
         active={isEndFrame}
         onclick={() => {
           gif.setEndFrame(frame);
         }}
-      >
-        <ArrowRightToLineIcon size="16" absoluteStrokeWidth />
-      </Button>
+      />
     </div>
   {/if}
   <button
@@ -88,7 +88,6 @@
       ev.currentTarget.blur();
       currentIndex = frame.index;
     }}
-    style:--delay={frame.delay}
   >
     <GifFrameCanvas {frame} />
     <p class="delay">{frame.delay.toFixed(2)}</p>
@@ -101,6 +100,7 @@
     display: flex;
     flex-direction: column;
     height: calc(var(--height) * 1px);
+    min-width: calc(var(--delay) * 0.05em);
 
     &.is-merged {
       opacity: 0.5;
@@ -127,7 +127,6 @@
   }
 
   .image {
-    min-width: calc(var(--delay) * 0.05em);
     flex-shrink: 0;
     position: relative;
     background: transparent;

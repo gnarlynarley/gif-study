@@ -228,14 +228,16 @@
     background-color: var(--color-background);
     border-top: 1px solid var(--color-accent);
     display: flex;
+    padding-inline: var(--spacing-sm);
   }
 
   .frame {
     border: 1px solid var(--color-accent);
     border-radius: var(--spacing-sm);
+    width: min-content;
 
     &:not(:first-child) {
-      margin-left: var(--spacing-sm);
+      padding-left: var(--spacing-sm);
     }
   }
 
