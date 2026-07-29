@@ -14,6 +14,7 @@
   import { settings } from "$lib/stores/settings.svelte";
   import normalizeKey from "$lib/utils/normalizeKey";
   import Button from "./Button.svelte";
+  import ColorPicker from "./ColorPicker.svelte";
 
   type Props = {
     playing: boolean;
@@ -21,7 +22,6 @@
     opacity: number;
     brushSize: number;
     eraserSize: number;
-    colorPickerActive: boolean;
     color: string;
     unionSkinActive: boolean;
   };
@@ -39,9 +39,8 @@
     opacity = $bindable(),
     brushSize = $bindable(),
     eraserSize = $bindable(),
-    colorPickerActive = $bindable(),
     unionSkinActive = $bindable(),
-    color,
+    color = $bindable(),
   }: Props = $props();
 
   function togglePlaying() {
@@ -92,53 +91,32 @@
   <Tooltip
     label={`${playing ? "Pause" : "Play"} (${$settings.keybinds.togglePlaying})`}
   >
-    <Button icon onclick={togglePlaying}>
-      {#if playing}
-        <PauseIcon />
-      {:else}
-        <PlayIcon />
-      {/if}
-    </Button>
+    <Button icon={playing ? PauseIcon : PlayIcon} onclick={togglePlaying} />
   </Tooltip>
 
   <div class="divider"></div>
 
   <Tooltip label={`Brush tool (${$settings.keybinds.brush})`}>
     <Button
-      icon
+      icon={BrushIcon}
       active={tool === "brush"}
       onclick={() => {
         tool = "brush";
       }}
-    >
-      <BrushIcon />
-    </Button>
+    />
   </Tooltip>
 
   <Tooltip label={`Eraser tool (${$settings.keybinds.eraser})`}>
     <Button
-      icon
+      icon={EraserIcon}
       active={tool === "eraser"}
       onclick={() => {
         tool = "eraser";
       }}
-    >
-      <EraserIcon />
-    </Button>
+    />
   </Tooltip>
 
-  <Tooltip label={`Toggle color picker`}>
-    <Button
-      icon
-      active={colorPickerActive}
-      onclick={() => {
-        colorPickerActive = !colorPickerActive;
-      }}
-      label="Toggle colorpicker"
-    >
-      <div class="color-swatch" style:--color={color}></div>
-    </Button>
-  </Tooltip>
+  <ColorPicker bind:color />
 
   {#if tool === "brush"}
     <Tooltip label="Brush size">
@@ -171,30 +149,26 @@
 
   <Tooltip label="Toggle union skin">
     <Button
-      icon
+      icon={BlendIcon}
       active={unionSkinActive}
       onclick={() => {
         unionSkinActive = !unionSkinActive;
       }}
-    >
-      <BlendIcon />
-    </Button>
+    />
   </Tooltip>
 
   <div class="divider"></div>
 
   <Tooltip label="Exit">
     <Button
-      icon
+      icon={DoorOpenIcon}
       onclick={() => {
         const clear = window.confirm("Do you want to exit?");
         if (clear) {
           unloadGif();
         }
       }}
-    >
-      <DoorOpenIcon />
-    </Button>
+    />
   </Tooltip>
 </div>
 
@@ -208,14 +182,6 @@
     border-radius: 3px;
     backdrop-filter: blur(8px);
     box-shadow: 1px 2px 8px hsl(from black h s l / 0.1);
-  }
-
-  .color-swatch {
-    background-color: var(--color);
-    display: block;
-    aspect-ratio: 1 / 1;
-    width: 24px;
-    border-radius: 2px;
   }
 
   .divider {

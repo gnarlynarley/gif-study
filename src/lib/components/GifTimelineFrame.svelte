@@ -11,7 +11,6 @@
   type Props = {
     gif: GifEntry;
     frame: GifEntryFrame;
-    playing: boolean;
     currentIndex: number;
     selectFrames: boolean;
   };
@@ -21,7 +20,6 @@
     frame,
     currentIndex = $bindable(),
     selectFrames,
-    playing,
   }: Props = $props();
   let isActive = $derived(currentIndex === frame.index);
   let element = $state<HTMLElement | null>(null);
@@ -33,7 +31,6 @@
   $effect(() => {
     if (!isActive) return;
     if (!element) return;
-    if (!playing) return;
     if (selectFrames) return;
     element.scrollIntoView({
       behavior: "instant",

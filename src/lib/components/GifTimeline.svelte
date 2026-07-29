@@ -135,14 +135,13 @@
       {/if}
       <Tooltip label={selectFrames ? "Exit select frames" : "Select frames"}>
         <Button
-          icon
+          icon={ChevronsLeftRightEllipsisIcon}
+          smallIcon
           active={selectFrames}
           onclick={() => {
             selectFrames = !selectFrames;
           }}
-        >
-          <ChevronsLeftRightEllipsisIcon size={16} absoluteStrokeWidth />
-        </Button>
+        />
       </Tooltip>
 
       <Menu>
@@ -167,24 +166,22 @@
 
       <Tooltip label="Hide timeline">
         <Button
-          icon
+          icon={ChevronDownIcon}
+          smallIcon
           onclick={() => {
             showFrames = false;
           }}
-        >
-          <ChevronDownIcon size={16} absoluteStrokeWidth />
-        </Button>
+        />
       </Tooltip>
     {:else}
       <Tooltip label="Hide timeline">
         <Button
-          icon
+          icon={ChevronUpIcon}
+          smallIcon
           onclick={() => {
             showFrames = true;
           }}
-        >
-          <ChevronUpIcon size={16} absoluteStrokeWidth />
-        </Button>
+        />
       </Tooltip>
     {/if}
   </div>
@@ -196,7 +193,6 @@
             <GifTimelineFrame
               bind:gif
               {frame}
-              {playing}
               bind:currentIndex
               {selectFrames}
             />

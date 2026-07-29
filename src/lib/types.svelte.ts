@@ -47,7 +47,6 @@ export class GifEntry {
     this.#frameStartIndex = $state(0);
     this.#frameEndIndex = $state(opts.frames.length - 1);
     this.trimmedFrames = $derived.by(() => {
-      console.log("calculating trimmed frames");
       const frameCountTotal = this.frames.length;
       const frameByIndexArr: (GifEntryFrame | undefined)[] = new Array(
         frameCountTotal,

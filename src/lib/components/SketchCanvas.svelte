@@ -148,9 +148,11 @@
 
   const onpointerup = (ev: PointerEvent) => {
     if (!wrapperElement) return;
+    if (pointerActive) {
+      gif.updateFrameSketch(canvas, frame);
+    }
     pointerActive = false;
     lastPoint = null;
-    gif.updateFrameSketch(canvas, frame);
     wrapperElement.releasePointerCapture(ev.pointerId);
   };
 

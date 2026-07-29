@@ -21,6 +21,7 @@
   --color-foreground: light-dark(white, #222222);
   --color-accent: light-dark(#cfcfcf, #2b2b2b);
   --color-error: light-dark(#ff7070, #871717);
+  --shadow: 0 2px 5px rgba(0 0 0 / 0.2);
 
   accent-color: var(--color-primary);
 }

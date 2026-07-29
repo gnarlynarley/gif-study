@@ -83,6 +83,7 @@
     border-radius: var(--spacing);
     width: 100%;
     background-color: var(--color-foreground);
+    box-shadow: var(--shadow);
 
     &:not(.is-wide) {
       max-width: 30em;
@@ -93,7 +94,7 @@
     }
 
     &::backdrop {
-      background: hsl(from var(--color-background) h s l / 0.9);
+      background: hsl(from var(--color-background) h s l / 0.8);
       backdrop-filter: blur(10px);
     }
 
@@ -113,6 +114,11 @@
     display: flex;
     justify-content: space-between;
     gap: var(--spacing);
-    background-color: var(--color-accent);
+    padding: var(--spacing);
+    background-color: color-mix(
+      in oklab,
+      var(--color-accent) 20%,
+      var(--color-foreground)
+    );
   }
 </style>

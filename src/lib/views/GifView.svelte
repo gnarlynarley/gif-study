@@ -9,7 +9,6 @@
   import normalizeKey from "$lib/utils/normalizeKey";
   import styleString from "$lib/utils/styleString";
   import { GifEntry, type Point, type SketchTool } from "../types.svelte";
-  import ColorPicker, { ChromeVariant } from "svelte-awesome-color-picker";
 
   type Props = {
     gif: GifEntry;
@@ -30,7 +29,6 @@
   let eraserSize = $state(20);
   let tool = $state<SketchTool>("brush");
   let color = $state("#000000");
-  let colorPickerActive = $state(false);
   let unionSkinActive = $state(true);
   let panningKeyActive = $state(false);
   let pointerActive = $state(false);
@@ -157,9 +155,8 @@
         bind:tool
         bind:brushSize
         bind:eraserSize
-        bind:colorPickerActive
         bind:unionSkinActive
-        {color}
+        bind:color
       />
     </div>
     <div
@@ -205,18 +202,6 @@
         {/if}
       </div>
     </div>
-    {#if colorPickerActive}
-      <div class="color">
-        <ColorPicker
-          bind:hex={color}
-          components={ChromeVariant}
-          sliderDirection="horizontal"
-          isDialog={false}
-          isAlpha={false}
-          isTextInput={false}
-        />
-      </div>
-    {/if}
   </div>
   <div class="timeline">
     <GifTimeline bind:playing bind:gif bind:currentIndex />
@@ -239,20 +224,6 @@
     align-items: center;
     height: 100%;
     margin-left: var(--spacing);
-  }
-
-  .color {
-    --cp-bg-color: var(--color-accent);
-    position: absolute;
-    bottom: var(--spacing);
-    right: var(--spacing);
-    background-color: hsl(from var(--color-accent) h s l / 0.8);
-    padding: var(--spacing);
-    border-radius: 12px;
-
-    :global(> span > div) {
-      margin: 0;
-    }
   }
 
   .main {

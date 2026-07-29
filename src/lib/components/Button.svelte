@@ -1,18 +1,30 @@
 <script lang="ts">
+  import { ICON_SIZE, SMALL_ICON_SIZE } from "$lib/consts";
   import type { LucideProps } from "@lucide/svelte";
   import type { Component } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
 
   type Props = HTMLButtonAttributes & {
     icon?: boolean | Component<LucideProps>;
+    smallIcon?: boolean;
     primary?: boolean;
+    transparent?: boolean;
     active?: boolean;
     label?: string;
     inline?: boolean;
   };
 
-  const { primary, active, children, label, icon, inline, ...rest }: Props =
-    $props();
+  const {
+    primary,
+    transparent,
+    active,
+    children,
+    label,
+    icon,
+    smallIcon,
+    inline,
+    ...rest
+  }: Props = $props();
 </script>
 
 <button
@@ -27,7 +39,7 @@
 >
   {#if icon && typeof icon !== "boolean"}
     {@const Icon = icon}
-    <Icon size={16} absoluteStrokeWidth />
+    <Icon size={smallIcon ? SMALL_ICON_SIZE : ICON_SIZE} absoluteStrokeWidth />
   {:else}
     {@render children?.()}
   {/if}
