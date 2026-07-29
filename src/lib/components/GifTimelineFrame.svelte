@@ -7,6 +7,7 @@
     ArrowRightToLineIcon,
     MergeIcon,
   } from "@lucide/svelte";
+  import { TIMELINE_FRAME_HEIGHT } from "$lib/consts";
 
   type Props = {
     gif: GifEntry;
@@ -27,6 +28,7 @@
   let isMerged = $derived(gif.isMerge(frame));
   const isStartFrame = $derived(gif.isStartFrame(frame));
   const isEndFrame = $derived(gif.isEndFrame(frame));
+  const zoom = $derived(TIMELINE_FRAME_HEIGHT / gif.height);
 
   $effect(() => {
     if (!isActive) return;
@@ -45,6 +47,8 @@
   class="wrapper"
   class:is-active={isActive}
   class:is-merged={isMerged}
+  style:--height={TIMELINE_FRAME_HEIGHT}
+  style:--canvas-zoom={zoom}
 >
   {#if selectFrames}
     <div class="trim" class:is-within-trim={isWithinTrim}>
@@ -96,7 +100,7 @@
   .wrapper {
     display: flex;
     flex-direction: column;
-    height: 5em;
+    height: calc(var(--height) * 1px);
 
     &.is-merged {
       opacity: 0.5;
@@ -130,14 +134,15 @@
     border: 1px solid transparent;
     flex-grow: 1;
     width: 100%;
+    overflow: hidden;
 
     :global(canvas) {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+      top: 50%;
+      left: 50%;
+      /* transform-origin: top left; */
+      translate: -50% -50%;
+      scale: var(--canvas-zoom) var(--canvas-zoom);
     }
 
     &::after {

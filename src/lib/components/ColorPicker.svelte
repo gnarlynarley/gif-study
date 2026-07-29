@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ICON_SIZE } from "$lib/consts";
+  import isDarkColor from "$lib/utils/isDarkColor";
   import Button from "./Button.svelte";
   import Tooltip from "./Tooltip.svelte";
   import AwesomeColorPicker, {
@@ -11,10 +12,11 @@
   };
 
   let { color = $bindable() }: Props = $props();
+  const isDark = $derived(isDarkColor(color));
   const id = $props.id();
 </script>
 
-<div class="wrapper" style:--size={ICON_SIZE}>
+<div class="wrapper" class:is-dark={isDark} style:--size={ICON_SIZE}>
   <div class="anchor">
     <Tooltip label={`Toggle color picker`}>
       <Button
@@ -54,11 +56,17 @@
   }
 
   .color-swatch {
+    --border-color: black;
     background-color: var(--color);
     display: block;
     aspect-ratio: 1 / 1;
     width: var(--size);
     border-radius: 4px;
+    border: 1px solid color-mix(in srgb, var(--border-color), transparent);
+
+    .is-dark & {
+      --border-color: white;
+    }
   }
 
   .picker {

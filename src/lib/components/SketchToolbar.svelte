@@ -175,7 +175,8 @@
 <style>
   .wrapper {
     display: grid;
-    background: hsl(from var(--color-accent) h s l / 0.8);
+    background: hsl(from var(--color-background) h s l / 0.8);
+    border: var(--color-accent) 1px solid;
     padding: var(--spacing);
     gap: var(--spacing);
     justify-items: center;
