@@ -9,6 +9,10 @@
     DownloadIcon,
     VideoIcon,
     RotateCcwIcon,
+    PlayIcon,
+    PauseIcon,
+    SkipBackIcon,
+    SkipForwardIcon,
   } from "@lucide/svelte";
   import Tooltip from "./Tooltip.svelte";
   import exportFrames from "$lib/utils/exportFrames";
@@ -26,12 +30,16 @@
     gif: GifEntry;
     currentIndex: number;
     playing: boolean;
+    onPrevious: () => void;
+    onNext: () => void;
   };
 
   let {
     gif = $bindable(),
     currentIndex = $bindable(),
     playing = $bindable(),
+    onPrevious,
+    onNext,
   }: Props = $props();
   let selectFrames = $state(false);
   let showFrames = $state(true);
@@ -49,6 +57,10 @@
       abortExport();
     });
     return exportAbortController;
+  }
+
+  function togglePlaying() {
+    playing = !playing;
   }
 
   function openExportDialog() {
@@ -118,12 +130,22 @@
 {/if}
 
 <div class="wrapper" class:is-selecting={selectFrames}>
+  <div class="controls">
+    <Button smallIcon icon={SkipBackIcon} onclick={onPrevious} />
+    <Button
+      smallIcon
+      icon={playing ? PauseIcon : PlayIcon}
+      onclick={togglePlaying}
+    />
+    <Button smallIcon icon={SkipForwardIcon} onclick={onNext} />
+  </div>
   <div class="options">
     {#if showFrames}
       {#if selectFrames && gif.isTrimmed}
         <Tooltip label="Clear frame selection">
           <Button
             icon={RotateCcwIcon}
+            smallIcon
             onclick={() => {
               const shouldReset = window.confirm(
                 "You want to reset the frame selection?",
@@ -209,15 +231,26 @@
     width: 100dvw;
   }
 
+  .controls,
   .options {
     position: absolute;
     bottom: 100%;
-    right: 0;
-    background: hsl(from var(--color-accent) h s l / 0.6);
+    /* z-index: 1; */
+    background: hsl(from var(--color-accent) h s l / 0.8);
     padding: var(--spacing);
-    border-top-left-radius: var(--spacing);
     display: flex;
     gap: var(--spacing-sm);
+    backdrop-filter: blur(6px);
+  }
+
+  .controls {
+    border-top-right-radius: var(--spacing);
+    left: 0;
+  }
+
+  .options {
+    border-top-left-radius: var(--spacing);
+    right: 0;
   }
 
   .frames {
@@ -237,7 +270,7 @@
     width: min-content;
 
     &:not(:first-child) {
-      padding-left: var(--spacing-sm);
+      margin-left: var(--spacing-sm);
     }
   }
 

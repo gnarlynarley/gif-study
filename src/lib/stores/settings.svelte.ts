@@ -11,5 +11,6 @@ export const settings = writable<Settings>({
     increaseBrushSize: "w",
     decreaseBrushSize: "s",
     panning: "space",
+    resetNavigation: "r",
   },
 });

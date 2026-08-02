@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
+  const TOOLTIP_DELAY = 300;
+
   type Props = {
     label: string;
     children: Snippet;
@@ -9,48 +11,50 @@
   const { label, children }: Props = $props();
   const id = $props.id();
   const anchorId = `--${id}`;
+  let tooltip = $state<HTMLDivElement | null>(null);
+
+  let timeoutId: number | null = null;
+  function onpointerenter() {
+    timeoutId = setTimeout(() => {
+      tooltip?.showPopover();
+    }, TOOLTIP_DELAY);
+  }
+  function onpointerleave() {
+    tooltip?.hidePopover();
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = null;
+  }
 </script>
 
-<div class="wrapper" style={`--anchor-id: ${anchorId}`}>
+<div
+  role="tooltip"
+  class="wrapper"
+  style={`--anchor-id: ${anchorId}`}
+  {onpointerenter}
+  {onpointerleave}
+>
   {@render children()}
-  <div class="tooltip">{label}</div>
+  <div bind:this={tooltip} class="tooltip" popover="hint">{label}</div>
 </div>
 
 <style>
   .wrapper {
-    anchor-name: var(--anchor-id);
+    anchor-scope: --tooltip-anchor;
+    anchor-name: --tooltip-anchor;
   }
 
   .tooltip {
     position: fixed;
-    position-anchor: var(--anchor-id);
+    position-anchor: --tooltip-anchor;
     position-visibility: always;
-    position-try-fallbacks: flip-block;
     position-area: bottom;
     white-space: nowrap;
+    width: max-content;
     background: var(--color-accent);
     padding: var(--spacing-sm);
     border-radius: var(--spacing-sm);
-    margin-block: var(--spacing-sm);
-    z-index: 9999;
-    animation: show forwards linear 300ms;
+    margin: var(--spacing-sm);
     pointer-events: none;
-
-    .wrapper:not(:hover) & {
-      display: none;
-      opacity: 0;
-    }
-  }
-
-  @keyframes show {
-    0%,
-    50% {
-      opacity: 0;
-      scale: 0.95;
-    }
-    100% {
-      opacity: 1;
-      scale: none;
-    }
+    border: none;
   }
 </style>

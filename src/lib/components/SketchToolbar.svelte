@@ -5,8 +5,6 @@
   import {
     BrushIcon,
     EraserIcon,
-    PlayIcon,
-    PauseIcon,
     DoorOpenIcon,
     BlendIcon,
   } from "@lucide/svelte";
@@ -88,14 +86,6 @@
 <svelte:window {onkeydown} />
 
 <div class="wrapper">
-  <Tooltip
-    label={`${playing ? "Pause" : "Play"} (${$settings.keybinds.togglePlaying})`}
-  >
-    <Button icon={playing ? PauseIcon : PlayIcon} onclick={togglePlaying} />
-  </Tooltip>
-
-  <div class="divider"></div>
-
   <Tooltip label={`Brush tool (${$settings.keybinds.brush})`}>
     <Button
       icon={BrushIcon}

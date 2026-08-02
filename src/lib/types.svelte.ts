@@ -195,7 +195,13 @@ export class GifEntry {
     this.#frameEndIndex = this.frames.length - 1;
   }
 
-  getSketch({ index }: { index: number }): GifEntryFrameSketch | null {
+  hasSketch({ index }: Pick<GifEntryFrame, "index">): boolean {
+    return !!this.getSketch({ index });
+  }
+
+  getSketch({
+    index,
+  }: Pick<GifEntryFrame, "index">): GifEntryFrameSketch | null {
     return this.sketches.get(index) ?? null;
   }
 }
@@ -224,5 +230,6 @@ export type Settings = {
     increaseBrushSize: string;
     decreaseBrushSize: string;
     panning: string;
+    resetNavigation: string;
   };
 };

@@ -35,7 +35,7 @@
   let panningActive = $derived(panningKeyActive && pointerActive);
   let navigation = $state<Point>({ x: 0, y: 0, scale: 1 });
 
-  $effect(() => {
+  function resetNavigation() {
     if (!mainContainer) return;
     const border = 50;
     const scale = Math.min(
@@ -45,6 +45,10 @@
     navigation.x = (mainContainer.clientWidth - width) * 0.5;
     navigation.y = (mainContainer.clientHeight - height) * 0.5;
     navigation.scale = scale;
+  }
+
+  $effect(() => {
+    resetNavigation();
   });
 
   $effect(() => {
@@ -85,20 +89,30 @@
   let initialNavigation: Point = { ...DEFAULT_POINT };
   let initial: Point = { ...DEFAULT_POINT };
 
+  function prevFrame() {
+    currentIndex = gif.getIndexByOffset(currentIndex, -1);
+  }
+  function nextFrame() {
+    currentIndex = gif.getIndexByOffset(currentIndex, 1);
+  }
+
   function onkeydown(ev: KeyboardEvent) {
     switch (normalizeKey(ev.key)) {
       case $settings.keybinds.prevFrame: {
-        currentIndex = gif.getIndexByOffset(currentIndex, -1);
+        prevFrame();
         break;
       }
       case $settings.keybinds.nextFrame: {
-        currentIndex = gif.getIndexByOffset(currentIndex, 1);
+        nextFrame();
         break;
       }
       case $settings.keybinds.panning: {
         if (!panningKeyActive) {
           panningKeyActive = true;
         }
+      }
+      case $settings.keybinds.resetNavigation: {
+        resetNavigation();
       }
     }
   }
@@ -204,7 +218,13 @@
     </div>
   </div>
   <div class="timeline">
-    <GifTimeline bind:playing bind:gif bind:currentIndex />
+    <GifTimeline
+      bind:playing
+      bind:gif
+      bind:currentIndex
+      onPrevious={prevFrame}
+      onNext={nextFrame}
+    />
   </div>
 </div>
 
@@ -256,5 +276,8 @@
     scale: var(--scale);
     transform-origin: center center;
     border: 1px solid var(--color-accent);
+  }
+
+  .timeline {
   }
 </style>
